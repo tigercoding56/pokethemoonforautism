@@ -3,11 +3,9 @@ import PIL
 from PIL import Image
 import time
 import ptext
-import enemies
 from xmap import *
-import pygame_gui
+import enemies as btle
 pygame.init()
-#manager = pygame_gui.UIManager((320, 320))
 X = 320
 Y = 320
 pygame.key.set_repeat(250)
@@ -118,16 +116,12 @@ def interact():
     global cmap,camx,camy
     print(cmap.gettile(camx,camy))
 def main():
-    global mycam,camx,drawsys,camy,frametime,cmap, #manager
+    global mycam,camx,drawsys,camy,frametime,cmap
     mycam.move(camx,camy)
     frametime = frametime + 1 % 20
     mycam.run()
     time.sleep(0.05)
     drawsys.render(mycam,cmap,frametime)
-    ## code for ui can go here:
-    
-    #manager.draw_ui(window_surface)
-    #
     ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
     pygame.display.update()
     for event in pygame.event.get():  
