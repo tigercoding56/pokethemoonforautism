@@ -3,12 +3,30 @@ import PIL
 from PIL import Image
 import time
 import ptext
+import pqGUI as agui
+from pqGUI import App 
 from xmap import *
-import enemies as btle
 pygame.init()
 X = 320
 Y = 320
 pygame.key.set_repeat(250)
+
+class UIAPP(App):
+    def __init__(self):
+        super().__init__()
+        
+        agui.Scene(caption=' the legend of tuxemon ')
+        #agui.Text('Scene 0')
+        #agui.Text('Introduction screen the app')
+
+        
+        App.scene = App.scenes[0]
+
+
+
+UI1 = UIAPP()
+
+
 
 class text():
     def __init__():
@@ -111,19 +129,22 @@ mycam.tp(218,40)
 camx = 218
 camy = 21
 frametime = 0
-
+drawsys.screen = UI1.screen
 def interact():
     global cmap,camx,camy
     print(cmap.gettile(camx,camy))
 def main():
-    global mycam,camx,drawsys,camy,frametime,cmap
+    global mycam,camx,drawsys,camy,frametime,cmap,UI1
     mycam.move(camx,camy)
     frametime = frametime + 1 % 20
     mycam.run()
     time.sleep(0.05)
     drawsys.render(mycam,cmap,frametime)
+    UI1.run()
     ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
     pygame.display.update()
+    pokeinteraction = 0
+    pokelevel = 0
     for event in pygame.event.get():  
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -132,6 +153,7 @@ def main():
             keyeventlist = [0,0,0,0]
             camerax = camx
             cameray = camy
+            UI1.do_shortcut(event)
             if event.key == pygame.K_RIGHT:
                 keyeventlist[1] = 1
             elif event.key == pygame.K_LEFT:
@@ -152,21 +174,36 @@ def main():
                 keyeventlist[3] = 1
             elif event.key == pygame.K_d:
                 keyeventlist[1] = 1
-
+            nexttile = 0
             if keyeventlist == [1,0,0,0]:
                 if cmap.gettile(camx -1,camy,4) == 1:
+                    nexttile = cmap.gettile(camx -1,camy,1)
                     camerax = camerax - 1
+                    
             elif keyeventlist == [0,0,1,0]:
                 if cmap.gettile(camx,camy-1,4) == 1:
+                    nexttile = cmap.gettile(camx,camy-1,1)
                     cameray = cameray - 1
+                    
             elif keyeventlist == [0,0,0,1]:
                 if cmap.gettile(camx,camy+1,4) == 1:
+                    nexttile = cmap.gettile(camx,camy+1,1)
                     cameray = cameray + 1
+                    
             elif keyeventlist == [0,1,0,0]:
                 if cmap.gettile(camx +1,camy,4) == 1:
+                    nexttile =  cmap.gettile(camx +1,camy,1)
                     camerax = camerax + 1
+            if  nexttile != 0:
+                print(nexttile)
+                if nexttile.attributes[1] > 0:
+                    pokeinteraction = nexttile.attributes[1]
+                    pokelevel = nexttile.attributes[2]
             camx = camerax
             camy = cameray
+        else:
+            UI1.scene.do_event(event)
+
             
 
   

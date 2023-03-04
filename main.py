@@ -1,13 +1,14 @@
 import asyncio, pygame, PIL
 import libraries
+#import micropip
 
-
+#asyncio.run( micropip.install("https://github.com/tigercoding56/pygbag-costum-wheels/blob/main/pygame_gui-0.6.8-py3-none-any.whl?raw=true",deps=False))
 # Do init here and load any assets right now to avoid lag at runtime or network errors.
 
 
 async def main():
     global libraries
-
+	
     while True:
 
         # Do your rendering here, note that it's NOT an infinite loop,

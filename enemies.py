@@ -9,7 +9,11 @@ powers = {
 "stone":[1,0.9,1.4,1,1.9,0.7,1.6],
 "technology":[2,0.4,1.6,1,1.4,0.7,1] 
 }
+
+pokemonnames = ['Wallapod-a', 'shelby-s', 'glaze-w', 'spout-t', 'Gambroon-s', 'Wellee-p', 'Rapidash-t', 'Heatran-f', 'stoney-p', 'battera-t', 'doggy-p', 'mushroling-p', 'Flareon-s', 'Quilombo-p', 'Desk-t', 'splashycorn', 'icebird', 'jelly-p', 'Olystail-p', 'Scyther-p', 'Geocrawl-s', 'crisp-f', 'foxy-p', 'stonegolem-s', 'catleaf-p', 'flevilop', 'Volcanion-f', 'Senectitude-t', 'Phantasm-a', 'woofle-i']
 import random
+pokemons = []
+
 class arena():
     def __init__(self,pk1,pk2):
         self.ani1 = 0
@@ -21,7 +25,6 @@ class attack():
         global powers
         self.name = str(name)
         random.seed(str(name) + str(ptype) + "1028")
-        self.type = ptype
         if auto == True:
             levelr = random.randint(0,5)
             cost= random.randint(1,100)
@@ -40,7 +43,7 @@ class attack():
                 strengthmap = []
                 sa = 0
                 for i in etp:
-                    x = (random.randint(0,int(4 * levelr)) * 0.1)
+                    x = random.randint(0,0.4 * levelr)
                     sa = sa + x
                     strengthmap.append( x+ i)
                 if (sa/8 > (avg - 0.4) and sa < (avg + 0.4)) or (tries > 100):
@@ -50,7 +53,7 @@ class attack():
         self.strength = strengthmap
         self.levelr = levelr
         self.cost = cost
-
+        self.type = ptype
         
         def calc(self,enemy):
             global powers
@@ -60,7 +63,7 @@ class attack():
             
 
  
-        
+random.seed(1)    
 pattacks = ["leaf age","jungle fire"," overgrowth","Petal Storm"," Grassy slide","Razor leaf","Seed Flare","Solar Beam","Trailblaze"," photosynthesis"," Magical forest"," flower power"," Vine flow","Bloom Doom","Sun's Energy","wooden bridge","breath of the wild"]
 wattacks = ["trillion waves","Dive","tsunami"," wavy blast","Splishy Splash"," Surf","Waterfall ","Whirlpool","Soak","Oceanic Orchester "," symphony of the seas","Odyssea","Hydroflash","bubble beam","bouncy bubble","alure of the sea's"," kraken's dinner","lakeside"]
 alienattacks = ["meteorite"," thousand stars"," starfall","moonrise","interstellar"," slimy suprise","ufo attack","endless skyes","world of Illuma","Hyperspeed","infinity and beyond","alienated","free worlds","galactica","supernova","starfield","void","planetary plummet "]
@@ -90,7 +93,8 @@ class pokemon():
         self.bns = []
         for i in range(1,9):
             self.bns.append(random.randint(0,0.2))
-        self.img =  pygame.image.load('img/creatures/'+str(img) + str(i)+'.png')
+        if not autogen == True:
+            self.img =  pygame.image.load('img/creatures/'+str(img) + str(i)+'.png')
     def calcdamage(enemy,attack):
         global powers      
         try:
@@ -109,7 +113,37 @@ class pokemon():
             else:
                 screen.blit(self.img, (190 + arena.ani2, 120))
             
-
+def loadp():
+    global pokemonnames, pokemons, allattacks
+    for i in pokemonnames:
+        ptype = "plant"
+        if i.endswith("t"):
+            ptype = "technology"
+        if i.endswith("i"):
+            ptype = "ice"
+        if i.endswith("s"):
+            ptype = "stone"
+        if i.endswith("f"):
+            ptype = "fire"
+        if i.endswith("a"):
+            ptype = "alien"
+        if i.endswith("w"):
+            ptype = "water"
+        handledpokemon = pokemon(i,ptype,True)
+        handledpokemon.name = i[:-2]
+        handledpokemon.img =  pygame.image.load('img/crt/'+str(i) +'.png')
+        handledpokemon.bns = []
+        handledpokemon.attacks = []
+        t = False
+        while t == False:
+            for i in allattacks:
+                if i.type == ptype:
+                    if i.levelr < 2 and random.randint(0,1) == 1:
+                        handledpokemon.attacks.append(i)
+                        if len(handledpokemon.attacks) > 2:
+                            t = True
+                        
+        pokemons.append(handledpokemon)
 def display(surface):
         i = 130
         pygame.draw.polygon(surface,(0,0,0),[(0,0),(i,0),(i + (overlap * 0.5) + 51,Y-height),(0,Y-height)],0)
@@ -123,3 +157,5 @@ def transition(surface):
         pygame.draw.polygon(surface,(55,55,110),[(0,320),(0,Y-(i*0.7692307692307693)),(320,Y-(i*0.7692307692307693)),(320,320)],0)
         pygame.display.flip()
         time.sleep(0.01)
+        
+loadp()
