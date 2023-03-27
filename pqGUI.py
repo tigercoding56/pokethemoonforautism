@@ -21,7 +21,7 @@ A Node object has the following properties
 - visible: is drawn
 - has focus
 Debug
-- print events to console (cmd+E)
+- xiprint events to console (cmd+E)
 - display node label (cmd+L)
 - display outline (cmd+O)
 """
@@ -30,7 +30,7 @@ import copy
 import inspect
 import os
 import sys
-
+elementriev = ""
 import numpy as np
 import pygame
 from pygame.locals import *
@@ -41,7 +41,12 @@ DBG_OUTLINE = 4
 
 DBL_CLICK_TIMER = pygame.USEREVENT
 DBL_CLICK_TIMEOUT = 200
-
+DEBUG = 0
+def xiprint(a1="",a2="",a3="",a4="",**args):
+    global DEBUG
+    if DEBUG ==1:
+       print(a1)
+       print(a2)
 class App:
     """Create a single-window app with multiple scenes having multiple objects."""
     scenes = []     # scene list
@@ -62,6 +67,7 @@ class App:
         self.rect = Rect(0, 0, *size)
         App.screen = pygame.display.set_mode(self.rect.size, self.flags)
         App.root = self
+        self.flags = ""
         
         self.shortcuts = {
             (K_ESCAPE, KMOD_NONE): 'App.running=True',
@@ -83,16 +89,16 @@ class App:
 #             (K_r, KMOD_LCTRL): 'Rectangle(pos=pygame.mouse.get_pos(), size=(100, 60))',
 #             (K_t, KMOD_LCTRL): 'Text(pos=pygame.mouse.get_pos())',
 # 
-#             (K_x, KMOD_LMETA): 'print("cmd+X")',
-#             (K_x, KMOD_LALT): 'print("alt+X")',
-#             (K_x, KMOD_LCTRL): 'print("ctrl+X")',
-#             (K_x, KMOD_LMETA + KMOD_LSHIFT): 'print("cmd+shift+X")',
-#             (K_x, KMOD_LMETA + KMOD_LALT): 'print("cmd+alt+X")',
-#             (K_x, KMOD_LMETA + KMOD_LALT + KMOD_LSHIFT): 'print("cmd+alt+shift+X")',
+#             (K_x, KMOD_LMETA): 'xiprint("cmd+X")',
+#             (K_x, KMOD_LALT): 'xiprint("alt+X")',
+#             (K_x, KMOD_LCTRL): 'xiprint("ctrl+X")',
+#             (K_x, KMOD_LMETA + KMOD_LSHIFT): 'xiprint("cmd+shift+X")',
+#             (K_x, KMOD_LMETA + KMOD_LALT): 'xiprint("cmd+alt+X")',
+#             (K_x, KMOD_LMETA + KMOD_LALT + KMOD_LSHIFT): 'xiprint("cmd+alt+shift+X")',
 #             
-#             (K_x, KMOD_LMETA): 'App.scene.cut()',
-#             (K_c, KMOD_LMETA): 'App.scene.copy()',
-#             (K_v, KMOD_LMETA): 'App.scene.paste()',
+             (K_x, KMOD_LMETA): 'App.scene.cut()',
+             (K_c, KMOD_LMETA): 'App.scene.copy()',
+             (K_v, KMOD_LMETA): 'App.scene.paste()',
 # 
 #             (K_e, KMOD_LMETA): 'App.debug ^= DBG_EVENTS',
 #             (K_l, KMOD_LMETA): 'App.debug ^= DBG_LABELS',
@@ -265,14 +271,13 @@ class Scene:
         col, d = Scene.selection_border
         #pygame.draw.rect(App.screen, col, self.selection_rect, d)
         #App.screen.blit(self.status_img, self.status_rect)
-        
-        pygame.display.flip()
+        #pygame.display.flip()
 
     def do_event(self, event):
         """Handle the events of the scene."""
         mods = pygame.key.get_mods()
         if App.debug & DBG_EVENTS:
-            print(event)
+            xiprint(event)
             self.set_status(str(event))
 
         if event.type == KEYDOWN:
@@ -334,7 +339,7 @@ class Scene:
 
         elif event.type == DBL_CLICK_TIMER:
             pygame.time.set_timer(DBL_CLICK_TIMER, 0)
-            print(self.clicks, 'clicks in', self.focus)
+            xiprint(self.clicks, 'clicks in', self.focus)
             
             if self.focus:
                 if self.clicks == 2:
@@ -370,7 +375,7 @@ class Scene:
 
     def paste(self):
         """Pastes the objects from App.selection."""
-        print('paste')
+        xiprint('paste')
         # obj = App.focus
         # obj2 = eval(type(obj).__name__+'()')
         # obj2.rect = obj.rect.copy()
@@ -380,11 +385,11 @@ class Scene:
         # self.nodes.append(obj2)
 
     def debug(self):
-        """Print all scene/node options."""
+        """xiprint all scene/node options."""
         obj = self.focus if self.focus else self
-        print('===', obj, '===')
+        xiprint('===', obj, '===')
         for k, v in obj.__dict__.items():
-            print(k, '=', v)
+            xiprint(k, '=', v)
 
     def __str__(self):
         return f'Scene{self.id}'
@@ -406,8 +411,8 @@ class Node:
                 'cmd': '',  # command string
 
                 'visible': True,
-                'movable': True,
-                'resizable': True,
+                'movable': False,
+                'resizable': False,
                 }
 
     # current options dictionary for each node
@@ -508,9 +513,10 @@ class Node:
    
     def render_label(self):
         """Create and render the node label."""
+
         col, size = Node.label
         font = pygame.font.Font(None, size)
-        self.label_img = font.render(str(self), True, col)
+        self.label_img = font.render("", True, col)
         self.label_rect = self.label_img.get_rect()
         self.label_rect.bottomleft = self.rect.topleft
 
@@ -574,11 +580,11 @@ class Node:
     
     def double_click(self):
         App.scene.set_status(f'double-click in {self}')
-        print('double-click in', self)
+        xiprint('double-click in', self)
 
     def triple_click(self):
         App.scene.set_status(f'triple-click in {self}')
-        print('triple-click in', self)
+        xiprint('triple-click in', self)
 
     def __str__(self):
         return self.__class__.__name__ + str(self.id)
@@ -781,7 +787,7 @@ class EditableTextObj(TextObj):
                 try:
                     exec(self.cmd)
                 except:
-                    print(f'cmd error in {self}')
+                    xiprint(f'cmd error in {self}')
 
             elif event.key == K_BACKSPACE:
                 # delete previous charactor or selection
@@ -926,7 +932,7 @@ class Button(Node):
             try: 
                 exec(self.cmd)
             except:
-                print('cmd error')
+                xiprint('cmd error')
 
             if self.state:
                 self.label.text = 'ON'
@@ -942,7 +948,7 @@ class Toggle:
         try: 
             exec(self.cmd)
         except:
-            print('cmd error') 
+            xiprint('cmd error') 
         self.render()
 
     def do_event(self, event):
@@ -1002,24 +1008,29 @@ class Radiobutton(Checkbox):
 class ListBox(Node):
     """Show a list of text items."""
 
-    options = { 'm': 10,        # listbox height
-                'width': 100,   # in pixels
+    options = { 'm': 320,        # listbox height
+                'width': 60,   # in pixels
                 'wrap': True,  # cursors wraps around
                 'align': 0,     # 0=left, 1=center, 2=right
                 'mode': 1,      # 0=none, 1=one, 2=multiple selections
-                'style': (Color('black'), Color('white')),     # font color, background color
+                'style': (Color('blue'), Color('white')),     # font color, background color
                 'sel_style': (Color('white'), Color('blue')),  # font color, background color
-                'fontsize': 24,
+                'fontsize': 14,
     }
-
-    def __init__(self, items, i=0, **options):
+    def sse(self):
+        global elementriev
+        elementriev = [self.name,self.sel]
+        
+    def __init__(self, items,name="default", i=0, **options):
         super().__init__(**options)
         self.set_options(ListBox, options)
-
+        self.xy = [0,0]
         self.set_list(items)
         self.font = pygame.font.Font(None, self.fontsize)
         self.h = self.font.size('fg')[1]
+        self.name = name
         self.render()
+        self.event = ""
 
     def set_list(self, items):
         """Set items and selection list."""
@@ -1048,9 +1059,9 @@ class ListBox(Node):
             w, h = text.get_size()
             x = (0, (w0-w)//2, w0-w)[self.align]
 
-            rect = Rect(0, i * self.h, w0, h)
+            rect = Rect(0+self.xy[0], (i * self.h)+self.xy[1], w0+self.xy[0], h+self.xy[1])
             self.img0.fill(bg, rect)
-            self.img0.blit(text, (x, i*self.h))
+            self.img0.blit(text, (x+self.xy[0], (i*self.h)+self.xy[1]))
         self.img = self.img0.copy()
 
     def scroll(self, d):
@@ -1118,6 +1129,7 @@ class ListBox(Node):
     def do_event(self, event):
         if event.type == MOUSEBUTTONDOWN:
             if event.button == 1 or event.button == 3:
+                self.sse()
                 x, y = event.pos
                 x -= self.rect.left
                 y -= self.rect.top
@@ -1571,7 +1583,7 @@ class Board(Node):
                 self.selection.append((i, j))
             else:
                 self.selection = [(i, j)]
-            print(self.selection)
+            xiprint(self.selection)
             self.render()
 
         elif event.type == MOUSEMOTION:
@@ -1597,7 +1609,7 @@ class Board(Node):
                 self.j = j
                 self.render()
             if event.unicode in self.keys:
-                print(event.unicode)
+                #xiprint(event.unicode)
                 if self.Num0[self.i, self.j] == 0:
                     self.Num[self.i, self.j] = int(event.unicode)
                     self.render()

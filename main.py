@@ -1,4 +1,4 @@
-import asyncio, pygame, PIL
+import asyncio, pygame, PIL, time
 import libraries
 #import micropip
 
@@ -14,7 +14,12 @@ async def main():
         # Do your rendering here, note that it's NOT an infinite loop,
         # and it is fired only when VSYNC occurs
         # Usually 1/60 or more times per seconds on desktop, maybe less on some mobile devices
+        time.sleep(0.05)
         libraries.main()
+        pygame.display.flip()
+        
+        
+        
 
         await asyncio.sleep(0)  # Very important, and keep it 0
 

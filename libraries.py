@@ -4,18 +4,30 @@ from PIL import Image
 import time
 import ptext
 import pqGUI as agui
-from pqGUI import App 
+from pqGUI import App
+import enemies as EM
 from xmap import *
 pygame.init()
-X = 320
+transition = [1,"WMP","WMP"]
+#transition = [0,"WMP","ARENA"]
+AREAS = ["WMP","ARENA","INV"]## these will be implemented later
+ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled while WMP is active 
+X = 420
 Y = 320
+defaultpk = EM.pokemons[0].pclone()
 pygame.key.set_repeat(250)
-
+def getattacks():
+     global defaultpk
+     return defaultpk
+     
 class UIAPP(App):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,**options):
+        super().__init__(**options)
+        agui.Scene(id=0)
+        self.menu = agui.ListBox(['inventory','interact','notes'],pos=(320,0),width=100,fontsize=20,cmd="self.sse()",name="mn1")
+        #agui.Scene(id=1)
+        self.menu = agui.ListBox(['flee','interact','notes'],pos=(0,256),width=64,height=65,fontsize=20,cmd="self.sse()",name="mn2")
         
-        agui.Scene(caption=' the legend of tuxemon ')
         #agui.Text('Scene 0')
         #agui.Text('Introduction screen the app')
 
@@ -24,7 +36,7 @@ class UIAPP(App):
 
 
 
-UI1 = UIAPP()
+UI1 = UIAPP(size=(X,Y))
 
 
 
@@ -87,6 +99,7 @@ class render():
         global X,Y
         self.screen  = pygame.display.set_mode((X, Y))
         self.playerpreimg =  pygame.image.load("img/player.png")
+        self.arenaimg =  pygame.image.load("img/battlearena.png")
     def gets(self,value,t="False"):
         if t == True:
             return value #- (value % 10)
@@ -96,25 +109,37 @@ class render():
         for x in range(1,320):
             for y in range(1,320):
                 color = self.screen.get_at((x, y))
-    def render(self,camera,xgmap,frametime):
+    def renderarena(self):
+        self.screen.blit(self.arenaimg,(0,0))
+    def renderwmp(self,camera,xgmap,frametime):
         for x in range(-1,17):
             for y in range(-1,17):
                 x = x 
-                y = y 
+                y = y
+                threed = True
                 tile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile2= xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),True)
-                tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
+                #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
+                tile4= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
+                tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
                 img = tile.texture
                 if not tile.textures == []:
                     img = tile.textures[int(frametime * 0.05) % len(tile.textures)]
                 self.screen.blit(img,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
                 if not tile2 == "none":
+                    if tile2.name == "steppingstones":
+                       threed = False
                     img2 = tile2.texture
                     if not tile2.textures == []:
                         img2 = tile2.textures[int(frametime * 0.05) % len(tile2.textures)]
                     self.screen.blit(img2,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
-                if not (tile3 == (0,0,0,255) or tile3 == "none"):
-                    self.screen.blit(xgmap.threedoverlay,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                if threed == True:
+                  if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
+                      if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
+                           if (tile4[0]) > (tile5[0]):
+                               self.screen.blit(xgmap.threedoverlay,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                           
+                           
                 self.screen.blit(self.playerpreimg,(159,159))
                     
 
@@ -134,18 +159,31 @@ def interact():
     global cmap,camx,camy
     print(cmap.gettile(camx,camy))
 def main():
-    global mycam,camx,drawsys,camy,frametime,cmap,UI1
+    global mycam,camx,drawsys,camy,frametime,cmap,UI1,ACTIVEAREA,AREAS,transition
     mycam.move(camx,camy)
     frametime = frametime + 1 % 20
     mycam.run()
-    time.sleep(0.05)
-    drawsys.render(mycam,cmap,frametime)
-    UI1.run()
-    ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
-    pygame.display.update()
+    
+    if ACTIVEAREA == "WMP":
+        drawsys.renderwmp(mycam,cmap,frametime)
+        ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
+    else:
+        drawsys.renderarena()
+
+    
+    #pygame.display.update()
     pokeinteraction = 0
     pokelevel = 0
-    for event in pygame.event.get():  
+    if  not agui.elementriev == "":
+        if agui.elementriev == ['mn1', [0, 1, 0]]:
+            if transition[0] == 1 and transition[2] == "WMP":
+                transition =  [0,"WMP","ARENA"]
+            if transition[0] == 1 and transition[2] == "ARENA":
+                transition =  [0,"ARENA","WMP"]
+        print(agui.elementriev)
+        agui.elementriev =""
+    for event in pygame.event.get():
+        UI1.scene.do_event(event)
         if event.type == pygame.QUIT:
             pygame.quit()
   
@@ -175,7 +213,7 @@ def main():
             elif event.key == pygame.K_d:
                 keyeventlist[1] = 1
             nexttile = 0
-            if keyeventlist == [1,0,0,0]:
+            if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
                 if cmap.gettile(camx -1,camy,4) == 1:
                     nexttile = cmap.gettile(camx -1,camy,1)
                     camerax = camerax - 1
@@ -194,18 +232,30 @@ def main():
                 if cmap.gettile(camx +1,camy,4) == 1:
                     nexttile =  cmap.gettile(camx +1,camy,1)
                     camerax = camerax + 1
-            if  nexttile != 0:
+            if  nexttile != 0 and len(nexttile.attributes) > 1:
                 print(nexttile)
                 if nexttile.attributes[1] > 0:
                     pokeinteraction = nexttile.attributes[1]
                     pokelevel = nexttile.attributes[2]
             camx = camerax
             camy = cameray
-        else:
-            UI1.scene.do_event(event)
-
             
-
+        if transition[0] < 0.5:
+            transition[0] = transition[0] + 0.01
+            EM.transition(drawsys.screen,transition[0] )
+            ACTIVEAREA = transition[1]
+        elif transition[0] < 1:
+            transition[0] = transition[0] + 0.01
+            EM.transition(drawsys.screen,(1-transition[0] * 2) )
+            ACTIVEAREA = transition[2]
+        else:
+            ACTIVEAREA = transition[2]
+        print(transition[0])
+    UI1.run()
+    UI1.scene.update()
+    UI1.scene.draw()
+    
   
 
-
+if __name__ == "__main__":
+	import main

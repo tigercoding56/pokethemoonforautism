@@ -1,5 +1,9 @@
 # plant,water,air,fire,ice,stone,technology
-import pygame
+import pygame, time
+X = 320
+Y = 320
+height = 100
+overlap = 100
 powers = {
 "plant":[0.6,2,1.2,0.3,1,1.2,0.4],
 "water":[0.3,0.6,1,2,1,1.2,1.4],
@@ -10,7 +14,7 @@ powers = {
 "technology":[2,0.4,1.6,1,1.4,0.7,1] 
 }
 
-pokemonnames = ['Wallapod-a', 'shelby-s', 'glaze-w', 'spout-t', 'Gambroon-s', 'Wellee-p', 'Rapidash-t', 'Heatran-f', 'stoney-p', 'battera-t', 'doggy-p', 'mushroling-p', 'Flareon-s', 'Quilombo-p', 'Desk-t', 'splashycorn', 'icebird', 'jelly-p', 'Olystail-p', 'Scyther-p', 'Geocrawl-s', 'crisp-f', 'foxy-p', 'stonegolem-s', 'catleaf-p', 'flevilop', 'Volcanion-f', 'Senectitude-t', 'Phantasm-a', 'woofle-i']
+pokemonnames = ['Wallapod-a', 'shelby-s', 'glaze-w', 'spout-t', 'Gambroon-s', 'Wellee-p', 'Rapidash-t', 'Heatran-f', 'stoney-p', 'battera-t', 'doggy-p', 'mushroling-p', 'Flareon-s', 'Quilombo-p', 'Desk-t', 'splashycorn-w', 'icebird-i', 'jelly-p', 'Olystail-p', 'Scyther-p', 'Geocrawl-s', 'crisp-f', 'foxy-p', 'stonegolem-s', 'catleaf-p', 'flevilop', 'Volcanion-f', 'Senectitude-t', 'Phantasm-a', 'woofle-i']
 import random
 pokemons = []
 
@@ -29,7 +33,7 @@ class attack():
             levelr = random.randint(0,5)
             cost= random.randint(1,100)
             hp = (levelr * 190 ) + cost      # 2000 hp max health , a attack may only do about a bit less than half damage   
-            etp = powers[self.type]
+            etp = powers[ptype]
             foundst = False
             avg = 0
             for i in etp:
@@ -43,7 +47,7 @@ class attack():
                 strengthmap = []
                 sa = 0
                 for i in etp:
-                    x = random.randint(0,0.4 * levelr)
+                    x = random.randint(0,int((0.4 * levelr)*10))*0.1
                     sa = sa + x
                     strengthmap.append( x+ i)
                 if (sa/8 > (avg - 0.4) and sa < (avg + 0.4)) or (tries > 100):
@@ -74,7 +78,7 @@ stoneattacks = ["Dig","Drill in","Earthquake","boulder barrage"," Bulldoze","Myt
 def appendattacks(appendtolist,attacklist,atype):
     for i in attacklist:
         appendtolist.append(attack(i,atype,auto=True))
-    return attacklist
+    return appendtolist
 
 allattacks = []
 allattacks = appendattacks(allattacks,fireattacks,"fire")
@@ -86,13 +90,15 @@ allattacks = appendattacks(allattacks,stoneattacks,"stone")
 allattacks = appendattacks(allattacks,iceattacks,"ice")
             
 class pokemon():
-    def __init__(self,name,ptype,autogen=True):
+    def pclone(self):
+        return self
+    def __init__(self,name,ptype,autogen=True,attacks=[]):
         self.name = name
         self.attacks = attacks
         self.type = ptype
         self.bns = []
         for i in range(1,9):
-            self.bns.append(random.randint(0,0.2))
+            self.bns.append(random.randint(0,2)*0.1)
         if not autogen == True:
             self.img =  pygame.image.load('img/creatures/'+str(img) + str(i)+'.png')
     def calcdamage(enemy,attack):
@@ -131,7 +137,7 @@ def loadp():
             ptype = "water"
         handledpokemon = pokemon(i,ptype,True)
         handledpokemon.name = i[:-2]
-        handledpokemon.img =  pygame.image.load('img/crt/'+str(i) +'.png')
+        handledpokemon.img =  pygame.image.load('img/ct/'+str(i) +'.png')
         handledpokemon.bns = []
         handledpokemon.attacks = []
         t = False
@@ -149,13 +155,13 @@ def display(surface):
         pygame.draw.polygon(surface,(0,0,0),[(0,0),(i,0),(i + (overlap * 0.5) + 51,Y-height),(0,Y-height)],0)
         pygame.draw.polygon(surface,(255,255,255),[(320,Y-height),(320-i,Y-height),(320-(i + (overlap * 0.5) + 51),0),(320,0)],0)
         pygame.draw.polygon(surface,(55,55,110),[(0,320),(0,Y-(i*0.7692307692307693)),(320,Y-(i*0.7692307692307693)),(320,320)],0)
-        pygame.display.flip()    
-def transition(surface):
-    for i in range(1,130):
+        #pygame.display.flip()    
+def transition(surface,tme):
+        i = tme *  130#0.007692307692307693
         pygame.draw.polygon(surface,(0,0,0),[(0,0),(i,0),(i + (overlap * 0.5) + 51,Y-height),(0,Y-height)],0)
         pygame.draw.polygon(surface,(255,255,255),[(320,Y-height),(320-i,Y-height),(320-(i + (overlap * 0.5) + 51),0),(320,0)],0)
         pygame.draw.polygon(surface,(55,55,110),[(0,320),(0,Y-(i*0.7692307692307693)),(320,Y-(i*0.7692307692307693)),(320,320)],0)
-        pygame.display.flip()
-        time.sleep(0.01)
+        #pygame.display.flip()
+        
         
 loadp()
