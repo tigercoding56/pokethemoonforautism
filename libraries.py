@@ -24,10 +24,7 @@ class UIAPP(App):
     def __init__(self,**options):
         super().__init__(**options)
         agui.Scene(id=0)
-        self.menu = agui.ListBox(['inventory','interact','notes'],pos=(320,0),width=100,fontsize=20,cmd="self.sse()",name="mn1")
-        #agui.Scene(id=1)
-        self.menu = agui.ListBox(['flee','interact','notes'],pos=(0,256),width=64,height=65,fontsize=20,cmd="self.sse()",name="mn2")
-        
+        self.menu = agui.ListBox(['inventory','arena','notes'],pos=(320,0),width=100,fontsize=20,cmd="self.sse()",name="mn1")        
         #agui.Text('Scene 0')
         #agui.Text('Introduction screen the app')
 
@@ -122,16 +119,12 @@ class render():
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile4= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
-                img = tile.texture
-                if not tile.textures == []:
-                    img = tile.textures[int(frametime * 0.05) % len(tile.textures)]
+                img = tile.gtx(frametime)
                 self.screen.blit(img,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
                 if not tile2 == "none":
                     if tile2.name == "steppingstones":
                        threed = False
-                    img2 = tile2.texture
-                    if not tile2.textures == []:
-                        img2 = tile2.textures[int(frametime * 0.05) % len(tile2.textures)]
+                    img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()")
                     self.screen.blit(img2,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
@@ -176,10 +169,13 @@ def main():
     pokelevel = 0
     if  not agui.elementriev == "":
         if agui.elementriev == ['mn1', [0, 1, 0]]:
-            if transition[0] == 1 and transition[2] == "WMP":
+            if transition[0] > 0.9 and transition[2] == "WMP":
                 transition =  [0,"WMP","ARENA"]
-            if transition[0] == 1 and transition[2] == "ARENA":
+            if transition[0] > 0.9 and transition[2] == "ARENA":
                 transition =  [0,"ARENA","WMP"]
+        if agui.elementriev == [1, 0, 0]:
+            pass
+            #openinv()
         print(agui.elementriev)
         agui.elementriev =""
     for event in pygame.event.get():
@@ -240,21 +236,23 @@ def main():
             camx = camerax
             camy = cameray
             
-        if transition[0] < 0.5:
+    if transition[0] < 0.5:
             transition[0] = transition[0] + 0.01
             EM.transition(drawsys.screen,transition[0] )
+            EM.transition(drawsys.screen,transition[0] )
+            
             ACTIVEAREA = transition[1]
-        elif transition[0] < 1:
+    elif transition[0] < 1:
             transition[0] = transition[0] + 0.01
             EM.transition(drawsys.screen,(1-transition[0] * 2) )
+            EM.transition(drawsys.screen,(1-transition[0] * 2) )
             ACTIVEAREA = transition[2]
-        else:
+    else:
             ACTIVEAREA = transition[2]
-        print(transition[0])
     UI1.run()
     UI1.scene.update()
     UI1.scene.draw()
-    
+
   
 
 if __name__ == "__main__":

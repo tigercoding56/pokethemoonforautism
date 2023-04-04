@@ -1,10 +1,24 @@
 import pygame
 
-
+class sttobj():
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.state = {"x":x , "y": y}
+    def sets(key,value):# index and value to place at index
+        self.state[key] = value
+    def gets(key,default): # index  , and value to return if index does not have a value
+        if key in self.state:
+            return self.state[key]
+        else:
+            return default
 tiles = []
 class tile():
     def interact(self):
-        return 0 
+        return 0
+    
+    def gtx(self,fn):
+        return self.gt()
     def gt(self):
         return self.texture
     def lgco(self,attributes,name,color): # legacy compatibility
@@ -15,6 +29,8 @@ class tile():
                 self.walkable = 0
         self.attributes = []
         self.texture = pygame.image.load('img/' +self.name+'.png')
+    def catchtxt(self,name):
+        return pygame.image.load('img/' +name+'.png')
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
@@ -27,7 +43,21 @@ class tile():
 
 class water(tile):
     def upd(self): #gets run after init to set defaults to water
-        self.lgco(["ground",0,0,["unpassable"]],'water',(0,0,0,255,255))
+        self.lgco(["ground",0,0,["unpassable"]],'water',(0,0,0,255))
+        self.txt1 = self.catchtxt('water2')
+        self.txt2 = self.catchtxt('water3')
+        self.ft =0
+    def gt(self):
+        return self.gtx(1)
+    def gtx(self,fn):
+        fn = fn % 30
+        if fn < 11:
+            return self.texture
+        elif fn < 21:
+            return self.txt1
+        else:
+            return self.txt2
+        
 
 class grass1(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -81,7 +111,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"safetile",(0, 255, 0, 255))
-xtiles = [safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),water()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1()]
 tiles = []
 for itile in xtiles:
     itile.upd()

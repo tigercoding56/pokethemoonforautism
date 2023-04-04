@@ -4,8 +4,85 @@ from PIL import Image
 import time
 import ptext
 from tiledef import tiles
+from tiledef import sttobj
+import math
+import random
+import copy
 
+class playerobj():
+    def __init__(self):
+        self.inventory = {"capturedev":1}
+    def rm(self,itemn):
+        if itemn in self.inventory:
+            if self.inventory[itemn] > 1:
+                self.inventory[itemn] += -1
+            else:
+                del(self.inventory[itemn])
+    def add(self,itemn):
+        if itemn in self.inventory:
+            self.inventory[itemn] += 1
+        else:
+            self.inventory[itemn] = 1
+        
+def nrl(l1,l2):
+    t = 0
+    y = True
+    for i in l1:
+        if abs(l1[t] - l2[t]) > 2:
+            y = False
+    t = t + 1
+    return y 
+class memorymap():
+    def __init__(self,imgmp,gstate=True,topt=0):
+        if gstate:
+            self.size = imgmp.size
+            self.imgmp = imgmp
+            self.mmap = {}
+            for y in range(0,self.size[1] - 1):
+                for x in range(0,self.size[0] - 1):
+                   t = imgmp.getpixel((x, y))
+                   output = "none"
+                   for i in tiles:
+                       if list[i.color] == list[t] :
+                           # print("match" + str(i))
+                            output = i      
+                   if output == "none" and topt==0 :
+                       output = tiles[1]
+                   self.mmap[str(x) + "o" + str(y)] = output
+            
     
+    def rmmap(self,l):
+        l = list(l)
+        l[0] = math.floor(l[0])
+        l[1] = math.floor(l[1])
+        key = str(l[0]) + "o" + str(l[1])
+        if key in self.mmap:
+            return self.mmap[key]
+        else:
+            return tiles[2]
+    def smmap(self,l,i):
+        l = list(l)
+        l[0] = math.floor(l[0])
+        l[1] = math.floor(l[1])
+        key = str(l[0]) + "o" + str(l[1])
+        self.mmap[key] = i
+    def getpixel(self,t,st="l"):
+       # try:
+            if st=="l":
+                return self.imgmp.getpixel(t)
+            else:
+                return self.rmmap(t)
+    def call(self,t,function):
+            temp = self.rmmap(t)
+            u = eval("temp." + str(function))
+            self.smmap(t,temp)
+            return u
+
+        #except:
+            #if st=="l":
+            #    return (0,0,0,255)
+           # else:
+                #return [(0,0,0,255),sttobj(0,0)]
 class gmap():
     def loadtxt(self,name):
         try:
@@ -33,20 +110,13 @@ class gmap():
                 return tile.walkable
             else:
                 return tile2.walkable
-    def read(self,imgmp,x,y,clear=False):
-        size = imgmp.size
-        output = "none"
-        if x > 0 and x < 240:
-            if y > 0 and y < 240:
-                t = imgmp.getpixel((x, y))
-                #print(t)
-                for i in self.tiles:
-                    if i.color == t :
-                        output = i
-                        
-        if output == "none" and clear == False:
-            output = self.tiles[0]
-        return output
+    def read(self,imgmp,x,y,clear=False,exc="none"):
+        if exc == "none":
+            size = imgmp.size
+            t = imgmp.getpixel((x, y),"m")
+        else:
+            t = imgmp.call((x, y),exc)
+        return t
     def readraw(self,imgmp,x,y):
         size = imgmp.size
         output = "none"
@@ -57,8 +127,8 @@ class gmap():
         return output
     def __init__(self,tiles):
         self.tiles = tiles
-        self.heightmap =  self.loadtxt('img/heightmap.png')
-        self.structuremap =  self.loadtxt('img/structures.png')
+        self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
+        self.structuremap =  memorymap(self.loadtxt('img/structures.png'),topt=1)
         self.threedeffecthax =  self.loadtxt('img/3doutlinehack.png')
         self.threedoverlay = pygame.image.load('img/3deffect.png')
         self.threedfx = self.loadtxt('img/3dheight.png')

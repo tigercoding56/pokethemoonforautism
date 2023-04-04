@@ -904,22 +904,23 @@ class Button(Node):
     """Create a button object with command.""" 
     options = { 'border': 2,
                 'bg': Color('gray'),
-                'size': (160, 40),
+                'size': (80, 40),
                 'autosize': False,
                 'align': 1,
                 'state': False,
         }
 
-    def __init__(self, text='Button', cmd='', **options):
+    def __init__(self, text='Button', cmd='self.event = 1', **options):
         super().__init__(**options)
         self.set_options(Button, options)
 
         self.cmd = cmd
         self.label = TextObj(text, bg=None, **options)
         self.render()
+        self.event = 0
 
     def render(self):
-        self.img.fill(Color('lightblue'))
+        self.img.fill(Color('lightgray'))
         self.label.render_text()
         w, h = self.rect.size
         self.label.rect.center = w//2, h//2
