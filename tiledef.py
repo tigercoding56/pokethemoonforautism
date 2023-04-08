@@ -12,6 +12,17 @@ class sttobj():
             return self.state[key]
         else:
             return default
+tile_textures = {}#optimisation to not need a rtx 4090 XYT
+class ptexture(): # a texture pointer class
+    def __init__(self,location):
+        global tile_textures
+        if not str(location) in tile_textures:
+            tile_textures[str(location)] = pygame.image.load(str(location))
+        self.location = str(location)
+    def gt(self):
+        return tile_textures[self.location]
+        
+    
 tiles = []
 class tile():
     def interact(self):
@@ -28,15 +39,15 @@ class tile():
             if  "unpassable" in attributes[3]:
                 self.walkable = 0
         self.attributes = []
-        self.texture = pygame.image.load('img/' +self.name+'.png')
+        self.texture = ptexture('img/' +self.name+'.png')
     def catchtxt(self,name):
-        return pygame.image.load('img/' +name+'.png')
+        return ptexture('img/' +name+'.png')
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
         self.name = '404'
-        #self.texture = pygame.image.load('img/'+str(name)+'.png')
-        self.texture = pygame.image.load('img/404.png')
+        #self.texture = ptexture('img/'+str(name)+'.png')
+        self.texture = ptexture('img/404.png')
         self.textures = []
         self.attributes = ["ground",0,0,[]] ## sample ["detail"[group, if not set is assumed to be ground ],1 [enemy level to spawn 1 is basic enemies , 10 is challenging enemies],10 [chance of spawning (1 in #)],['unpassable','id32'] [list of attributes that can be used elsewhere in code , unpassable means player cannot walk through,"trader" [npc to spawn]]
 #### definitions start here

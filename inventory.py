@@ -80,7 +80,7 @@ class INVAPP(App):
     def __init__(self,**options):
         super().__init__(**options)
         agui.Scene(id=0)
-        self.inv = agui.ListBox([],pos=(250,0),width=170,m=17.35,fontsize=20,cmd="self.sse()",name="mn1")        
+        self.inv = agui.ListBox([],pos=(250,0),width=170,m=18,fontsize=20,cmd="self.sse()",name="mn1")        
         App.scene = App.scenes[0]
     
     

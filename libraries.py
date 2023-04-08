@@ -1,5 +1,6 @@
 import pygame
 import PIL
+import gc
 from PIL import Image
 import time
 import ptext
@@ -130,12 +131,12 @@ class render():
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile4= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
-                img = tile.gtx(frametime)
+                img = tile.gtx(frametime).gt()
                 self.screen.blit(img,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
                 if not tile2 == "none":
                     if tile2.name == "steppingstones":
                        threed = False
-                    img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()")
+                    img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
                     self.screen.blit(img2,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
@@ -163,6 +164,7 @@ cmap = gmap(tiles)
 drawsys = render()
 mycam = camera()
 mycam.tp(218,40)
+mycam.tp(226,26)
 camx = 218
 camy = 21
 frametime = 0
@@ -296,7 +298,7 @@ def main():
         UI1.run()
         UI1.scene.update()
         UI1.scene.draw()
-
+    gc.collect(2)
   
 
 if __name__ == "__main__":
