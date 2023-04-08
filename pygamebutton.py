@@ -69,7 +69,10 @@ class PygButton(object):
             self._rect = pygame.Rect(0, 0, 30, 60)
         else:
             self._rect = pygame.Rect(rect)
-
+        self.wcolor = (190,100,120)
+        self.wfcolor = (225,225,225) 
+        self.enabled = 1
+        self.en = 1
         self._caption = caption
         self._bgcolor = bgcolor
         self._fgcolor = fgcolor
@@ -97,6 +100,7 @@ class PygButton(object):
             self.setSurfaces(normal, down, highlight)
 
     def handleEvent(self, eventObj):
+        ## return []
         """All MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN event objects
         created by Pygame should be passed to this method. handleEvent() will
         detect if the event is relevant to this button and change its state.
@@ -168,6 +172,7 @@ class PygButton(object):
 
     def draw(self, surfaceObj):
         """Blit the current button's appearance to the surface object."""
+        self._update()
         if self._visible:
             if self.buttonDown:
                 surfaceObj.blit(self.surfaceDown, self._rect)
@@ -189,12 +194,20 @@ class PygButton(object):
         h = self._rect.height # syntactic sugar
 
         # fill background color for all buttons
-        self.surfaceNormal.fill(self.bgcolor)
-        self.surfaceDown.fill(self.bgcolor)
-        self.surfaceHighlight.fill(self.bgcolor)
+        if self.enabled :
+            self.surfaceNormal.fill(self.bgcolor)
+            self.surfaceDown.fill(self.bgcolor)
+            self.surfaceHighlight.fill(self.bgcolor)
+        else:
+            self.surfaceNormal.fill(self.wcolor)
+            self.surfaceDown.fill(self.wcolor)
+            self.surfaceHighlight.fill(self.wcolor)
 
         # draw caption text for all buttons
-        captionSurf = self._font.render(self._caption, True, self.fgcolor, self.bgcolor)
+        if self.enabled:
+            captionSurf = self._font.render(self._caption, True, self.fgcolor, self.bgcolor)
+        else:
+            captionSurf = self._font.render(self._caption, True, self.wfcolor, self.wcolor)
         captionRect = captionSurf.get_rect()
         captionRect.center = int(w / 2), int(h / 2)
         self.surfaceNormal.blit(captionSurf, captionRect)

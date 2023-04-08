@@ -3,19 +3,28 @@ import PIL
 from PIL import Image
 import time
 import ptext
-import pqGUI as agui
-from pqGUI import App
+import maingui as agui
+from maingui import App
 import enemies as EM
 from xmap import *
+from inventory import cplayer  , irender
 pygame.init()
+mousepos = [1,0]
 transition = [1,"WMP","WMP"]
 #transition = [0,"WMP","ARENA"]
 AREAS = ["WMP","ARENA","INV"]## these will be implemented later
 ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled while WMP is active 
 X = 420
 Y = 320
+######################
+#player initial setup#
+######################
+
+
+######################
 defaultpk = EM.pokemons[0].pclone()
 pygame.key.set_repeat(250)
+
 def getattacks():
      global defaultpk
      return defaultpk
@@ -96,6 +105,7 @@ class render():
         global X,Y
         self.screen  = pygame.display.set_mode((X, Y))
         self.playerpreimg =  pygame.image.load("img/player.png")
+        self.highlight =  pygame.image.load("img/hilight.png")
         self.arenaimg =  pygame.image.load("img/battlearena.png")
     def gets(self,value,t="False"):
         if t == True:
@@ -109,6 +119,7 @@ class render():
     def renderarena(self):
         self.screen.blit(self.arenaimg,(0,0))
     def renderwmp(self,camera,xgmap,frametime):
+        global mousepos
         for x in range(-1,17):
             for y in range(-1,17):
                 x = x 
@@ -134,12 +145,20 @@ class render():
                            
                            
                 self.screen.blit(self.playerpreimg,(159,159))
+                if list(mousepos) == [-1,0]:
+                    self.screen.blit(self.highlight,(140 + self.gets(camera.cx),160 +self.gets(camera.cy)))
+                elif list(mousepos) == [1,0] :
+                    self.screen.blit(self.highlight,(200 + self.gets(camera.cx),160 +self.gets(camera.cy)))
+                elif list(mousepos) == [0,1]:
+                    self.screen.blit(self.highlight,(160 + self.gets(camera.cx),200 +self.gets(camera.cy)))
+                elif list(mousepos) == [0,-1] :
+                    self.screen.blit(self.highlight,(160 + self.gets(camera.cx),140 +self.gets(camera.cy)))
                     
 
         
         
 
-
+##initialise stuff
 cmap = gmap(tiles)
 drawsys = render()
 mycam = camera()
@@ -149,92 +168,114 @@ camy = 21
 frametime = 0
 drawsys.screen = UI1.screen
 def interact():
-    global cmap,camx,camy
-    print(cmap.gettile(camx,camy))
+    global cmap,camx,camy,mousepos
+    if mousepos == [2,0]:
+        rlpos = [1,0]## hack else graphics will not work
+    else:
+        rlpos = mousepos
+    print(cmap.gettile(camx+rlpos[0] ,camy+rlpos[1]))
+    print(mousepos)
+    
+###helper function
+isinvo = False
 def main():
-    global mycam,camx,drawsys,camy,frametime,cmap,UI1,ACTIVEAREA,AREAS,transition
+    global isinvo,mycam,camx,drawsys,camy,frametime,cmap,UI1,ACTIVEAREA,AREAS,transition, mousepos,pactare
     mycam.move(camx,camy)
     frametime = frametime + 1 % 20
     mycam.run()
-    
-    if ACTIVEAREA == "WMP":
-        drawsys.renderwmp(mycam,cmap,frametime)
-        ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
-    else:
-        drawsys.renderarena()
+    if not isinvo:
+        if ACTIVEAREA == "WMP":
+            drawsys.renderwmp(mycam,cmap,frametime)
+            ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
+        elif ACTIVEAREA == "ARENA":
+            drawsys.renderarena()
+    if isinvo :
+        temp = irender(cplayer.inventory.inv)
+        cplayer.inventory.inv = temp[1]
+        if temp[0] == 1 :
+            isinvo = False
 
     
     #pygame.display.update()
     pokeinteraction = 0
     pokelevel = 0
-    if  not agui.elementriev == "":
-        if agui.elementriev == ['mn1', [0, 1, 0]]:
-            if transition[0] > 0.9 and transition[2] == "WMP":
-                transition =  [0,"WMP","ARENA"]
-            if transition[0] > 0.9 and transition[2] == "ARENA":
-                transition =  [0,"ARENA","WMP"]
-        if agui.elementriev == [1, 0, 0]:
-            pass
-            #openinv()
-        print(agui.elementriev)
-        agui.elementriev =""
-    for event in pygame.event.get():
-        UI1.scene.do_event(event)
-        if event.type == pygame.QUIT:
-            pygame.quit()
-  
-        if event.type == pygame.KEYDOWN:
-            keyeventlist = [0,0,0,0]
-            camerax = camx
-            cameray = camy
-            UI1.do_shortcut(event)
-            if event.key == pygame.K_RIGHT:
-                keyeventlist[1] = 1
-            elif event.key == pygame.K_LEFT:
-                keyeventlist[0] = 1
-            elif event.key == pygame.K_UP:
-                keyeventlist[2] = 1
-            elif event.key == pygame.K_DOWN:
-                keyeventlist[3] = 1
-            elif event.key == pygame.K_SPACE:
-                interact()
-            elif event.key == pygame.K_q:
-                pass#(str(camy) + "'" + str(camx))
-            elif event.key == pygame.K_w:
-                keyeventlist[2] = 1
-            elif event.key == pygame.K_a:
-                keyeventlist[0] = 1
-            elif event.key == pygame.K_s:
-                keyeventlist[3] = 1
-            elif event.key == pygame.K_d:
-                keyeventlist[1] = 1
-            nexttile = 0
-            if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
-                if cmap.gettile(camx -1,camy,4) == 1:
-                    nexttile = cmap.gettile(camx -1,camy,1)
-                    camerax = camerax - 1
-                    
-            elif keyeventlist == [0,0,1,0]:
-                if cmap.gettile(camx,camy-1,4) == 1:
-                    nexttile = cmap.gettile(camx,camy-1,1)
-                    cameray = cameray - 1
-                    
-            elif keyeventlist == [0,0,0,1]:
-                if cmap.gettile(camx,camy+1,4) == 1:
-                    nexttile = cmap.gettile(camx,camy+1,1)
-                    cameray = cameray + 1
-                    
-            elif keyeventlist == [0,1,0,0]:
-                if cmap.gettile(camx +1,camy,4) == 1:
-                    nexttile =  cmap.gettile(camx +1,camy,1)
-                    camerax = camerax + 1
-            if  nexttile != 0 and len(nexttile.attributes) > 1:
-                print(nexttile)
-                if nexttile.attributes[1] > 0:
-                    pokeinteraction = nexttile.attributes[1]
-                    pokelevel = nexttile.attributes[2]
-            camx = camerax
-            camy = cameray
+    if not isinvo:
+        if  not  agui.elementriev == "":
+            if agui.elementriev == ['mn1', [0, 1, 0]]:
+                if transition[0] > 0.9 and transition[2] == "WMP":
+                    transition =  [0,"WMP","ARENA"]
+                if transition[0] > 0.9 and transition[2] == "ARENA":
+                    transition =  [0,"ARENA","WMP"]
+            if agui.elementriev == ['mn1', [1, 0, 0]]:
+               isinvo = True
+                #openinv()
+               print(agui.elementriev)
+            agui.elementriev =""
+        for event in pygame.event.get():
+            UI1.scene.do_event(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+      
+            if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
+                keyeventlist = [0,0,0,0]
+                camerax = camx
+                cameray = camy
+                UI1.do_shortcut(event)
+                if event.key == pygame.K_RIGHT:
+                    keyeventlist[1] = 1
+                    mousepos = [1,0]
+                elif event.key == pygame.K_LEFT:
+                    keyeventlist[0] = 1
+                    mousepos = [-1,0]
+                elif event.key == pygame.K_UP:
+                    keyeventlist[2] = 1
+                    mousepos = [0,-1]
+                elif event.key == pygame.K_DOWN:
+                    keyeventlist[3] = 1
+                    mousepos = [0,1]
+                elif event.key == pygame.K_SPACE:
+                    interact()
+                elif event.key == pygame.K_q:
+                    pass#(str(camy) + "'" + str(camx))
+                elif event.key == pygame.K_w:
+                    keyeventlist[2] = 1
+                    mousepos = [0,-1]
+                elif event.key == pygame.K_a:
+                    keyeventlist[0] = 1
+                    mousepos = [-1,0]
+                elif event.key == pygame.K_s:
+                    keyeventlist[3] = 1
+                    mousepos = [0,1]
+                elif event.key == pygame.K_d:
+                    keyeventlist[1] = 1
+                    mousepos = [1,0]
+                nexttile = 0
+                if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
+                    if cmap.gettile(camx -1,camy,4) == 1:
+                        nexttile = cmap.gettile(camx -1,camy,1)
+                        camerax = camerax - 1
+                        
+                elif keyeventlist == [0,0,1,0]:
+                    if cmap.gettile(camx,camy-1,4) == 1:
+                        nexttile = cmap.gettile(camx,camy-1,1)
+                        cameray = cameray - 1
+                        
+                elif keyeventlist == [0,0,0,1]:
+                    if cmap.gettile(camx,camy+1,4) == 1:
+                        nexttile = cmap.gettile(camx,camy+1,1)
+                        cameray = cameray + 1
+                        
+                elif keyeventlist == [0,1,0,0]:
+                    if cmap.gettile(camx +1,camy,4) == 1:
+                        nexttile =  cmap.gettile(camx +1,camy,1)
+                        camerax = camerax + 1
+                if  nexttile != 0 and len(nexttile.attributes) > 1:
+                    print(nexttile)
+                    if nexttile.attributes[1] > 0:
+                        pokeinteraction = nexttile.attributes[1]
+                        pokelevel = nexttile.attributes[2]
+                camx = camerax
+                camy = cameray
             
     if transition[0] < 0.5:
             transition[0] = transition[0] + 0.01
@@ -246,12 +287,15 @@ def main():
             transition[0] = transition[0] + 0.01
             EM.transition(drawsys.screen,(1-transition[0] * 2) )
             EM.transition(drawsys.screen,(1-transition[0] * 2) )
-            ACTIVEAREA = transition[2]
+            if not ACTIVEAREA in ["inventory"]:
+                ACTIVEAREA = transition[2]
     else:
+        if not ACTIVEAREA in ["inventory"]:
             ACTIVEAREA = transition[2]
-    UI1.run()
-    UI1.scene.update()
-    UI1.scene.draw()
+    if not isinvo:
+        UI1.run()
+        UI1.scene.update()
+        UI1.scene.draw()
 
   
 

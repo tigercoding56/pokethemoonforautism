@@ -298,10 +298,6 @@ class Scene:
                     if node.rect.collidepoint(event.pos):
                         self.focus = node
                         self.set_status(str(node))
-
-                        # place node on top
-                        self.nodes.remove(node)
-                        self.nodes.append(node)
                         break
                 if self.focus == None:
                     self.set_status(str(self))
@@ -593,7 +589,7 @@ class TextObj:
     """Create a text surface image."""
     options = { 'fontname': None,
                 'fontsize': 24,
-                'fontcolor': Color('black'),
+                'fontcolor': Color('blue'),
 
                 'italic': False,
                 'bold': False,
@@ -918,9 +914,10 @@ class Button(Node):
         self.label = TextObj(text, bg=None, **options)
         self.render()
         self.event = 0
+        self.state=0
 
     def render(self):
-        self.img.fill(Color('lightgray'))
+        #self.img.fill(Color('lightgray'))
         self.label.render_text()
         w, h = self.rect.size
         self.label.rect.center = w//2, h//2
@@ -929,7 +926,7 @@ class Button(Node):
     def do_event(self, event):
         super().do_event(event)
         if event.type == MOUSEBUTTONDOWN:
-            self.state = not self.state
+            self.state = 1
             try: 
                 exec(self.cmd)
             except:
@@ -1044,6 +1041,8 @@ class ListBox(Node):
         
     def render(self):
         w0 = self.width
+        self.m = int(self.m)
+        self.n = int(self.n)
         fg, bg = self.style
 
         self.img0 = pygame.Surface((w0, self.m * self.h))
@@ -1108,6 +1107,10 @@ class ListBox(Node):
         # Select item i
         mod = pygame.key.get_mods()
         self.i = i
+        if self.i > len(self.items) -2 :
+            self.i = len(self.items)-2
+            print(len(self.items))
+        #self.i = (i % len(self.items) )
         self.item = self.items[i]
 
         if self.mode == 1:
@@ -1711,4 +1714,5 @@ class Puzzle(Node):
 # 
 # 
 #     app.run()
+
 
