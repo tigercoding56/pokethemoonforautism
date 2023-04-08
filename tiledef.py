@@ -25,8 +25,8 @@ class ptexture(): # a texture pointer class
     
 tiles = []
 class tile():
-    def interact(self):
-        return 0
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
     
     def gtx(self,fn):
         return self.gt()
@@ -39,6 +39,7 @@ class tile():
             if  "unpassable" in attributes[3]:
                 self.walkable = 0
         self.attributes = []
+        self.interactable = 0 
         self.texture = ptexture('img/' +self.name+'.png')
     def catchtxt(self,name):
         return ptexture('img/' +name+'.png')
@@ -95,6 +96,7 @@ class iceblock(tile):
 class sand(tile):
     def upd(self):
         self.lgco(['ground', 2, 15],"sand",(128, 128, 128, 255))
+        self.interactable = 1
 class steppingstones(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"steppingstones",(10, 10, 10, 255))

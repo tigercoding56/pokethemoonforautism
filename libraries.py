@@ -9,7 +9,7 @@ from maingui import App
 import enemies as EM
 from xmap import *
 from inventory import cplayer  , irender
-pygame.init()
+from pygamebutton import PygButton
 mousepos = [1,0]
 transition = [1,"WMP","WMP"]
 #transition = [0,"WMP","ARENA"]
@@ -17,9 +17,23 @@ AREAS = ["WMP","ARENA","INV"]## these will be implemented later
 ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled while WMP is active 
 X = 420
 Y = 320
+cmap = gmap(tiles)
 ######################
 #player initial setup#
 ######################
+
+
+######################
+
+
+
+
+######################
+#GUI setup           #
+######################
+invbtn = PygButton(caption="inventory",rect=(320,280,100,20))
+intbtn = PygButton(caption="interact ",rect=(320,300,100,20))
+#intbtn = PygButton(caption="scavenge",rect=(320,260,100,20))
 
 
 ######################
@@ -30,20 +44,7 @@ def getattacks():
      global defaultpk
      return defaultpk
      
-class UIAPP(App):
-    def __init__(self,**options):
-        super().__init__(**options)
-        agui.Scene(id=0)
-        self.menu = agui.ListBox(['inventory','arena','notes'],pos=(320,0),width=100,fontsize=20,cmd="self.sse()",name="mn1")        
-        #agui.Text('Scene 0')
-        #agui.Text('Introduction screen the app')
 
-        
-        App.scene = App.scenes[0]
-
-
-
-UI1 = UIAPP(size=(X,Y))
 
 
 
@@ -100,7 +101,7 @@ class camera():
             if self.percentage == self.steps :
                 self.cx = self.targetx
                 self.cy = self.targety
-
+message = ["",0]
 class render():
     def __init__(self):
         global X,Y
@@ -120,7 +121,7 @@ class render():
     def renderarena(self):
         self.screen.blit(self.arenaimg,(0,0))
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos
+        global mousepos,message
         for x in range(-1,17):
             for y in range(-1,17):
                 x = x 
@@ -147,20 +148,19 @@ class render():
                            
                 self.screen.blit(self.playerpreimg,(159,159))
                 if list(mousepos) == [-1,0]:
-                    self.screen.blit(self.highlight,(140 + self.gets(camera.cx),160 +self.gets(camera.cy)))
+                    self.screen.blit(self.highlight,(140 + self.gets(camera.cx),160 ))
                 elif list(mousepos) == [1,0] :
-                    self.screen.blit(self.highlight,(200 + self.gets(camera.cx),160 +self.gets(camera.cy)))
+                    self.screen.blit(self.highlight,(200 + self.gets(camera.cx),160 ))
                 elif list(mousepos) == [0,1]:
-                    self.screen.blit(self.highlight,(160 + self.gets(camera.cx),200 +self.gets(camera.cy)))
+                    self.screen.blit(self.highlight,(160 ,200 + self.gets(camera.cy)))
                 elif list(mousepos) == [0,-1] :
-                    self.screen.blit(self.highlight,(160 + self.gets(camera.cx),140 +self.gets(camera.cy)))
+                    self.screen.blit(self.highlight,(160 ,140 + self.gets(camera.cy)))
                     
 
         
         
 
 ##initialise stuff
-cmap = gmap(tiles)
 drawsys = render()
 mycam = camera()
 mycam.tp(218,40)
@@ -168,20 +168,28 @@ mycam.tp(226,26)
 camx = 218
 camy = 21
 frametime = 0
-drawsys.screen = UI1.screen
+drawsys.screen =  pygame.display.set_mode((X,Y))
 def interact():
-    global cmap,camx,camy,mousepos
-    if mousepos == [2,0]:
-        rlpos = [1,0]## hack else graphics will not work
-    else:
-        rlpos = mousepos
-    print(cmap.gettile(camx+rlpos[0] ,camy+rlpos[1]))
-    print(mousepos)
+    global cmap,cplayer,camx,camy,mousepos,message
+    rlpos = mousepos
+    t = cmap.gettile(camx+rlpos[0] ,camy+rlpos[1],1)
+    if t.interactable :
+        res = t.interact(cplayer,cmap)
+        if len(res) > 0:
+            cplayer = res[0]
+        if len(res) > 1:
+            cmap = res[1]
+        if len(res)>2 :
+            message = [res[2],60]
+    cmap.setmap(camx+rlpos[0] ,camy+rlpos[1],t)
+            
+        
+    
     
 ###helper function
 isinvo = False
 def main():
-    global isinvo,mycam,camx,drawsys,camy,frametime,cmap,UI1,ACTIVEAREA,AREAS,transition, mousepos,pactare
+    global isinvo,mycam,camx,drawsys,camy,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare
     mycam.move(camx,camy)
     frametime = frametime + 1 % 20
     mycam.run()
@@ -189,6 +197,7 @@ def main():
         if ACTIVEAREA == "WMP":
             drawsys.renderwmp(mycam,cmap,frametime)
             ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
+
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
     if isinvo :
@@ -214,15 +223,15 @@ def main():
                print(agui.elementriev)
             agui.elementriev =""
         for event in pygame.event.get():
-            UI1.scene.do_event(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
-      
+            if 'click' in intbtn.handleEvent(event):
+                    interact() 
             if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
+                
                 keyeventlist = [0,0,0,0]
                 camerax = camx
                 cameray = camy
-                UI1.do_shortcut(event)
                 if event.key == pygame.K_RIGHT:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
@@ -295,9 +304,16 @@ def main():
         if not ACTIVEAREA in ["inventory"]:
             ACTIVEAREA = transition[2]
     if not isinvo:
-        UI1.run()
-        UI1.scene.update()
-        UI1.scene.draw()
+        pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(320, 0, 420, 320))
+        if ACTIVEAREA == "WMP":
+            invbtn.draw(drawsys.screen)
+            intbtn.draw(drawsys.screen)
+            ####other world related GUI is to be drawn here###
+            #                                                #
+            #                                                #
+            ##################################################
+            
+        
     gc.collect(2)
   
 

@@ -110,6 +110,22 @@ class gmap():
                 return tile.walkable
             else:
                 return tile2.walkable
+    def sett(self,imgmp,x,y,tile):
+        try:
+            imgmp.smmap((x,y),tile)
+            return imgmp
+        except:
+            return imgmp
+    def setmap(self,x,y,i):
+        x = x + 8
+        y = y + 8
+        ctile = i
+        tile = self.read(self.heightmap,x ,y)
+        tile2= self.read(self.structuremap,x,y,True)
+        if  tile2 == "none":
+                self.heightmap = self.sett(self.heightmap,x,y,ctile)
+        else:
+                self.structuremapmap = self.sett(self.structuremap,x,y,ctile)
     def read(self,imgmp,x,y,clear=False,exc="none"):
         if exc == "none":
             size = imgmp.size
