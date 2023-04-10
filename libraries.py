@@ -4,6 +4,7 @@ import gc
 from PIL import Image
 import time
 import ptext
+import pickle
 import maingui as agui
 from maingui import App
 import enemies as EM
@@ -98,9 +99,9 @@ class camera():
             self.percentage = self.percentage +1
             self.cx = self.lerp(self.lx,self.targetx,1/((self.steps - self.percentage)+0.000001))
             self.cy = self.lerp(self.ly,self.targety,1/((self.steps - self.percentage)+0.000001))
-            if self.percentage == self.steps :
-                self.cx = self.targetx
-                self.cy = self.targety
+        if self.percentage >= self.steps :
+            self.cx = self.targetx
+            self.cy = self.targety
 message = ["",0]
 class render():
     def __init__(self):
@@ -122,6 +123,7 @@ class render():
         self.screen.blit(self.arenaimg,(0,0))
     def renderwmp(self,camera,xgmap,frametime):
         global mousepos,message
+        getmessage()
         for x in range(-1,17):
             for y in range(-1,17):
                 x = x 
@@ -147,14 +149,17 @@ class render():
                            
                            
                 self.screen.blit(self.playerpreimg,(159,159))
+                blitpos = [0,0]
                 if list(mousepos) == [-1,0]:
-                    self.screen.blit(self.highlight,(140 + self.gets(camera.cx),160 ))
+                    blitpos = (140 + self.gets(camera.cx),160 )
                 elif list(mousepos) == [1,0] :
-                    self.screen.blit(self.highlight,(200 + self.gets(camera.cx),160 ))
+                    blitpos = (200 + self.gets(camera.cx),160 )
                 elif list(mousepos) == [0,1]:
-                    self.screen.blit(self.highlight,(160 ,200 + self.gets(camera.cy)))
+                    blitpos = (160 ,200 + self.gets(camera.cy))
                 elif list(mousepos) == [0,-1] :
-                    self.screen.blit(self.highlight,(160 ,140 + self.gets(camera.cy)))
+                    blitpos = (160 ,140 + self.gets(camera.cy))
+                self.screen.blit(self.highlight,blitpos)
+                ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
                     
 
         
@@ -165,23 +170,26 @@ drawsys = render()
 mycam = camera()
 mycam.tp(218,40)
 mycam.tp(226,26)
-camx = 218
-camy = 21
+cplayer.pos[0] = 218
+cplayer.pos[1] = 21
 frametime = 0
 drawsys.screen =  pygame.display.set_mode((X,Y))
 def interact():
-    global cmap,cplayer,camx,camy,mousepos,message
+    global cmap,cplayer,mousepos,message
     rlpos = mousepos
-    t = cmap.gettile(camx+rlpos[0] ,camy+rlpos[1],1)
+    t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
     if t.interactable :
         res = t.interact(cplayer,cmap)
         if len(res) > 0:
             cplayer = res[0]
         if len(res) > 1:
             cmap = res[1]
-        if len(res)>2 :
-            message = [res[2],60]
-    cmap.setmap(camx+rlpos[0] ,camy+rlpos[1],t)
+    cmap.setmap(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],t)
+
+def getmessage():
+    global message,cplayer,mousepos
+    rlpos = mousepos
+    message = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1).message
             
         
     
@@ -189,14 +197,14 @@ def interact():
 ###helper function
 isinvo = False
 def main():
-    global isinvo,mycam,camx,drawsys,camy,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare
-    mycam.move(camx,camy)
+    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare
+    mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
     mycam.run()
     if not isinvo:
         if ACTIVEAREA == "WMP":
             drawsys.renderwmp(mycam,cmap,frametime)
-            ptext.draw( "" +str(camx) +","+ str(camy), (10, 0), shadow=(1.0,1.0), scolor="blue")
+            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
 
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
@@ -226,12 +234,14 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if 'click' in intbtn.handleEvent(event):
-                    interact() 
+                    interact()
+            if 'click' in invbtn.handleEvent(event):
+                isinvo = True
             if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
                 
                 keyeventlist = [0,0,0,0]
-                camerax = camx
-                cameray = camy
+                camerax = cplayer.pos[0]
+                cameray = cplayer.pos[1]
                 if event.key == pygame.K_RIGHT:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
@@ -247,7 +257,7 @@ def main():
                 elif event.key == pygame.K_SPACE:
                     interact()
                 elif event.key == pygame.K_q:
-                    pass#(str(camy) + "'" + str(camx))
+                    pass#(str(cplayer.pos[1]) + "'" + str(cplayer.pos[0]))
                 elif event.key == pygame.K_w:
                     keyeventlist[2] = 1
                     mousepos = [0,-1]
@@ -262,31 +272,31 @@ def main():
                     mousepos = [1,0]
                 nexttile = 0
                 if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
-                    if cmap.gettile(camx -1,camy,4) == 1:
-                        nexttile = cmap.gettile(camx -1,camy,1)
+                    if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:
+                        nexttile = cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],1)
                         camerax = camerax - 1
                         
                 elif keyeventlist == [0,0,1,0]:
-                    if cmap.gettile(camx,camy-1,4) == 1:
-                        nexttile = cmap.gettile(camx,camy-1,1)
+                    if cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,4) == 1:
+                        nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,1)
                         cameray = cameray - 1
                         
                 elif keyeventlist == [0,0,0,1]:
-                    if cmap.gettile(camx,camy+1,4) == 1:
-                        nexttile = cmap.gettile(camx,camy+1,1)
+                    if cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,4) == 1:
+                        nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,1)
                         cameray = cameray + 1
                         
                 elif keyeventlist == [0,1,0,0]:
-                    if cmap.gettile(camx +1,camy,4) == 1:
-                        nexttile =  cmap.gettile(camx +1,camy,1)
+                    if cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],4) == 1:
+                        nexttile =  cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],1)
                         camerax = camerax + 1
                 if  nexttile != 0 and len(nexttile.attributes) > 1:
                     print(nexttile)
                     if nexttile.attributes[1] > 0:
                         pokeinteraction = nexttile.attributes[1]
                         pokelevel = nexttile.attributes[2]
-                camx = camerax
-                camy = cameray
+                cplayer.pos[0] = camerax
+                cplayer.pos[1] = cameray
             
     if transition[0] < 0.5:
             transition[0] = transition[0] + 0.01
@@ -319,3 +329,5 @@ def main():
 
 if __name__ == "__main__":
 	import main
+	mycam.tp( 52,13)
+	cplayer.pos = [52,13]

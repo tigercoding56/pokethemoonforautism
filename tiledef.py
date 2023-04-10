@@ -34,6 +34,7 @@ class tile():
         return self.texture
     def lgco(self,attributes,name,color): # legacy compatibility
         self.name = name
+        self.message = self.name
         self.color = color
         if len(attributes) > 3:
             if  "unpassable" in attributes[3]:
@@ -47,6 +48,7 @@ class tile():
         self.color = [0,0,0,0]
         self.walkable = 1
         self.name = '404'
+        self.message = ""
         #self.texture = ptexture('img/'+str(name)+'.png')
         self.texture = ptexture('img/404.png')
         self.textures = []
@@ -74,7 +76,15 @@ class water(tile):
 class grass1(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
-        
+
+class gemstone(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20],'gemstone',(77,77,157,255))
+        self.message = "(interact to mine gem)"
+        self.interactable = True
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        cplayer.inventory = cplayer.inventory.invadds("gem",1)
+        return [cplayer,cmap,message]        
 class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
@@ -124,7 +134,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"safetile",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone()]
 tiles = []
 for itile in xtiles:
     itile.upd()

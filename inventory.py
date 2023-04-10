@@ -100,13 +100,16 @@ class inventoryc:
         global possible_items
         t = possible_items["coal"]
         if ist in possible_items:
-            temp = inventory[ist]
+            temp = possible_items[ist]
             if temp in self.inv:
-                self.inv[temp] =  inv[temp] + amount
-                if self.inv[inv[temp]] < 0:
+                self.inv[temp] =  self.inv[temp] + amount
+            else:
+                self.inv[temp] = amount
+            if self.inv[temp] < 0:
                     self.inv[temp] = 0
         else:
             print("there does not exist a item of name" + str(ist))
+        return self
 temp = inventoryc()
 temp.test()
 tempinventory = temp.inv 
