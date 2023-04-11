@@ -1,6 +1,7 @@
 import pygame
 import PIL
 import gc
+from renderbase import svimg
 from PIL import Image
 import time
 import ptext
@@ -328,6 +329,7 @@ def main():
   
 
 if __name__ == "__main__":
-	import main
-	mycam.tp( 52,13)
-	cplayer.pos = [52,13]
+    #svimg(cmap) #--generates map image (only uncomment if changing map and need preview to prevent to many disk writes
+    import main
+    mycam.tp( 52,13)
+    cplayer.pos = [52,13]

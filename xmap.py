@@ -47,7 +47,7 @@ class memorymap():
                            # print("match" + str(i))
                             output = i      
                    if output == "none" and topt==0 :
-                       output = tiles[1]
+                       output = tiles[0]
                    self.mmap[str(x) + "o" + str(y)] = output
             
     
