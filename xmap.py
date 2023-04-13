@@ -59,7 +59,7 @@ class memorymap():
         if key in self.mmap:
             return self.mmap[key]
         else:
-            return tiles[2]
+            return tiles[0]
     def smmap(self,l,i):
         l = list(l)
         l[0] = math.floor(l[0])
@@ -147,6 +147,7 @@ class gmap():
         self.structuremap =  memorymap(self.loadtxt('img/structures.png'),topt=1)
         self.threedeffecthax =  self.loadtxt('img/3doutlinehack.png')
         self.threedoverlay = pygame.image.load('img/3deffect.png')
+        self.threedoverlay2 = pygame.image.load('img/3deffect2.png')
         self.threedfx = self.loadtxt('img/3dheight.png')
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))

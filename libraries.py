@@ -135,6 +135,7 @@ class render():
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile4= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
+                tile6 = xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
                 self.screen.blit(img,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
                 if not tile2 == "none":
@@ -147,6 +148,11 @@ class render():
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
                            if (tile4[0]) > (tile5[0]):
                                self.screen.blit(xgmap.threedoverlay,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                  if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
+                      if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
+                           if (tile4[0]) > (tile6[0]):
+                               self.screen.blit(xgmap.threedoverlay2,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                           
                            
                            
                 self.screen.blit(self.playerpreimg,(159,159))

@@ -109,6 +109,16 @@ class coalore(tile):
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("coal",1)
         return [cplayer,cmap,message]
+
+class copperore(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20],'copperore',(80,80,80,255))
+        self.message = "(interact to mine copper)"
+        self.interactable = True
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        cplayer.inventory = cplayer.inventory.invadds("copper",1)
+        return [cplayer,cmap,message]
+    
 class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
@@ -158,7 +168,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"safetile",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore()]
 tiles = []
 for itile in xtiles:
     itile.upd()
