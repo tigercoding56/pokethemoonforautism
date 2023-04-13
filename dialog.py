@@ -41,6 +41,7 @@ def dialog(prompt="",options=["Exit"]):
         dia.scene.draw()
         sbtn.draw(surface)
         pygame.display.update()
+        pygame.display.flip()
     return  dia.scenes[0].nodes[0].i
         
 #print(dialog("hi how are you?",["good"," normal ","bad"]))

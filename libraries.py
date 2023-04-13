@@ -185,18 +185,25 @@ def interact():
     global cmap,cplayer,mousepos,message
     rlpos = mousepos
     t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
+    t.pos = [cplayer.pos[0]+rlpos[0],cplayer.pos[1]+rlpos[1]]
     if t.interactable :
         res = t.interact(cplayer,cmap)
         if len(res) > 0:
             cplayer = res[0]
         if len(res) > 1:
             cmap = res[1]
-    cmap.setmap(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],t)
+        if len(res)>3:
+            t = res[3]
+            cmap.setmap(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],t)
+    
 
 def getmessage():
     global message,cplayer,mousepos
     rlpos = mousepos
-    message = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1).message
+    try:
+        message = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1).message
+    except:
+        print(cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1))
             
         
     

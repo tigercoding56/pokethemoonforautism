@@ -1,12 +1,13 @@
 
 import dialog
-import requests #yes i am judging you . be kind to that robot please :P 
+import asyncio
 
 
-def rdialog(dialogt,rval):
+def rdialog(dialogt):
     cdlg = ""
     cp = 1
     while cdlg == "":
+        asyncio.sleep(0)
         try:
             tlx = []
             tlh = []

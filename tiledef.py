@@ -1,5 +1,6 @@
 import pygame
-
+import dialogtree
+import asyncio
 class sttobj():
     def __init__(self,x,y):
         self.x = x
@@ -52,6 +53,7 @@ class tile():
         #self.texture = ptexture('img/'+str(name)+'.png')
         self.texture = ptexture('img/404.png')
         self.textures = []
+        self.pos = [0,0]
         self.attributes = ["ground",0,0,[]] ## sample ["detail"[group, if not set is assumed to be ground ],1 [enemy level to spawn 1 is basic enemies , 10 is challenging enemies],10 [chance of spawning (1 in #)],['unpassable','id32'] [list of attributes that can be used elsewhere in code , unpassable means player cannot walk through,"trader" [npc to spawn]]
 #### definitions start here
 
@@ -85,6 +87,8 @@ class gemstone(tile):
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("gem",1)
         return [cplayer,cmap,message]
+
+
 class goldstone(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20],'goldore',(196,189,62,255))
@@ -122,7 +126,18 @@ class copperore(tile):
 class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
-        
+
+class scriptkiddie1(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie1',(206,177,22,255))
+        self.message = "(interact to speak)"
+        self.interactable = True
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        t =  dialogtree.rdialog(dialogtree.introdialog)
+        print(self.pos)
+        if t == "mv":
+            cmap.structuremap.smmap((211,21),cmap.tiles[1])
+        return [cplayer,cmap,message,cmap.tiles[1]] 
 class grass3(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",3,5],'grass3',(204,204,204,255))
@@ -168,7 +183,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"safetile",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1()]
 tiles = []
 for itile in xtiles:
     itile.upd()
