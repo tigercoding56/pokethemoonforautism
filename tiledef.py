@@ -1,6 +1,8 @@
 import pygame
 import dialogtree
 import asyncio
+def IO():
+    pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
 class sttobj():
     def __init__(self,x,y):
         self.x = x
@@ -33,6 +35,11 @@ class tile():
         return self.gt()
     def gt(self):
         return self.texture
+    def callback(self,cmap=0,cplayer=0,test=0):
+        if test == 1:
+            return 0
+        else:
+            return [cmap,cplayer]
     def lgco(self,attributes,name,color): # legacy compatibility
         self.name = name
         self.message = self.name
@@ -126,18 +133,37 @@ class copperore(tile):
 class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
-
+###npc classes
 class scriptkiddie1(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie1',(206,177,22,255))
         self.message = "(interact to speak)"
         self.interactable = True
+    
     def interact(self,cplayer,cmap,message="found \n nothing"):
-        t =  dialogtree.rdialog(dialogtree.introdialog)
-        print(self.pos)
-        if t == "mv":
-            cmap.structuremap.smmap((211,21),cmap.tiles[1])
-        return [cplayer,cmap,message,cmap.tiles[1]] 
+        dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.introdialog)
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                print(dialogtree.cnpcdial.val)
+                if  dialogtree.cnpcdial.val == "mv":
+                    cmap.structuremap.smmap(self.pos,cmap.tiles[1])
+                    cmap.setmap(self.pos[0] ,self.pos[1],tiles[1])
+            return [cmap,cplayer]
+    
+    
+    
+    
+    
+    
+    
+    
+####npc classes
 class grass3(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",3,5],'grass3',(204,204,204,255))

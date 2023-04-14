@@ -1,4 +1,5 @@
 import asyncio, pygame, PIL, time
+import gc
 import libraries
 #import micropip
 
@@ -8,18 +9,21 @@ import libraries
 
 async def main():
     global libraries
-	
+    ##workaround for stupid asyncio
     while True:
 
         # Do your rendering here, note that it's NOT an infinite loop,
         # and it is fired only when VSYNC occurs
         # Usually 1/60 or more times per seconds on desktop, maybe less on some mobile devices
-        time.sleep(0.05)
-        libraries.main()
-        pygame.display.flip()
+        if libraries.dlgtree.cnpcdial == None or libraries.dlgtree.cnpcdial.active == 0 :
+            time.sleep(0.05)
+            libraries.main()
+            pygame.display.flip()
+        else:
+            libraries.dlgtree.cnpcdial = libraries.dlgtree.rnbcdialog(libraries.dlgtree.cnpcdial)
         
         
-        
+        gc.collect(2)
 
         await asyncio.sleep(0)  # Very important, and keep it 0
 

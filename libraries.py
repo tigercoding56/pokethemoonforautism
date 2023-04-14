@@ -9,9 +9,12 @@ import pickle
 import maingui as agui
 from maingui import App
 import enemies as EM
+from xmap import dlgtree
 from xmap import *
 from inventory import cplayer  , irender
 from pygamebutton import PygButton
+
+ACTIONqueue =[]
 mousepos = [1,0]
 transition = [1,"WMP","WMP"]
 #transition = [0,"WMP","ARENA"]
@@ -181,21 +184,38 @@ cplayer.pos[0] = 218
 cplayer.pos[1] = 21
 frametime = 0
 drawsys.screen =  pygame.display.set_mode((X,Y))
-def interact():
-    global cmap,cplayer,mousepos,message
-    rlpos = mousepos
-    t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
-    t.pos = [cplayer.pos[0]+rlpos[0],cplayer.pos[1]+rlpos[1]]
-    if t.interactable :
-        res = t.interact(cplayer,cmap)
-        if len(res) > 0:
-            cplayer = res[0]
-        if len(res) > 1:
-            cmap = res[1]
-        if len(res)>3:
-            t = res[3]
-            cmap.setmap(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],t)
-    
+def interact(rlpos=None):
+    global cmap,cplayer,mousepos,message,ACTIONqueue
+    if rlpos == None:
+        rlpos = mousepos
+        t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
+        t.pos = [cplayer.pos[0]+rlpos[0],cplayer.pos[1]+rlpos[1]]
+        if t.interactable :
+            res = t.interact(cplayer,cmap)
+            if len(res) > 0:
+                cplayer = res[0]
+            if len(res) > 1:
+                cmap = res[1]
+            if len(res)>3:
+                t = res[3]
+                cmap.setmap(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],t)
+            if t.callback(test=1):
+                ACTIONqueue.append([cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1]])
+                
+            
+    else:
+        t = cmap.gettile(rlpos[0] ,rlpos[1],1)
+        t.pos = rlpos
+        if t.interactable :
+            res = t.callback(cmap,cplayer,test=0)
+            if len(res) > 0:
+                cmap = res[0]
+            if len(res) > 1:
+                cplayer = res[1]
+            if len(res)>3:
+                t = res[3]
+                cmap.setmap(rlpos[0] ,rlpos[1],t)
+
 
 def getmessage():
     global message,cplayer,mousepos
@@ -211,10 +231,18 @@ def getmessage():
 ###helper function
 isinvo = False
 def main():
-    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare
+    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ACTIONqueue
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
     mycam.run()
+    if len(ACTIONqueue) > 0:
+        #try:
+            interact(ACTIONqueue[0])
+            del(ACTIONqueue[0])
+       # except:
+           # ACTIONqueue = []
+           # print("actionqueue failed")
+            
     if not isinvo:
         if ACTIVEAREA == "WMP":
             drawsys.renderwmp(mycam,cmap,frametime)

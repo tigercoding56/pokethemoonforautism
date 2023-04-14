@@ -5,6 +5,7 @@ import time
 import ptext
 from tiledef import tiles
 from tiledef import sttobj
+from tiledef import dialogtree as dlgtree
 import math
 import random
 import copy

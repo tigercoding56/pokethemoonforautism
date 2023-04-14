@@ -1036,7 +1036,7 @@ class ListBox(Node):
         self.i0 = 0     # first ListBox item
         self.i2 = 0     # cursor
         self.items = items
-        self.n = len(items)
+        self.n = len(items) 
         self.sel = [0] * self.n
         
     def render(self):
@@ -1107,9 +1107,8 @@ class ListBox(Node):
         # Select item i
         mod = pygame.key.get_mods()
         self.i = i
-        if self.i > len(self.items) -2 :
-            self.i = len(self.items)-2
-            print(len(self.items))
+        if self.i > len(self.items) -1 :
+            self.i = len(self.items)-1
         #self.i = (i % len(self.items) )
         self.item = self.items[i]
 

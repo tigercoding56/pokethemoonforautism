@@ -24,6 +24,7 @@ def dialog(prompt="",options=["Exit"]):
     global surface
     t = True
     dia.scenes[0].nodes[0].set_list(options)
+    time.sleep(0.1)
     while t:
         for event in pygame.event.get():
             dia.scene.do_event(event)
@@ -43,5 +44,30 @@ def dialog(prompt="",options=["Exit"]):
         pygame.display.update()
         pygame.display.flip()
     return  dia.scenes[0].nodes[0].i
+
+
+def rndialog(prompt="",options=["Exit"],cpos=0):
+    global surface
+    t = True
+    dia.scenes[0].nodes[0].set_list(options)
+    dia.scenes[0].nodes[0].select( cpos)
+    for event in pygame.event.get():
+            dia.scene.do_event(event)
+            if "click" in sbtn.handleEvent(event):
+                t = False
+            if event.type == pygame.QUIT:
+                pygame.quit()
+    pygame.draw.rect(surface, color, pygame.Rect(0, 0, 420, 320))
+    ptext.draw( prompt, (10, 70),  color="black")
+    dia.run()
+    #print(dia.scenes[0].nodes[0].i)
+    dia.scenes[0].nodes[0].render()
+    dia.scenes[0].nodes[0].draw()
+    dia.scene.update()
+    dia.scene.draw()
+    sbtn.draw(surface)
+    pygame.display.update()
+    pygame.display.flip()
+    return  [dia.scenes[0].nodes[0].i,t]
         
 #print(dialog("hi how are you?",["good"," normal ","bad"]))
