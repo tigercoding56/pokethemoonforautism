@@ -13,7 +13,7 @@ from xmap import dlgtree
 from xmap import *
 from inventory import cplayer  , irender
 from pygamebutton import PygButton
-
+from pygame.locals import DOUBLEBUF
 if __import__("sys").platform == "emscripten":
     from platform import window
 
@@ -118,7 +118,7 @@ class render():
     def __init__(self):
         global X,Y
         self.screen  = pygame.display.set_mode((X, Y))
-        self.vbuffer  = pygame.surface.Surface((840, 640))
+        self.vbuffer  = pygame.surface.Surface((840, 640)).convert()
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
         self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
         self.arenaimg =  pygame.image.load("img/battlearena.png")
@@ -163,27 +163,25 @@ class render():
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
                            if (tile4[0]) > (tile6[0]):
                                self.vbuffer.blit(xgmap.threedoverlay2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
-                           
-                           
-                           
-                self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
-                blitpos = [0,0]
-                if list(mousepos) == [-1,0]:
-                    blitpos = ((140*2) + self.gets(camera.cx),(160*2) )
-                elif list(mousepos) == [1,0] :
-                    blitpos = ((200*2) + self.gets(camera.cx),(160*2) )
-                elif list(mousepos) == [0,1]:
-                    blitpos = ((160*2) ,(200*2) + self.gets(camera.cy))
-                elif list(mousepos) == [0,-1] :
-                    blitpos = ((160*2) ,(140*2) + self.gets(camera.cy))
-                self.vbuffer.blit(self.highlight,blitpos)
-                t = self.vbuffer
-                blitpos = list(blitpos)
-                blitpos[0] = blitpos[0]*2
-                blitpos[1] = blitpos[1]*2
-                self.screen.blit(t,(0,0))
-                ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
-                    
+                   
+                   
+                   
+        self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
+        blitpos = [0,0]
+        if list(mousepos) == [-1,0]:
+            blitpos = ((140*2) + self.gets(camera.cx),(160*2) )
+        elif list(mousepos) == [1,0] :
+            blitpos = ((200*2) + self.gets(camera.cx),(160*2) )
+        elif list(mousepos) == [0,1]:
+            blitpos = ((160*2) ,(200*2) + self.gets(camera.cy))
+        elif list(mousepos) == [0,-1] :
+            blitpos = ((160*2) ,(140*2) + self.gets(camera.cy))
+        self.vbuffer.blit(self.highlight,blitpos)
+        t = self.vbuffer
+        blitpos = list(blitpos)
+        blitpos[0] = blitpos[0]*2
+        blitpos[1] = blitpos[1]*2
+        self.screen.blit(t,(0,0))
 
         
         
@@ -245,7 +243,7 @@ def getmessage():
 isinvo = False
 def main():
     start_time = time.time()
-    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree
+    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
     mycam.run()
@@ -258,8 +256,10 @@ def main():
             interact(ActionQueue[0])
             del(ActionQueue[0])
         if ACTIVEAREA == "WMP":
-            drawsys.renderwmp(mycam,cmap,frametime)
-            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+            start_time = time.time()
+            blitpos = drawsys.renderwmp(mycam,cmap,frametime)
+            #ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((1/(time.time() - start_time))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
 
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
@@ -369,8 +369,7 @@ def main():
             #                                                #
             ##################################################
             
-    if frametime % 11== 10:    
-        print("Frametime ",  (time.time() - start_time)) # FPS = 1 / time to process loop
+     # FPS = 1 / time to process loop
   
 
 if __name__ == "__main__":

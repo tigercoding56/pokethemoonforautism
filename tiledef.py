@@ -17,10 +17,13 @@ class sttobj():
             return default
 tile_textures = {}#optimisation to not need a rtx 4090 XYT
 class ptexture(): # a texture pointer class
-    def __init__(self,location):
+    def __init__(self,location,a=0):
         global tile_textures
         if not str(location) in tile_textures:
-            tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)), (40,40))
+            if a:
+                tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)).convert_alpha(), (40,40))
+            else:
+                tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)).convert(), (40,40))
         self.location = str(location)
     def gt(self):
         return tile_textures[self.location]
@@ -41,7 +44,7 @@ class tile():
             return 0
         else:
             return [cmap,cplayer]
-    def lgco(self,attributes,name,color): # legacy compatibility
+    def lgco(self,attributes,name,color,a=0): # legacy compatibility
         self.name = name
         self.message = self.name
         self.color = color
@@ -50,7 +53,7 @@ class tile():
                 self.walkable = 0
         self.attributes = []
         self.interactable = 0 
-        self.texture = ptexture('img/' +self.name+'.png')
+        self.texture = ptexture('img/' +self.name+'.png',a)
     def catchtxt(self,name):
         return ptexture('img/' +name+'.png')
     def __init__(self):
@@ -137,7 +140,7 @@ class grass2(tile):
 ###npc classes
 class scriptkiddie1(tile):
     def upd(self): #gets run after init to set defaults to water
-        self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie1',(206,177,22,255))
+        self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie1',(206,177,22,255),1)
         self.message = "(interact to speak)"
         self.interactable = True
     
@@ -198,7 +201,7 @@ class sand(tile):
         self.interactable = 1
 class steppingstones(tile):
     def upd(self):
-        self.lgco(['ground', 0, 0],"steppingstones",(10, 10, 10, 255))
+        self.lgco(['ground', 0, 0],"steppingstones",(10, 10, 10, 255),1)
 class path(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"path",(0, 255, 255, 255))
@@ -222,7 +225,7 @@ class tree(tile):
         self.lgco(['ground', 0, 0, ['unpassable']],"tree",(0, 96, 121, 255))
 class safetile(tile):
     def upd(self):
-        self.lgco(['ground', 0, 0],"safetile",(0, 255, 0, 255))
+        self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
 xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1()]
 tiles = []
 for itile in xtiles:
