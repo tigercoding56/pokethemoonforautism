@@ -147,8 +147,8 @@ class gmap():
         self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
         self.structuremap =  memorymap(self.loadtxt('img/structures.png'),topt=1)
         self.threedeffecthax =  self.loadtxt('img/3doutlinehack.png')
-        self.threedoverlay = pygame.image.load('img/3deffect.png')
-        self.threedoverlay2 = pygame.image.load('img/3deffect2.png')
+        self.threedoverlay = pygame.transform.scale(pygame.image.load('img/3deffect.png'),(40,40))
+        self.threedoverlay2 = pygame.transform.scale(pygame.image.load('img/3deffect2.png'),(40,40))
         self.threedfx = self.loadtxt('img/3dheight.png')
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))

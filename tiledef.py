@@ -20,13 +20,14 @@ class ptexture(): # a texture pointer class
     def __init__(self,location):
         global tile_textures
         if not str(location) in tile_textures:
-            tile_textures[str(location)] = pygame.image.load(str(location))
+            tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)), (40,40))
         self.location = str(location)
     def gt(self):
         return tile_textures[self.location]
         
     
 tiles = []
+quests = {"intro":0}
 class tile():
     def interact(self,cplayer,cmap,message="found \n nothing"):
         return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
@@ -141,20 +142,33 @@ class scriptkiddie1(tile):
         self.interactable = True
     
     def interact(self,cplayer,cmap,message="found \n nothing"):
-        dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.introdialog)
+        global quests
+        if quests["intro"] == 0:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.introdialog)
+        else:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info1dialog)
         ####
         
         return [cplayer,cmap,message]
     def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
         if test == 1:
             return 1
         else:
-            if not dialogtree.cnpcdial == None:
-                print(dialogtree.cnpcdial.val)
-                if  dialogtree.cnpcdial.val == "mv":
-                    cmap.structuremap.smmap(self.pos,cmap.tiles[1])
-                    cmap.setmap(self.pos[0] ,self.pos[1],tiles[1])
+            print(quests)
+            if quests["intro"] == 0:
+                if not dialogtree.cnpcdial == None:
+                    if  dialogtree.cnpcdial.val == "mv":
+                        quests["intro"] = 1
+                        cmap.structuremap.smmap(self.pos,cmap.tiles[1])
+                        return [cmap,cplayer,"",tiles[1]]
+            elif quests["intro"] == 1:
+                if not dialogtree.cnpcdial == None:
+                    if  dialogtree.cnpcdial.val == "ac":
+                        quests["intro"] = 2
             return [cmap,cplayer]
+                    #cmap.setmap(self.pos[0] ,self.pos[1],tiles[1])
+            
     
     
     

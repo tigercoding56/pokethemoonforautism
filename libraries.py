@@ -6,22 +6,27 @@ from PIL import Image
 import time
 import ptext
 import pickle
-import maingui as agui
-from maingui import App
+#import maingui as agui
+#from maingui import App
 import enemies as EM
 from xmap import dlgtree
 from xmap import *
 from inventory import cplayer  , irender
 from pygamebutton import PygButton
 
-ACTIONqueue =[]
+if __import__("sys").platform == "emscripten":
+    from platform import window
+
+
+
+ActionQueue =[]
 mousepos = [1,0]
 transition = [1,"WMP","WMP"]
 #transition = [0,"WMP","ARENA"]
 AREAS = ["WMP","ARENA","INV"]## these will be implemented later
 ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled while WMP is active 
-X = 420
-Y = 320
+X = 840
+Y = 640
 cmap = gmap(tiles)
 ######################
 #player initial setup#
@@ -36,8 +41,10 @@ cmap = gmap(tiles)
 ######################
 #GUI setup           #
 ######################
-invbtn = PygButton(caption="inventory",rect=(320,280,100,20))
-intbtn = PygButton(caption="interact ",rect=(320,300,100,20))
+def scale(x,y,x1,y1):
+    return (x*2,y*2,x1*2,y1*2)
+invbtn = PygButton(caption="inventory",rect=scale(320,280,100,20))
+intbtn = PygButton(caption="interact ",rect=scale(320,300,100,20))
 #intbtn = PygButton(caption="scavenge",rect=(320,260,100,20))
 
 
@@ -111,14 +118,15 @@ class render():
     def __init__(self):
         global X,Y
         self.screen  = pygame.display.set_mode((X, Y))
-        self.playerpreimg =  pygame.image.load("img/player.png")
-        self.highlight =  pygame.image.load("img/hilight.png")
+        self.vbuffer  = pygame.surface.Surface((840, 640))
+        self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
+        self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
         self.arenaimg =  pygame.image.load("img/battlearena.png")
     def gets(self,value,t="False"):
         if t == True:
             return value #- (value % 10)
         else:
-            return ((value-8) % 1)*-20
+            return ((value-8) % 1)*-40
     def shaderz(self):
         for x in range(1,320):
             for y in range(1,320):
@@ -140,35 +148,40 @@ class render():
                 tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
                 tile6 = xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
-                self.screen.blit(img,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                self.vbuffer.blit(img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
                 if not tile2 == "none":
                     if tile2.name == "steppingstones":
                        threed = False
                     img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
-                    self.screen.blit(img2,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                    self.vbuffer.blit(img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
                            if (tile4[0]) > (tile5[0]):
-                               self.screen.blit(xgmap.threedoverlay,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                               self.vbuffer.blit(xgmap.threedoverlay,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
                   if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
                            if (tile4[0]) > (tile6[0]):
-                               self.screen.blit(xgmap.threedoverlay2,(x*20+self.gets(camera.cx),y*20+self.gets(camera.cy)))
+                               self.vbuffer.blit(xgmap.threedoverlay2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
                            
                            
                            
-                self.screen.blit(self.playerpreimg,(159,159))
+                self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
                 blitpos = [0,0]
                 if list(mousepos) == [-1,0]:
-                    blitpos = (140 + self.gets(camera.cx),160 )
+                    blitpos = ((140*2) + self.gets(camera.cx),(160*2) )
                 elif list(mousepos) == [1,0] :
-                    blitpos = (200 + self.gets(camera.cx),160 )
+                    blitpos = ((200*2) + self.gets(camera.cx),(160*2) )
                 elif list(mousepos) == [0,1]:
-                    blitpos = (160 ,200 + self.gets(camera.cy))
+                    blitpos = ((160*2) ,(200*2) + self.gets(camera.cy))
                 elif list(mousepos) == [0,-1] :
-                    blitpos = (160 ,140 + self.gets(camera.cy))
-                self.screen.blit(self.highlight,blitpos)
+                    blitpos = ((160*2) ,(140*2) + self.gets(camera.cy))
+                self.vbuffer.blit(self.highlight,blitpos)
+                t = self.vbuffer
+                blitpos = list(blitpos)
+                blitpos[0] = blitpos[0]*2
+                blitpos[1] = blitpos[1]*2
+                self.screen.blit(t,(0,0))
                 ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
                     
 
@@ -185,7 +198,7 @@ cplayer.pos[1] = 21
 frametime = 0
 drawsys.screen =  pygame.display.set_mode((X,Y))
 def interact(rlpos=None):
-    global cmap,cplayer,mousepos,message,ACTIONqueue
+    global cmap,cplayer,mousepos,message,ActionQueue
     if rlpos == None:
         rlpos = mousepos
         t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
@@ -200,7 +213,7 @@ def interact(rlpos=None):
                 t = res[3]
                 cmap.setmap(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],t)
             if t.callback(test=1):
-                ACTIONqueue.append([cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1]])
+                ActionQueue.append([cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1]])
                 
             
     else:
@@ -231,19 +244,19 @@ def getmessage():
 ###helper function
 isinvo = False
 def main():
-    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ACTIONqueue
+    start_time = time.time()
+    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
     mycam.run()
-    if len(ACTIONqueue) > 0:
-        #try:
-            interact(ACTIONqueue[0])
-            del(ACTIONqueue[0])
        # except:
-           # ACTIONqueue = []
-           # print("actionqueue failed")
+           # ActionQueue = []
+           # print("ActionQueue failed")
             
-    if not isinvo:
+    if not (isinvo or  dlgtree.cnpcdial.active)  :
+        if len(ActionQueue) > 0:
+            interact(ActionQueue[0])
+            del(ActionQueue[0])
         if ACTIVEAREA == "WMP":
             drawsys.renderwmp(mycam,cmap,frametime)
             ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
@@ -260,18 +273,7 @@ def main():
     #pygame.display.update()
     pokeinteraction = 0
     pokelevel = 0
-    if not isinvo:
-        if  not  agui.elementriev == "":
-            if agui.elementriev == ['mn1', [0, 1, 0]]:
-                if transition[0] > 0.9 and transition[2] == "WMP":
-                    transition =  [0,"WMP","ARENA"]
-                if transition[0] > 0.9 and transition[2] == "ARENA":
-                    transition =  [0,"ARENA","WMP"]
-            if agui.elementriev == ['mn1', [1, 0, 0]]:
-               isinvo = True
-                #openinv()
-               print(agui.elementriev)
-            agui.elementriev =""
+    if not (isinvo or  dlgtree.cnpcdial.active)  : 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -355,8 +357,10 @@ def main():
     else:
         if not ACTIVEAREA in ["inventory"]:
             ACTIVEAREA = transition[2]
-    if not isinvo:
-        pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(320, 0, 420, 320))
+    if  dlgtree.cnpcdial.active:
+        dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+    if not (isinvo or  dlgtree.cnpcdial.active)  :
+        pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
         if ACTIVEAREA == "WMP":
             invbtn.draw(drawsys.screen)
             intbtn.draw(drawsys.screen)
@@ -365,8 +369,8 @@ def main():
             #                                                #
             ##################################################
             
-        
-    gc.collect(2)
+    if frametime % 11== 10:    
+        print("Frametime ",  (time.time() - start_time)) # FPS = 1 / time to process loop
   
 
 if __name__ == "__main__":

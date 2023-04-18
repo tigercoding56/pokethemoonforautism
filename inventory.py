@@ -2,17 +2,20 @@ import pygame
 import time
 import math
 import ptext
-import pqGUI as agui
-from pqGUI import App
+#import pqGUI as agui
+#from pqGUI import App
 from player import messages
 from player import playerobj
 from player import player
 from pygamebutton import PygButton
+from listbox import ListBox
 import random
-X = 420
-Y = 320
+X = 840
+Y = 640
 color = (200,220,255)
 wcolor = (255,200,150)
+def scale(x,y,x1,y1):
+    return (x*2,y*2,x1*2,y1*2)
 class item():
     def __init__(self,name="default",desc="description",place="no",uda=False):
         self.name = str(name)
@@ -25,7 +28,7 @@ class item():
         except:
             texture = pygame.image.load("img/404.png")
             print("item " + str(name) + " needs a texture at img/items" + tname + ".png please ,add one")
-        self.image = pygame.transform.scale(texture, (40,40))
+        self.image = pygame.transform.scale(texture, (80,80))
         ##format
         t = ""
         ct = 0
@@ -75,20 +78,14 @@ def computestringdiff(actuall,inputst):
     return len(list(inputst.replace(actuall,"")))
 
         
-        
-class INVAPP(App):
-    def __init__(self,**options):
-        super().__init__(**options)
-        agui.Scene(id=0)
-        self.inv = agui.ListBox([],pos=(250,0),width=170,m=18,fontsize=20,cmd="self.sse()",name="mn1")        
-        App.scene = App.scenes[0]
+
     
-    
-invs = INVAPP(size=(X,Y))
+
+list_box = ListBox(500, 0, 340, 840, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
 surface = pygame.display.set_mode((X,Y))
-exitbtn = PygButton(caption="exit inventory",rect=(250,280,170,20))
-delbtn = PygButton(caption="throw away ",rect=(250,300,170,20))
-intbtn = PygButton(caption=" interact  ",rect=(250,260,170,20))
+exitbtn = PygButton(caption="exit inventory",rect=scale(250,280,170,20))
+delbtn = PygButton(caption="throw away ",rect=scale(250,300,170,20))
+intbtn = PygButton(caption=" interact  ",rect=scale(250,260,170,20))
 class inventoryc:
     def __init__(self):
         self.inv = {}
@@ -110,25 +107,36 @@ class inventoryc:
         else:
             print("there does not exist a item of name" + str(ist))
         return self
+    def invcheck(ist,rm=0):#rm removes item # if greater than 0
+        global possible_items
+        t = possible_items["coal"]
+        if ist in possible_items:
+            temp = possible_items[ist]
+            if temp in self.inv:
+                if self.inv[temp] > rm:
+                    self.inv[temp] =  self.inv[temp] - rm
+                    return 1
+                elif self.inv[temp] == rm:
+                    del(self.inv[temp])
+                    return 1
+        return 0
+                    
 temp = inventoryc()
 temp.test()
 tempinventory = temp.inv 
 def setinv(inventory):
-    global invs
-    x = invs.scenes[0].nodes[0].i
+    global list_box,surface
     u = []
     clist = []
     for key, value in inventory.items():
         if value > 0:
             u.append(key.name + " "+str(value))
             clist.append(key)
-    u.append(" ")
-    clist.append(item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True))
-    invs.scenes[0].nodes[0].set_list(u)
-    invs.scenes[0].nodes[0].i = x
-    invs.scenes[0].nodes[0].select(x)
-    invs.scenes[0].nodes[0].render()
-    return clist[math.floor((invs.scenes[0].nodes[0].i% len(u)))] 
+    list_box.setl(u)
+    list_box.draw(surface)
+    if list_box.selected_item ==None:
+        return  item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True)
+    return clist[math.floor((list_box.selected_item % len(u)))] 
 
 def irender(player):
     exitinv = 0
@@ -139,7 +147,7 @@ def irender(player):
     else:
         intbtn.enabled = False
     for event in pygame.event.get():
-        invs.scene.do_event(event)
+        list_box.handle_event(event)
         if 'click' in delbtn.handleEvent(event) :
             if invitem.uda == False :
                 inventory[invitem] = 0
@@ -160,12 +168,9 @@ def irender(player):
         if event.type == pygame.QUIT:
             pygame.quit()
     
-    pygame.draw.rect(surface, color, pygame.Rect(0, 0, 250, 320))
+    pygame.draw.rect(surface, color, pygame.Rect(scale(0, 0, 250, 320)))
     ptext.draw( invitem.desc, (10, 70),  color="black")
     surface.blit(invitem.image,(5,5))
-    invs.run()
-    invs.scene.update()
-    invs.scene.draw()
     exitbtn.draw(surface)
     delbtn.draw(surface)
     intbtn.draw(surface)
