@@ -149,7 +149,7 @@ class render():
                 tile6 = xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
                 self.vbuffer.blit(img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
-                if not tile2 == "none":
+                if not (tile2 == "none" or tile2.hidden):
                     if tile2.name == "steppingstones":
                        threed = False
                     img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
@@ -179,9 +179,10 @@ class render():
         self.vbuffer.blit(self.highlight,blitpos)
         t = self.vbuffer
         blitpos = list(blitpos)
-        blitpos[0] = blitpos[0]*2
-        blitpos[1] = blitpos[1]*2
+        #blitpos[0] = blitpos[0]*2
+        #blitpos[1] = blitpos[1]*2
         self.screen.blit(t,(0,0))
+        return blitpos
 
         
         
@@ -258,7 +259,7 @@ def main():
         if ACTIVEAREA == "WMP":
             start_time = time.time()
             blitpos = drawsys.renderwmp(mycam,cmap,frametime)
-            #ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+            ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
             ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((1/(time.time() - start_time))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
 
         elif ACTIVEAREA == "ARENA":

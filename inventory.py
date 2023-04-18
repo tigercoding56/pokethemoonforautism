@@ -107,9 +107,9 @@ class inventoryc:
         else:
             print("there does not exist a item of name" + str(ist))
         return self
-    def invcheck(ist,rm=0):#rm removes item # if greater than 0
+    def invcheck(self,ist,rm=0):#rm removes item # if greater than 0
         global possible_items
-        t = possible_items["coal"]
+       # t = possible_items["coal"]
         if ist in possible_items:
             temp = possible_items[ist]
             if temp in self.inv:

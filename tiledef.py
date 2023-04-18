@@ -17,9 +17,10 @@ class sttobj():
             return default
 tile_textures = {}#optimisation to not need a rtx 4090 XYT
 class ptexture(): # a texture pointer class
-    def __init__(self,location,a=0):
+    def __init__(self,location,a=1):
         global tile_textures
         if not str(location) in tile_textures:
+            a = 1
             if a:
                 tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)).convert_alpha(), (40,40))
             else:
@@ -61,6 +62,7 @@ class tile():
         self.walkable = 1
         self.name = '404'
         self.message = ""
+        self.hidden = 0
         #self.texture = ptexture('img/'+str(name)+'.png')
         self.texture = ptexture('img/404.png')
         self.textures = []
@@ -138,6 +140,50 @@ class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
 ###npc classes
+class npc(tile):
+    def lgco(self,name,questn,pos,dialog,a=0,attributes=["ground",1,20,["unpassable"]],squestn=None): # legacy compatibility
+        self.name = name
+        self.hidden = 0
+        self.message = "(interact to speak)"
+        self.color = color
+        if len(attributes) > 3:
+            if  "unpassable" in attributes[3]:
+                self.walkable = 0
+        self.attributes = attributes
+        self.interactable = 1
+        self.pos = pos
+        self.dialog = dialog
+        self.questn = questn
+        self.texture = ptexture('img/' +self.name+'.png',a)
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests 
+        if not self.questn in quests:
+            quests[questn] = 0
+        if quests[questn] == 0:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(self.dialog)
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not self.questn in quests:
+                quests[questn] = 0
+                self.hidden = False
+                self.walkable = 1
+            if quests[self.questn] == 0:
+                if not dialogtree.cnpcdial == None:
+                    if  dialogtree.cnpcdial.val == "ac":
+                        quests[self.questn] = 1
+                        self.hidden = True
+                        self.walkable = 1
+                        return [cmap,cplayer,"",tiles[1]]
+            return [cmap,cplayer]
+  
+        
+######
 class scriptkiddie1(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie1',(206,177,22,255),1)
@@ -148,8 +194,15 @@ class scriptkiddie1(tile):
         global quests
         if quests["intro"] == 0:
             dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.introdialog)
-        else:
+        elif quests["intro"] == 1:
             dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info1dialog)
+        elif quests["intro"] ==2:
+           t =  cplayer.inventory.invcheck("copper",2)
+           if t == 1:
+               dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info2dialoga)
+               quests["intro"] = 3
+           else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info2dialogb)
         ####
         
         return [cplayer,cmap,message]
