@@ -136,6 +136,10 @@ class render():
     def renderwmp(self,camera,xgmap,frametime):
         global mousepos,message
         getmessage()
+        vb1 =[]
+        vb2 = []
+        vb3 = []
+        vb4 = []
         for x in range(-1,17):
             for y in range(-1,17):
                 x = x 
@@ -148,24 +152,31 @@ class render():
                 tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
                 tile6 = xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
-                self.vbuffer.blit(img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
+                vb1.append((img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                 if not (tile2 == "none" or tile2.hidden):
                     if tile2.name == "steppingstones":
                        threed = False
                     img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
-                    self.vbuffer.blit(img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
+                    vb2.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
                            if (tile4[0]) > (tile5[0]):
-                               self.vbuffer.blit(xgmap.threedoverlay,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
+                               vb3.append((xgmap.threedoverlay,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                   if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
                            if (tile4[0]) > (tile6[0]):
-                               self.vbuffer.blit(xgmap.threedoverlay2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)))
+                               vb4.append((xgmap.threedoverlay2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                    
                    
-                   
+        self.vbuffer.blits(vb1)
+        if len(vb2)>0:
+            self.vbuffer.blits(vb2)
+        if len(vb3) > 0:
+            self.vbuffer.blits(vb3)
+        if len(vb4) > 0:
+            self.vbuffer.blits(vb4)
+            
         self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
         blitpos = [0,0]
         if list(mousepos) == [-1,0]:

@@ -216,12 +216,14 @@ class scriptkiddie1(tile):
                 if not dialogtree.cnpcdial == None:
                     if  dialogtree.cnpcdial.val == "mv":
                         quests["intro"] = 1
+                        dialogtree.cnpcdial = dialogtree.ddialog()
                         cmap.structuremap.smmap(self.pos,cmap.tiles[1])
                         return [cmap,cplayer,"",tiles[1]]
             elif quests["intro"] == 1:
                 if not dialogtree.cnpcdial == None:
                     if  dialogtree.cnpcdial.val == "ac":
                         quests["intro"] = 2
+                        dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
                     #cmap.setmap(self.pos[0] ,self.pos[1],tiles[1])
             
