@@ -181,6 +181,7 @@ class render():
         vb2 = []
         vb3 = []
         vb4 = []
+        vb5 = []
         for x in range(-1,17):
             for y in range(-1,17):
                 x = x 
@@ -198,7 +199,10 @@ class render():
                     if tile2.name == "steppingstones":
                        threed = False
                     img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
-                    vb2.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
+                    if  tile2.place_last: 
+                        vb2.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
+                    else:
+                        vb3.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
@@ -217,6 +221,8 @@ class render():
             self.vbuffer.blits(vb3)
         if len(vb4) > 0:
             self.vbuffer.blits(vb4)
+        if len(vb5) > 0:
+            self.vbuffer.blits(vb5)
             
         self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
         blitpos = [0,0]

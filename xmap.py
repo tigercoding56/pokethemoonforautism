@@ -51,6 +51,8 @@ class memorymap():
                             output = i      
                    if output == "none" and topt==0 :
                        output = tiles[0]
+                   if not output == "none":
+                       output.pos = [x,y]
                    self.mmap[str(x) + "o" + str(y)] = output
                    self.dgmap[str(x) + "o" + str(y)] = output
     def getdiff(self):
@@ -83,6 +85,7 @@ class memorymap():
         l[0] = math.floor(l[0])
         l[1] = math.floor(l[1])
         key = str(l[0]) + "o" + str(l[1])
+        i.pos = [l[0],l[1]]
         self.mmap[key] = i
     def getpixel(self,t,st="l"):
        # try:

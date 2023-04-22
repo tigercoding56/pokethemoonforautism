@@ -17,14 +17,16 @@ class sttobj():
             return default
 tile_textures = {}#optimisation to not need a rtx 4090 XYT
 class ptexture(): # a texture pointer class
-    def __init__(self,location,a=1):
+    def __init__(self,location,a=1,rescale=1):
         global tile_textures
         if not str(location) in tile_textures:
             a = 1
-            if a:
-                tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)).convert_alpha(), (40,40))
+            preimg = pygame.image.load(str(location)).convert_alpha()
+            if rescale:
+                tile_textures[str(location)] = pygame.transform.scale(preimg, (40,40))
             else:
-                tile_textures[str(location)] = pygame.transform.scale(pygame.image.load(str(location)).convert(), (40,40))
+                tile_textures[str(location)] = preimg
+            del(preimg)
         self.location = str(location)
     def gt(self):
         return tile_textures[self.location]
@@ -60,6 +62,7 @@ class tile():
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
+        self.place_last =0
         self.name = '404'
         self.message = ""
         self.hidden = 0
@@ -91,6 +94,104 @@ class water(tile):
 class grass1(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
+
+
+#start of a-10 tiles
+class a_10nose(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-nose',(69,69,69,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-nose.png')
+class a_10cabin(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin',(88,88,88,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-cabin.png')
+class a_10cabin2(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(98,98,98,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-cabin2.png')
+class a_10tail(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(167,167,167,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-tailb.png')
+class a_10section(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(147,147,147,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-section1.png')
+        self.texture2 = ptexture('img/a10-section2.png')
+    def gt(self):
+        if self.pos[0] % 2 == 1:
+            return self.texture
+        else:
+            return self.texture2
+class a_10wing(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,10,50,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-winga.png')
+        self.texture2 = ptexture('img/a10-wingb.png')
+    def gt(self):
+        if self.pos[1] % 2 == 1:
+            return self.texture
+        else:
+            return self.texture2
+class a_10wingtipa(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,50,10,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-wingtipa.png')
+
+class a_10wingtipb(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,100,50,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-wingtipb.png')
+
+class a_10turbinea(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,20,50,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-rightturbine.png')
+
+class a_10turbineb(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,50,20,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-leftturbine.png')
+
+class a_10taila(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,200,50,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a-10taila.png')
+        
+class a_10tailb(tile):
+    def upd(self):
+        self.lgco(["ground",1,20],'a10-cabin2',(0,20,200,255))
+        self.message = ""
+        self.place_last = 1
+        self.texture = ptexture('img/a10-tailc.png')
+
+
+
+
+
+####end of a-10 tiles
 
 class gemstone(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -281,7 +382,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb()]
 tiles = []
 for itile in xtiles:
     itile.upd()
