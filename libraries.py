@@ -6,16 +6,23 @@ from PIL import Image
 import time
 import ptext
 import pickle
+import base64
 #import maingui as agui
 #from maingui import App
 import enemies as EM
+import xmap
 from xmap import dlgtree
 from xmap import *
 from inventory import cplayer  , irender
 from pygamebutton import PygButton
 from pygame.locals import DOUBLEBUF
+onweb = 0
 if __import__("sys").platform == "emscripten":
     from platform import window
+    onweb = 1
+    window.fs_loaded = False
+else:
+    import os
 
 
 
@@ -28,6 +35,39 @@ ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled whi
 X = 840
 Y = 640
 cmap = gmap(tiles)
+def save(slot):
+    global cmap,onweb,xmap,cplayer
+    if onweb :
+        sd = ["0.2",cplayer,cmap.structuremap.getdiff(),cmap.heightmap.getdiff(),xmap.tiledef.quests]
+        window.localStorage.setItem(str(slot),str(base64.b64encode(pickle.dumps(sd)).decode('ascii')))
+    else:
+        sd = ["0.2",cplayer,cmap.structuremap.getdiff(),cmap.heightmap.getdiff(),xmap.tiledef.quests]
+        #os.path.exists() ## if this gives error , make sure you only use ptexture classes in tiledef py as opposed to pygame.textures
+        #print(str(base64.b64encode(pickle.dumps(sd)).decode('ascii')))
+        with open("savegame"+slot+".dat","wb") as svg:
+            pickle.dump(sd, svg)
+
+def load(slot):
+    global cmap , onweb,xmap,cplayer
+    if onweb :
+        if not window.localStorage.getItem(str(slot)) == None:
+            temp = window.localStorage.getItem(str(slot))
+            sd = pickle.loads(base64.b64decode(temp))
+            if sd[0] == "0.2":##current save version
+                    cplayer = sd[1]
+                    cmap.structuremap.applydiff(sd[2])
+                    cmap.heightmap.applydiff(sd[3])
+                    xmap.tiledef.quests = sd[4]
+    else:
+        if os.path.exists("savegame"+slot+".dat"):
+            with open("savegame"+slot+".dat","rb") as svg:
+                sd = pickle.load(svg)
+                if sd[0] == "0.2":##current save version
+                    cplayer = sd[1]
+                    cmap.structuremap.applydiff(sd[2])
+                    cmap.heightmap.applydiff(sd[3])
+                    xmap.tiledef.quests = sd[4]
+
 ######################
 #player initial setup#
 ######################
@@ -44,6 +84,8 @@ cmap = gmap(tiles)
 def scale(x,y,x1,y1):
     return (x*2,y*2,x1*2,y1*2)
 invbtn = PygButton(caption="inventory",rect=scale(320,280,100,20))
+svbtn = PygButton(caption="save game",rect=scale(320,260,100,20))
+lvbtn = PygButton(caption="load game",rect=scale(320,240,100,20))
 intbtn = PygButton(caption="interact ",rect=scale(320,300,100,20))
 #intbtn = PygButton(caption="scavenge",rect=(320,260,100,20))
 
@@ -76,7 +118,6 @@ class playerinstance():
         self.name = basechar.name
         self.desc = basechar.desc
 
-player = playerinstance([],characterinstance("player","the player",(226,26)))
 class camera():
     def __init__(self):
         self.cx = 0
@@ -253,9 +294,10 @@ def getmessage():
     
 ###helper function
 isinvo = False
+endtime = 0
 def main():
+    global endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    global isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
     mycam.run()
@@ -271,7 +313,7 @@ def main():
             start_time = time.time()
             blitpos = drawsys.renderwmp(mycam,cmap,frametime)
             ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
-            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((1/(time.time() - start_time))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((-1/(endtime - start_time))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
 
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
@@ -293,6 +335,11 @@ def main():
                     interact()
             if 'click' in invbtn.handleEvent(event):
                 isinvo = True
+            if 'click' in svbtn.handleEvent(event):
+                save("default")
+            if 'click' in lvbtn.handleEvent(event):
+                load("default")
+            
             if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
                 
                 keyeventlist = [0,0,0,0]
@@ -376,13 +423,17 @@ def main():
         if ACTIVEAREA == "WMP":
             invbtn.draw(drawsys.screen)
             intbtn.draw(drawsys.screen)
+            svbtn.draw(drawsys.screen)
+            lvbtn.draw(drawsys.screen)
             ####other world related GUI is to be drawn here###
             #                                                #
             #                                                #
             ##################################################
             
      # FPS = 1 / time to process loop
-  
+    endtime = time.time()
+    time.sleep(1/43)
+    
 
 if __name__ == "__main__":
     #svimg(cmap) #--generates map image (only uncomment if changing map and need preview to prevent to many disk writes

@@ -3,6 +3,7 @@ import PIL
 from PIL import Image
 import time
 import ptext
+import tiledef
 from tiledef import tiles
 from tiledef import sttobj
 from tiledef import dialogtree as dlgtree
@@ -39,6 +40,7 @@ class memorymap():
             self.size = imgmp.size
             self.imgmp = imgmp
             self.mmap = {}
+            self.dgmap = {}
             for y in range(0,self.size[1] - 1):
                 for x in range(0,self.size[0] - 1):
                    t = imgmp.getpixel((x, y))
@@ -50,7 +52,22 @@ class memorymap():
                    if output == "none" and topt==0 :
                        output = tiles[0]
                    self.mmap[str(x) + "o" + str(y)] = output
-            
+                   self.dgmap[str(x) + "o" + str(y)] = output
+    def getdiff(self):
+       difftab = [] 
+       for y in range(0,self.size[1] - 1):
+                for x in range(0,self.size[0] - 1):
+                    original = self.dgmap[str(x) + "o" + str(y)]
+                    checkitem =self.mmap[str(x) + "o" + str(y)]
+                    if not original == checkitem:
+                        difftab.append([str(x) + "o" + str(y),checkitem])
+       return difftab
+    def applydiff(self,difftab):
+       for i in difftab:
+           print(i)
+           self.mmap[i[0]] = i[1]
+                     
+                    
     
     def rmmap(self,l):
         l = list(l)
@@ -126,7 +143,7 @@ class gmap():
         if  tile2 == "none":
                 self.heightmap = self.sett(self.heightmap,x,y,ctile)
         else:
-                self.structuremapmap = self.sett(self.structuremap,x,y,ctile)
+                self.structuremap = self.sett(self.structuremap,x,y,ctile)
     def read(self,imgmp,x,y,clear=False,exc="none"):
         if exc == "none":
             size = imgmp.size
