@@ -1,6 +1,7 @@
 import pygame
 import dialogtree
 import asyncio
+import npcdia
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
 class sttobj():
@@ -102,30 +103,35 @@ class a_10nose(tile):
         self.lgco(["ground",1,20],'a10-nose',(69,69,69,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-nose.png')
 class a_10cabin(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin',(88,88,88,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-cabin.png')
 class a_10cabin2(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(98,98,98,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-cabin2.png')
 class a_10tail(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(167,167,167,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-tailb.png')
 class a_10section(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(147,147,147,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-section1.png')
         self.texture2 = ptexture('img/a10-section2.png')
     def gt(self):
@@ -138,6 +144,7 @@ class a_10wing(tile):
         self.lgco(["ground",1,20],'a10-cabin2',(0,10,50,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-winga.png')
         self.texture2 = ptexture('img/a10-wingb.png')
     def gt(self):
@@ -164,6 +171,7 @@ class a_10turbinea(tile):
         self.lgco(["ground",1,20],'a10-cabin2',(0,20,50,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-rightturbine.png')
 
 class a_10turbineb(tile):
@@ -171,6 +179,7 @@ class a_10turbineb(tile):
         self.lgco(["ground",1,20],'a10-cabin2',(0,50,20,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-leftturbine.png')
 
 class a_10taila(tile):
@@ -178,6 +187,7 @@ class a_10taila(tile):
         self.lgco(["ground",1,20],'a10-cabin2',(0,200,50,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a-10taila.png')
         
 class a_10tailb(tile):
@@ -185,6 +195,7 @@ class a_10tailb(tile):
         self.lgco(["ground",1,20],'a10-cabin2',(0,20,200,255))
         self.message = ""
         self.place_last = 1
+        self.walkable = 0
         self.texture = ptexture('img/a10-tailc.png')
 
 
@@ -326,6 +337,111 @@ class scriptkiddie1(tile):
                         quests["intro"] = 2
                         dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
+
+
+class terminal1(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'terminal',(245,34,34,255),1)
+        self.message = "(interact to open terminal)"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.tdia)
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "ac":
+                    cplayer.inventory = cplayer.inventory.invadds("infochip",1)
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
+class radio1(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'radio',(111,226,147,255),1)
+        self.message = "(interact to use the radio)"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        if ( not "getradio1" in quests) or ("radiodone" in quests  and (not "rbf2" in quests)): 
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.urdia)
+        elif not "rbf2" in quests:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.rdia)
+            quests["reportbackrd"] = 1
+            quests["radiodone"] = 1
+        elif quests["rbf2"] == 1:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia2)
+            quests["rbf2"] = 2
+            quests["GTH"] = 1
+        else:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.urdia)
+            
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "ac":
+                    quests["reportbackrd"] = 1
+                    quests["radiodone"] = 1
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
+class milvet(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'milvet',(216,53,207,255),1)
+        self.message = "(interact to speak)"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        if quests["intro"] > 2:
+            if not "seldone" in quests:
+                #if ( not "getradio1" in quests)  : 
+                    dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia1)
+                    
+            else:
+                if "getradio1" in quests:
+                    if not "reportbackrd" in quests:
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_a)
+                    elif not "rbf2" in quests:
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_f)
+                    elif quests["rbf2"] ==1:    
+                        dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["just tell the hacker that all the robots \n agree to join him \n over the radio",{"ok":0,"i'll think about it ":0}]})
+                    else:
+                        dialogtree.cnpcdial = npcdia.gnpcdia()
+                    
+        else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.confuseddia)
+                
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "hob":
+                    quests["getinfo"] = 1
+                elif dialogtree.cnpcdial.val == "MPU":
+                    quests["getradio1"] =1
+                elif dialogtree.cnpcdial.val == "reportback":
+                    quests["rbf2"] = 1
+        dialogtree.cnpcdial = dialogtree.ddialog()
+        return [cmap,cplayer]
                     #cmap.setmap(self.pos[0] ,self.pos[1],tiles[1])
             
     
@@ -354,7 +470,7 @@ class iceblock(tile):
 class sand(tile):
     def upd(self):
         self.lgco(['ground', 2, 15],"sand",(128, 128, 128, 255))
-        self.interactable = 1
+        self.interactable = 0
 class steppingstones(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"steppingstones",(10, 10, 10, 255),1)
@@ -382,7 +498,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet()]
 tiles = []
 for itile in xtiles:
     itile.upd()

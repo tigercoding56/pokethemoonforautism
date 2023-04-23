@@ -14,6 +14,21 @@ X = 840
 Y = 640
 color = (200,220,255)
 wcolor = (255,200,150)
+item_textures = {}#optimisation to not need a rtx 4090 XYT
+class ptexture(): # a texture pointer class
+    def __init__(self,location,a=1,rescale=1):
+        global item_textures
+        if not str(location) in item_textures:
+            a = 1
+            preimg = pygame.image.load(str(location)).convert_alpha()
+            if rescale:
+                item_textures[str(location)] = pygame.transform.scale(preimg, (80,80))
+            else:
+                item_textures[str(location)] = preimg
+            del(preimg)
+        self.location = str(location)
+    def gt(self):
+        return item_textures[self.location]
 def scale(x,y,x1,y1):
     return (x*2,y*2,x1*2,y1*2)
 class item():
@@ -24,11 +39,11 @@ class item():
         self.uda = uda
         
         try:
-            texture = pygame.image.load("img/items/" + tname + ".png")
+            texture = ptexture("img/items/" + tname + ".png")
         except:
-            texture = pygame.image.load("img/404.png")
+            texture = ptexture("img/404.png")
             print("item " + str(name) + " needs a texture at img/items" + tname + ".png please ,add one")
-        self.image = pygame.transform.scale(texture, (80,80))
+        self.image = texture
         ##format
         t = ""
         ct = 0
@@ -71,7 +86,9 @@ possible_items = {
 "iloveyou":item("easteregg","a reminder of why i bothered making this game , if you ever find it that is "),
 "flower":item("flower","a flower  with quite sturdy roots , could it be used as rope"),
 "win":item("mysteriousdevice","this device should  tame all animals on this island . just place it down","md"),    
-"message_in_bottle":messageinbottle("message in bottle","interact to take out message ")
+"message_in_bottle":messageinbottle("message in bottle","interact to take out message "),
+"infochip":item("infochip"," this infochip contains a large amount of data"),
+
 
 }
 def computestringdiff(actuall,inputst):
@@ -170,7 +187,7 @@ def irender(player):
     
     pygame.draw.rect(surface, color, pygame.Rect(scale(0, 0, 250, 320)))
     ptext.draw( invitem.desc, (10, 70),  color="black")
-    surface.blit(invitem.image,(5,5))
+    surface.blit(invitem.image.gt(),(5,5))
     exitbtn.draw(surface)
     delbtn.draw(surface)
     intbtn.draw(surface)
