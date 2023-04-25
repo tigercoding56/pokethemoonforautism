@@ -370,12 +370,13 @@ class radio1(tile):
     
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
-        if ( not "getradio1" in quests) or ("radiodone" in quests  and (not "rbf2" in quests)): 
+        if ( not "getradio1" in quests) or "radion" in quests: 
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.urdia)
         elif not "rbf2" in quests:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.rdia)
             quests["reportbackrd"] = 1
             quests["radiodone"] = 1
+            quests["radion"] = 1
         elif quests["rbf2"] == 1:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia2)
             quests["rbf2"] = 2
@@ -413,6 +414,8 @@ class milvet(tile):
                     
             else:
                 if "getradio1" in quests:
+                    if "radion" in quests:
+                        del(quests["radion"])
                     if not "reportbackrd" in quests:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_a)
                     elif not "rbf2" in quests:
@@ -436,8 +439,10 @@ class milvet(tile):
             if not dialogtree.cnpcdial == None:
                 if  dialogtree.cnpcdial.val == "hob":
                     quests["getinfo"] = 1
+                    quests["seldone"] = 1
                 elif dialogtree.cnpcdial.val == "MPU":
                     quests["getradio1"] =1
+                    quests["seldone"] = 1
                 elif dialogtree.cnpcdial.val == "reportback":
                     quests["rbf2"] = 1
         dialogtree.cnpcdial = dialogtree.ddialog()

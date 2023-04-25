@@ -30,7 +30,7 @@ def nrl(l1,l2):
     t = 0
     y = True
     for i in l1:
-        if abs(l1[t] - l2[t]) > 2:
+        if abs(l1[t] - l2[t]) > 1:
             y = False
     t = t + 1
     return y 
@@ -157,7 +157,7 @@ class gmap():
     def readraw(self,imgmp,x,y):
         size = imgmp.size
         output = "none"
-        if x > 0 and x < 240:
+        if x > 0 and x < 480:
             if y > 0 and y < 240:
                 t = imgmp.getpixel((x, y))
                 output = t
