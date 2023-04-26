@@ -249,9 +249,12 @@ class render():
 drawsys = render()
 mycam = camera()
 mycam.tp(218,40)
-mycam.tp(226,26)
+#mycam.tp(226,26)
+#mycam.tp(480,240)
 cplayer.pos[0] = 218
 cplayer.pos[1] = 21
+#cplayer.pos[0] = 405#uncomment to tp to oilrig
+#cplayer.pos[1] = 33
 frametime = 0
 drawsys.screen =  pygame.display.set_mode((X,Y))
 def interact(rlpos=None):

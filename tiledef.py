@@ -195,7 +195,7 @@ class a_10tailb(tile):
         self.lgco(["ground",1,20],'a10-cabin2',(0,20,200,255))
         self.message = ""
         self.place_last = 1
-        self.walkable = 0
+        self.walkable = 1
         self.texture = ptexture('img/a10-tailc.png')
 
 
@@ -479,6 +479,50 @@ class sand(tile):
 class steppingstones(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"steppingstones",(10, 10, 10, 255),1)
+####oil rig tiles
+        
+class oilrigplatform(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"metalgrate",(138, 14, 161, 255),1)
+        self.message =""
+class oilrigplatformsupport1(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"oilplatformsupport1",(138, 54, 161, 255),1)
+        self.message =""
+        self.walkable = 0
+class oilrigplatformsupport2(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"oilplatformsupport2",(18, 54, 161, 255),1)
+        self.message =""
+        self.walkable = 0
+class oilrigpillar(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"pillar",(138, 54, 11, 255),1)
+        self.message =""
+        self.walkable = 0
+class oilrigdrill1(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"oildrill1",(180, 54, 11, 255),1)
+        self.message =""
+        self.walkable = 0
+class oilrigdrill2(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"oildrill2",(180, 154, 11, 255),1)
+        self.message =""
+        self.walkable = 0
+class oilrigdrill3(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"oildrill4",(10, 154, 11, 255),1)
+        self.message =""
+        self.walkable = 0
+class oilrigdrill4(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"oildrill5",(10, 154, 110, 255),1)
+        self.message =""
+        self.walkable = 0
+        
+        
+##end of oil rig tiles
 class path(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"path",(0, 255, 255, 255))
@@ -503,7 +547,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2()]
 tiles = []
 for itile in xtiles:
     itile.upd()
