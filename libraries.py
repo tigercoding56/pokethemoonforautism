@@ -195,14 +195,15 @@ class render():
                 tile6 = xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
                 vb1.append((img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                if not (tile2 == "none" or tile2.hidden):
+                if not (tile2 == "none"):
                     if tile2.name == "steppingstones":
                        threed = False
                     img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
-                    if  tile2.place_last: 
-                        vb2.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                    else:
-                        vb3.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
+                    if not tile2.hidden:
+                        if  tile2.place_last: 
+                            vb2.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
+                        else:
+                            vb3.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
@@ -425,8 +426,13 @@ def main():
     else:
         if not ACTIVEAREA in ["inventory"]:
             ACTIVEAREA = transition[2]
-    if  dlgtree.cnpcdial.active:
-        dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+    try:
+        if  dlgtree.cnpcdial.active:
+            dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+    except:
+        print(dlgtree.cnpcdial)
+        dlgtree.cnpcdial = dlgtree.ddialog
+        
     if not (isinvo or  dlgtree.cnpcdial.active)  :
         pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
         if ACTIVEAREA == "WMP":

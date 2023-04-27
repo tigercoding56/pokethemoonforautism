@@ -1,8 +1,8 @@
 import pygame
 def svimg(xgmap):
     frametime = 0
-    tx = pygame.Surface((240*20,240*20))
-    for x in range(1,240):
+    tx = pygame.Surface((240*40,240*20))
+    for x in range(1,480):
             for y in range(1,240):
                 x = x 
                 y = y

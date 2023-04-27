@@ -186,7 +186,7 @@ def irender(player):
             pygame.quit()
     
     pygame.draw.rect(surface, color, pygame.Rect(scale(0, 0, 250, 320)))
-    ptext.draw( invitem.desc, (10, 70),  color="black")
+    ptext.draw( invitem.desc, (20, 140),  color="black")
     surface.blit(invitem.image.gt(),(5,5))
     exitbtn.draw(surface)
     delbtn.draw(surface)

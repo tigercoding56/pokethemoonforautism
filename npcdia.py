@@ -15,7 +15,12 @@ def gnpcdia():
     global npcdia1
     return npcdia1
 
-
+hackerdia = {
+"1":["thank you for comming here \n i'll gather the robots \n and together we will \n make a more perfect  union , \n now to clear all this corruption\n ",{"you are welcome :D":2," at least this is not darksouls ...":3,"even undertale is better than this D:":4}]
+,"2":[". sorry i have not implemented the ending yet \n i need feedback ",{"(exit dialog)":0}]
+,"3":[". i guess so , i am just a single person \n so until next time\n (or when i find a way to end this ,feedback needed)\n please Stay Safe (also Save the game bevore you exit it)  ",{"(exit dialog)":0}]
+,"4":[" well undertale is better than most games , (i am not at all \n forced to say this by a character of undertale \n ) ",{"exit dialog":0}]
+}
 confuseddia = {
 "1":["error 408 , TPU timeout",{" (back away)":0}]   
 }
@@ -60,6 +65,9 @@ urdia = {
 "1":["you mess around with the radio for a bit , \n and some music plays",{"ok":0}]    
 }
 
+tpdia = {
+"1":["where would you like to travel?",{"starter village":"st","small village":"sm","medium village":"md","large village":"lg","oil rig":"or"}]    
+}
 tdia = {
 "1":["the terminal displays a menu allowing you to \n perform a variety of actions",{"logs":2,"eject info chip":"ac","datetime":3,"exit":0}]
 ,"2":["which log?",{"standart military":4,"standart personal":5,"logs to show to regulatory agency":6}]

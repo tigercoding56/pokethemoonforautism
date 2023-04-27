@@ -32,7 +32,6 @@ class ptexture(): # a texture pointer class
     def gt(self):
         return tile_textures[self.location]
         
-    
 tiles = []
 quests = {"intro":0}
 class tile():
@@ -338,6 +337,74 @@ class scriptkiddie1(tile):
                         dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
 
+class teleporter(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'teleportationdev',(78,94,186,255),1)
+        self.message = "(interact to travel)"
+        self.interactable = True
+    
+    def gt(self):
+        global quests
+        if "GTH" in quests:
+            self.hidden = 0
+            self.message = "(interact to travel)"
+            self.interactable = True
+            self.walkable =0
+        else:
+            self.hidden = 1
+            self.message = ""
+            self.interactable = False
+            self.walkable = 1
+        return self.texture
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.tpdia)
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "st":
+                    cplayer.pos[0] = 218 - 8
+                    cplayer.pos[1] = 36 -8
+                if  dialogtree.cnpcdial.val == "sm":
+                    cplayer.pos[0] = 35 - 8
+                    cplayer.pos[1] = 196 - 8
+                if  dialogtree.cnpcdial.val == "md":
+                    cplayer.pos[0] = 27 - 8
+                    cplayer.pos[1] = 47 - 8
+                if  dialogtree.cnpcdial.val == "lg":
+                    cplayer.pos[0] = 200-8
+                    cplayer.pos[1] = 160-8
+                if  dialogtree.cnpcdial.val == "or":
+                    cplayer.pos[0] = 412-8
+                    cplayer.pos[1] = 41-8
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
+class hacker(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'hacker',(52,96,157,255),1)
+        self.message = "(interact to speak )"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia)
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
 
 class terminal1(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -423,7 +490,7 @@ class milvet(tile):
                     elif quests["rbf2"] ==1:    
                         dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["just tell the hacker that all the robots \n agree to join him \n over the radio",{"ok":0,"i'll think about it ":0}]})
                     else:
-                        dialogtree.cnpcdial = npcdia.gnpcdia()
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gnpcdia())
                     
         else:
                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.confuseddia)
@@ -484,6 +551,11 @@ class steppingstones(tile):
 class oilrigplatform(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"metalgrate",(138, 14, 161, 255),1)
+        self.message =""
+        
+class oilrigplatformwood(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0],"woodplatform",(79, 14, 161, 255),1)
         self.message =""
 class oilrigplatformsupport1(tile):
     def upd(self):
@@ -547,7 +619,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker()]
 tiles = []
 for itile in xtiles:
     itile.upd()
