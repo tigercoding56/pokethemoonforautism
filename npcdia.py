@@ -42,6 +42,10 @@ milvetdia_un_b= {
 hackerdia2 = {
 "1":["after telling the hacker the news \n he tells you that he will setup teleportation beacons to the abandoned oil platform  \n he is now using as base \n and asks you to visit , to help plan an attack , that will \n force the goverment to stop \n any unethical practizes ",{" ok":"stb"}]    
 }
+milvetdia_fh = {
+"1":["the robot takes the info chip and walks away,\n after some time it goes back and tells \n you that it has been successfull \n in reverse engineering the malware \n of the robot \n  (now you are able to talk to every robot) ",{"(exit dialog)":"EXT"}]    
+    
+}
 milvetdia_f={
 "1":["what justification did the hacker \n have for slowing us down?",{"he mistook us for military robots":2,"something about the goverment being oppressive":3}]
 ,"2":["well \n  there is another island  not far from here \n with military robots , and the \n goverment is not very good \n in fact the US has not had a \n good goverment since the \n resource wars of 2068",{"(tell about the hacker)":4}]
@@ -52,7 +56,7 @@ rdia ={##### this is just a  game , the whole story has inspiration from the wor
     
  "1":["you follow the instructions of the robot \nand activate the radio \n after some time you decide to \n send out ",{"who are you , and why did you disable the robots":2,"anyone there?":3}],
  "2":[" i am cyberhack85 \n and those robots\n you are talking about \n are unhealthcare \n machines -- keepable of  unaliving \n thousands of people \n per minute", {"tell me more about the robots":4} ],
- "3":["yes what do you want from me?",{"i want to know who you are  and why you disabled the robots":3}],
+ "3":["yes what do you want from me?",{"i want to know who you are  and why you disabled the robots":2}],
  "4":["the robots are military robots\n made by the US goverment \n  this was not that bad \n until they kicked professor sabado , out of the project  \n without sabado to regulate ethics \n the whole project turned to mayham going as far \n as to ... ",{"(listen)":7,"as far as to what?":7}],
  "5":["yes , the goverment thinks they \n dismantled the group \n , but they did not",{"one concern i have is that the robots on this island are nice":6}],
  "6":[" (2 minutes later) , oh , i wasted energy disabling the wrong robots, \n i think there is a old oil rig near the island \n that would make a good base ,i'll enable the robots again ,\n and you can ask the robot that send you  here\n if the robots would  \n mind joining my hacking group \n-- the \"fire nation \"",{" i will ask the robot that send me here ":"ac","yes":"ac","got it":"ac"}],

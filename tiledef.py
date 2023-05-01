@@ -238,6 +238,18 @@ class coalore(tile):
         cplayer.inventory = cplayer.inventory.invadds("coal",1)
         return [cplayer,cmap,message]
 
+class sand_message(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20],'sand_message',(0,0,7,255))
+        self.message = "(interact to scavenge)"
+        self.interactable = True
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        cplayer.inventory = cplayer.inventory.invadds("message_in_bottle",1)
+        self = sand()
+        return [cplayer,cmap,message]
+
+
+
 class copperore(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20],'copperore',(80,80,80,255))
@@ -491,6 +503,19 @@ class milvet(tile):
                         dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["just tell the hacker that all the robots \n agree to join him \n over the radio",{"ok":0,"i'll think about it ":0}]})
                     else:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gnpcdia())
+                elif "hob" in quests :
+                    if cplayer.inventory.invcheck("infochip",1) and quests["hob"] == 1:
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_fh)
+                        quests["hob"] = 2
+                        quests["ART"] = 1
+                    elif quests["hob=1"]:
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_b)
+                    else:
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gnpcdia())
+                    
+                        
+                    
+                    
                     
         else:
                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.confuseddia)
@@ -507,6 +532,7 @@ class milvet(tile):
                 if  dialogtree.cnpcdial.val == "hob":
                     quests["getinfo"] = 1
                     quests["seldone"] = 1
+                    quests["hob"] = 1
                 elif dialogtree.cnpcdial.val == "MPU":
                     quests["getradio1"] =1
                     quests["seldone"] = 1
@@ -619,7 +645,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker()]
+xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message()]
 tiles = []
 for itile in xtiles:
     itile.upd()
