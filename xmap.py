@@ -10,7 +10,15 @@ from tiledef import dialogtree as dlgtree
 import math
 import random
 import copy
-
+def vec_add(y,t):
+    r = []
+    if len(y) == len(t):
+        for i in range(0,len(y)-1):
+            r.append(y[i]+t[i])
+        return r
+    else:
+        return y
+    
 class playerobj():
     def __init__(self):
         self.inventory = {"capturedev":1}
@@ -105,6 +113,27 @@ class memorymap():
            # else:
                 #return [(0,0,0,255),sttobj(0,0)]
 class gmap():
+    def add_pt(color=[255,255,255],size=2,lifetime=30,position=[0,0],velocity=[0,0]):
+        particle = {}
+        particle["lifetime"] =lifetime
+        particle["position"] = position
+        particle["velocity"] = velocity
+        particle["color"] = color
+        particle["size"] = size
+        self.particles.append(particle)
+        
+    def run_pt():
+        for i in range(0,len(self.particles)-1):
+            particle = self.particles[i]
+            try:
+                if particle["lifetime"] <1 :
+                    del(self.particles[i])
+                else:
+                    particle["lifetime"] += -1
+                    particle["position"] = vec_add(particle["velocity"] , particle["position"])
+                    self.particles[i] = particle
+            except:
+                del(self.particles[i])
     def loadtxt(self,name):
         try:
             return Image.open(name).convert("RBG")
@@ -170,6 +199,7 @@ class gmap():
         self.threedoverlay = pygame.transform.scale(pygame.image.load('img/3deffect.png'),(40,40))
         self.threedoverlay2 = pygame.transform.scale(pygame.image.load('img/3deffect2.png'),(40,40))
         self.threedfx = self.loadtxt('img/3dheight.png')
+        self.particles = []
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))
 #addtile(  tile('grass2',(230,230,230,255),["ground",2,10]))

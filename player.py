@@ -1,3 +1,4 @@
+import datetime
 messages = [ ## most of the the messages are taken from fortune cookies  
 "S.O.S the creatures have turned hostile on island 2 ",
 "a smart computer programmer   once said : 01101001 01101100 01101111 01110110 01100101 01111001 01101111 0111010101101001 01101100 01101111 01110110 01100101 01111001 01101111 0111010101101001 01101100 01101111 01110110 01100101 01111001 01101111 01110101",
@@ -23,9 +24,10 @@ messages = [ ## most of the the messages are taken from fortune cookies
 
 class playerobj():
     def __init__(self):
-        self.name = "olivia le"#hardcoded since who else is going to play?
+        self.name = "olivia ,le"#hardcoded since who else is going to play?
         self.inventory = {}
         self.pos = [0,0]
+        self.replacementwords = {"$player":self.name,"$time":str(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))}
         self.creature = 'none'
 
 player = playerobj()

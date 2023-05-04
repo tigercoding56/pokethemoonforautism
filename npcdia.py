@@ -9,8 +9,38 @@ npcdia1 = {
 ,"5":["i am fine , \n how are you today ?",{"good":2,"could be better":3,"i am not feeling well":4}]
 ,"6":["it is 25:0:2 standart military time ,\n date :  sep , 4 , 2076 ",{"i want to ask you":"menu","have a nice day ":0}]
 }
+npcdia2 = {
+"1":["Hi is there anything you want to know",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0}]    
+,"2":["it is 25:0:2 standart military time ,\n date :  sep , 4 , 2076",{"thank you , have a good day":0,"i also want to ask you":5}]
+,"5":["what else do you want to ask me",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0}]    
+,"3":["where do you want the coordinates to ?",{"starter village":"st","medium village":"md","large village":"lg","cave entrance":"ce","small village":"sm","silver ore":"sv","gemstone":"gm","copper ore":"cp","plane wreck":"pw"}]
+,"st":["the coordinates to starter village are \n (206,21)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"md":["the coordinates to medium village are \n (19,52)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"lg":["the coordinates to large village are \n (181,180)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"ce":["the coordinates for the cave entrance are \n (114,137)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"sm":["the coordinates to small village are \n (26,181)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"sv":["the coordinate for the silver ore  is\n (58,185)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"gm":["the coordinate for the gem stone is \n (52,12)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"pw":["the coordinate for the plane wreck is \n (130,52)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"cp":["the coordinate for the copper ore is \n (171,47)",{"thank you, have a good day  ":0,"i also want to ask you":5}]
+,"quest":["thank you for the offer \n but i have everything under control \n for now ",{"ok":1}]
+,"4":["i am fine , how about you?",{"i am also fine":"gth","could be better":"kb"}]
+,"gth":["good to hear \n, my programmer often worries about you \n, i can tell him everything is fine \n any more questions",{"yes":5,"no , have a good day though (exit dialog) ":0}]
+,"kb":["reporting to programmer right now \n $SendContentID , in the meantime i hope your day gets better \n (i do not know how to express my empathy through dialog --benedikt le )",{" i also want to ask you":5,"you spelled your name wrong":"not_mistake","bye have a good day (exit dialog)":0}]
+,"not_mistake":["receiving data stream :>> \n benedikt moore : \" sorry i wanted to mention you in the original \n text but then  i reprashed it and forgot to remove the le , \n however this is a production build so i am unable to \n fix it   \" ",{"i think it is ok , just leave it in":0,"ok we all make mistakes":0}]
 
 
+
+}
+def gtqdia(dialog): #also parses dialogue
+   global npcdia2
+   t = npcdia2
+   t["quest"] = dialog
+   return t
+cgqd = {
+"1":[" i found a weird radio frequency \n that i want to investigate\n if you bring me  1 copper and 1 gemstone  \n to build a basic radio with \n i'll reward you with 128 coins  ",{"i'll do that (accept)":"ac","not now (decline)":0}]    
+    
+}
 def gnpcdia():
     global npcdia1
     return npcdia1

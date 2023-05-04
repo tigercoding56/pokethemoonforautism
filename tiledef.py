@@ -33,7 +33,7 @@ class ptexture(): # a texture pointer class
         return tile_textures[self.location]
         
 tiles = []
-quests = {"intro":0}
+quests = {"intro":0,"HOFF":0}
 class tile():
     def interact(self,cplayer,cmap,message="found \n nothing"):
         return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
