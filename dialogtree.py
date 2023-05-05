@@ -4,6 +4,7 @@ import time
 class ddialog():
     def __init__(self):
         self.active = 0
+        self.val = 0
 class nbcdialog():
     def __init__(self,dialog):
         self.dialog = dialog

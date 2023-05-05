@@ -137,16 +137,23 @@ class ListBox:
                 if item < len(self.items) and item + self.offset != self.selected_item:
                     self.selected_item = item + self.offset
         elif event.type == MOUSEWHEEL:
-            if event.y > 0:
-                self.offset = max(0, self.offset-1)
-            elif event.y < 0:
-                self.offset = min(len(self.items)-self.visible_items, self.offset+1)
+            try:
+                if event.y > 0:
+                    self.offset = max(0, self.offset-1)
+                elif event.y < 0:
+                    self.offset = min(len(self.items)-self.visible_items, self.offset+1)
+            except:
+                self.selected_item = 0
         elif event.type == KEYDOWN:
-            if event.key == K_UP:
-                self.selected_item = max(0, self.selected_item-1)
-                if self.selected_item < self.offset:
-                    self.offset = self.selected_item
-            elif event.key == K_DOWN:
-                self.selected_item = min(len(self.items)-1, self.selected_item+1)
-                if self.selected_item >= self.offset+self.visible_items:
-                    self.offset = self.selected_item - self.visible_items + 1
+            try:
+                if event.key == K_UP:
+                    self.selected_item = max(0, self.selected_item-1)
+                    if self.selected_item < self.offset:
+                        self.offset = self.selected_item
+                elif event.key == K_DOWN:
+                    self.selected_item = min(len(self.items)-1, self.selected_item+1)
+                    if self.selected_item >= self.offset+self.visible_items:
+                        self.offset = self.selected_item - self.visible_items + 1
+            except:
+                self.selected_item = 0
+

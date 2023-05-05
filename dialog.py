@@ -9,6 +9,7 @@ from pygamebutton import PygButton
 import random
 X = 420
 Y = 320
+diaoverides = [["$TIME","time.asctime(time.localtime())"],["$SendContentID","\" \""]]
 color = (200,220,255)
 wcolor = (255,200,150)
 def scale(x,y,x1,y1):
@@ -17,10 +18,16 @@ sbtn = PygButton(caption="submit",rect=scale(370,250,50,70))
 surface = pygame.display.set_mode((X,Y))
 list_box = ListBox(0, 500, 740, 140, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
 def dialog(prompt="",options=["Exit"]):
-    global surface, list_box
+    global surface, list_box,diaoverides
     t = True
     list_box.setl(options)
     time.sleep(0.1)
+    for i in diaoverides:
+        #try:
+            prompt = prompt.replace(i[0],eval(i[1]))
+        #except Exception as ex23:
+           # io = 0
+            #print(ex23)
     while t:
         for event in pygame.event.get():
             dia.scene.do_event(event)
@@ -40,8 +47,13 @@ def dialog(prompt="",options=["Exit"]):
 
 
 def rndialog(prompt="",options=["Exit"],cpos=0):
-    global surface,list_box
+    global surface,list_box , diaoverides
     t = True
+    for i in diaoverides:
+        try:
+            prompt = prompt.replace(i[0],eval(i[1]))
+        except Exception as ex23:
+            print("dia overide failed  \n " + str(i) + "\n error:" + "\n" + str(ex23))
     list_box.setl(options)
     for event in pygame.event.get():
             if "click" in sbtn.handleEvent(event):

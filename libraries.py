@@ -310,6 +310,7 @@ def main():
     start_time = time.time()
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
+    tiledef.npcdia.quests = tiledef.quests
     mycam.run()
        # except:
            # ActionQueue = []
@@ -427,11 +428,12 @@ def main():
         if not ACTIVEAREA in ["inventory"]:
             ACTIVEAREA = transition[2]
     try:
-        if  dlgtree.cnpcdial.active:
+         if  dlgtree.cnpcdial.active:
             dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
-    except:
+    except Exception as ex23:
+        print(ex23)
         print(dlgtree.cnpcdial)
-        dlgtree.cnpcdial = dlgtree.ddialog
+        dlgtree.cnpcdial = dlgtree.ddialog()
         
     if not (isinvo or  dlgtree.cnpcdial.active)  :
         pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))

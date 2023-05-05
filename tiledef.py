@@ -397,7 +397,26 @@ class teleporter(tile):
                     cplayer.pos[1] = 41-8
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
-
+class test(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie2',(245,159,159,255),1)
+        self.message = "(interact to speak )"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia())
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+        
 class hacker(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20,["unpassable"]],'hacker',(52,96,157,255),1)
@@ -456,10 +475,12 @@ class radio1(tile):
             quests["reportbackrd"] = 1
             quests["radiodone"] = 1
             quests["radion"] = 1
+            quests["ART"] = 1
         elif quests["rbf2"] == 1:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia2)
             quests["rbf2"] = 2
             quests["GTH"] = 1
+            quests["ART"] = 1
         else:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.urdia)
             
@@ -645,7 +666,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message()]
+xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message()]
 tiles = []
 for itile in xtiles:
     itile.upd()
