@@ -37,6 +37,7 @@ class item():
         self.tname = tname = str(name).replace(" ","_")
         self.place = place
         self.uda = uda
+        self.hash = hash(str(name) + str(desc))
         
         try:
             texture = ptexture("img/items/" + tname + ".png")
@@ -124,17 +125,37 @@ class inventoryc:
         else:
             print("there does not exist a item of name" + str(ist))
         return self
-    def invcheck(self,ist,rm=0):#rm removes item # if greater than 0
+    def hashin(self,itemhash):
+        for i in self.inv:
+                if  hasattr(i, 'hash'):
+                    if i.hash == itemhash:
+                        return 1
+                else:
+                    i.hash = hash(str(i.name) + str(i.desc))
+                    if i.hash == itemhash:
+                        return 1
+                    
+        return 0
+    def convhashintoitem(self,itemhash,it):
+        for i in self.inv:
+            if i.hash == itemhash:
+                return i
+        else:
+            return it
+    def invcheck(self,ist,rm=0,tm=1):#rm removes item # if greater than 0
         global possible_items
        # t = possible_items["coal"]
         if ist in possible_items:
             temp = possible_items[ist]
-            if temp in self.inv:
+            if self.hashin(temp.hash) :
+                temp = self.convhashintoitem(temp.hash,temp)
                 if self.inv[temp] > rm:
-                    self.inv[temp] =  self.inv[temp] - rm
+                    if tm ==1:
+                        self.inv[temp] =  self.inv[temp] - rm
                     return 1
                 elif self.inv[temp] == rm:
-                    del(self.inv[temp])
+                    if tm ==1:
+                        del(self.inv[temp])
                     return 1
         return 0
                     

@@ -69,10 +69,15 @@ def gtqdia(dialog=["thank you for the offer \n but i have everything under contr
    else:
         t = confuseddia
    return t
-cgqd = {
-"1":[" i found a weird radio frequency \n that i want to investigate\n if you bring me  1 copper and 1 gemstone  \n to build a basic radio with \n i'll reward you with 128 coins  ",{"i'll do that (accept)":"ac","not now (decline)":0}]    
-    
+cgqd1 = [" i found a weird radio frequency \n that i want to investigate\n if you bring me  1 copper and 1 gemstone  \n to build a basic radio with \n i'll reward you with 128 coins  ",{"i'll do that (accept)":"ac1","not now (decline , for now)":0}]
+cgqd2 ={
+"1":["thank you , now that i  have a  better radio, \n i can activate whatever device is \n using the frequency i was \n investigating ,\n robot gives you 128 coins  ",{"happy to have helped ":0,"you are welcome":0}]    
 }
+cgqd3 =  {
+"1":["the location of the copper is at (171,47) , and the gemstone (52,12) i need 1 of each \n (note due to some bug if you already have the items , mine them again )",{"ok":0}]    
+}
+
+
 def gnpcdia():
     global npcdia1
     return npcdia1

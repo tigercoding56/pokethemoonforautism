@@ -69,5 +69,7 @@ def rndialog(prompt="",options=["Exit"],cpos=0):
     pygame.display.update()
     #pygame.display.flip()
     output = [list_box.selected_item,t]
+    if t==False:
+        list_box.selected_item = 0
     return  output
         

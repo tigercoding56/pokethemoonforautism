@@ -357,7 +357,7 @@ class teleporter(tile):
     
     def gt(self):
         global quests
-        if "GTH" in quests:
+        if "GTH" in quests or "TPA" in quests:
             self.hidden = 0
             self.message = "(interact to travel)"
             self.interactable = True
@@ -406,6 +406,24 @@ class test(tile):
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia())
+        if not ("GTH" in quests or "TPA" in quests):
+                if not "GRM" in quests:
+                    dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(npcdia.cgqd1))
+                else:
+                    ichk = 1
+                    if cplayer.inventory.invcheck("gem",rm=1,tm=0) and cplayer.inventory.invcheck("copper",rm=1,tm=0):
+                        cplayer.inventory.invcheck("gem",rm=1,tm=1)
+                        cplayer.inventory.invcheck("copper",rm=1,tm=1)
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.cgqd2)
+                        quests["TPA"] = 1
+                    else:
+                        print("#")
+                        print(cplayer.inventory.inv)
+                        print("#")
+                        print("gem" + str(cplayer.inventory.invcheck("gem",rm=1,tm=0)) )
+                        print("copper" + str(cplayer.inventory.invcheck("copper",rm=1,tm=0)) )
+                        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.cgqd3)
+                        
         ####
         
         return [cplayer,cmap,message]
@@ -414,6 +432,8 @@ class test(tile):
         if test == 1:
             return 1
         else:
+            if  dialogtree.cnpcdial.val == "ac1":
+                quests["GRM"] = 1
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
         
@@ -426,6 +446,7 @@ class hacker(tile):
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia)
+        
         ####
         
         return [cplayer,cmap,message]
@@ -434,6 +455,7 @@ class hacker(tile):
         if test == 1:
             return 1
         else:
+                
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
 
