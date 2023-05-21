@@ -17,12 +17,14 @@ from inventory import cplayer  , irender
 from pygamebutton import PygButton
 from pygame.locals import DOUBLEBUF
 onweb = 0
+selectedt = 0
 if __import__("sys").platform == "emscripten":
     from platform import window
     onweb = 1
     window.fs_loaded = False
 else:
     import os
+    
 
 
 
@@ -175,7 +177,7 @@ class render():
     def renderarena(self):
         self.screen.blit(self.arenaimg,(0,0))
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos,message
+        global mousepos,message,onweb,selectedt
         getmessage()
         vb1 =[]
         vb2 = []
@@ -224,6 +226,7 @@ class render():
             self.vbuffer.blits(vb4)
         if len(vb5) > 0:
             self.vbuffer.blits(vb5)
+        
             
         self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
         blitpos = [0,0]
@@ -258,6 +261,13 @@ cplayer.pos[1] = 21
 #cplayer.pos[1] = 33
 frametime = 0
 drawsys.screen =  pygame.display.set_mode((X,Y))
+def gtcpos(t=False):
+    global cplayer,mousepos
+    rlpos = mousepos
+    if not t:
+        return [cplayer.pos[0] + rlpos[0],cplayer.pos[1] + rlpos[1]]
+    else:
+        return [cplayer.pos[0]  +8+ rlpos[0],cplayer.pos[1] +8+ rlpos[1]]
 def interact(rlpos=None):
     global cmap,cplayer,mousepos,message,ActionQueue
     if rlpos == None:
@@ -306,7 +316,7 @@ def getmessage():
 isinvo = False
 endtime = 0
 def main():
-    global endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
@@ -384,6 +394,15 @@ def main():
                 elif event.key == pygame.K_d:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
+                elif event.key == pygame.K_PAGEDOWN:
+                    selectedt += 1
+                    selectedt = selectedt % len(cmap.tiles)
+                elif event.key == pygame.K_PAGEUP:
+                    selectedt +=-1
+                    selectedt = selectedt % len(cmap.tiles)
+                elif event.key == pygame.K_0 and onweb == 0:
+                    print(gtcpos(True))
+                    cmap.structuremap.smmap(gtcpos(True),cmap.tiles[selectedt])
                 nexttile = 0
                 if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
                     if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:
@@ -442,6 +461,8 @@ def main():
             intbtn.draw(drawsys.screen)
             svbtn.draw(drawsys.screen)
             lvbtn.draw(drawsys.screen)
+            if onweb == 0:
+                drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,40))
             ####other world related GUI is to be drawn here###
             #                                                #
             #                                                #
