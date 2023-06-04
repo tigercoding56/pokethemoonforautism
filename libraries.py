@@ -7,6 +7,8 @@ import time
 import ptext
 import pickle
 import base64
+from commands import ccmd 
+from commands import gprt 
 #import maingui as agui
 #from maingui import App
 import enemies as EM
@@ -17,6 +19,9 @@ from inventory import cplayer  , irender
 from pygamebutton import PygButton
 from pygame.locals import DOUBLEBUF
 onweb = 0
+pos1 = [0,0]
+pos2 = [0,0]
+markp=0
 selectedt = 0
 if __import__("sys").platform == "emscripten":
     from platform import window
@@ -269,7 +274,7 @@ def gtcpos(t=False):
     else:
         return [cplayer.pos[0]  +8+ rlpos[0],cplayer.pos[1] +8+ rlpos[1]]
 def interact(rlpos=None):
-    global cmap,cplayer,mousepos,message,ActionQueue
+    global ccmd,cmap,cplayer,mousepos,message,ActionQueue
     if rlpos == None:
         rlpos = mousepos
         t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
@@ -316,7 +321,7 @@ def getmessage():
 isinvo = False
 endtime = 0
 def main():
-    global selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 20
@@ -401,8 +406,18 @@ def main():
                     selectedt +=-1
                     selectedt = selectedt % len(cmap.tiles)
                 elif event.key == pygame.K_0 and onweb == 0:
-                    print(gtcpos(True))
+                    print(str([gtcpos(True),selectedt])+",",end='')
                     cmap.structuremap.smmap(gtcpos(True),cmap.tiles[selectedt])
+                elif event.key == pygame.K_1 and onweb == 0:
+                            pos1 = gtcpos(True)
+                elif event.key == pygame.K_f and onweb == 0:
+                            for tx in gprt(pos1[0],pos2[0]):
+                                for ty in gprt(pos1[1],pos2[1]):
+                                    print(str([[tx,ty],selectedt])+",",end='')
+                                    cmap.structuremap.smmap([tx,ty],cmap.tiles[selectedt])
+                elif event.key == pygame.K_2 and onweb == 0:
+                    pos2 = gtcpos(True)
+
                 nexttile = 0
                 if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
                     if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:

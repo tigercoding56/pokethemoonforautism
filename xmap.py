@@ -10,6 +10,7 @@ from tiledef import dialogtree as dlgtree
 import math
 import random
 import copy
+import terrainmask 
 def vec_add(y,t):
     r = []
     if len(y) == len(t):
@@ -193,6 +194,7 @@ class gmap():
         return output
     def __init__(self,tiles):
         self.tiles = tiles
+        x = 1
         self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
         self.structuremap =  memorymap(self.loadtxt('img/structures.png'),topt=1)
         self.threedeffecthax =  self.loadtxt('img/3doutlinehack.png')
@@ -200,6 +202,9 @@ class gmap():
         self.threedoverlay2 = pygame.transform.scale(pygame.image.load('img/3deffect2.png'),(40,40))
         self.threedfx = self.loadtxt('img/3dheight.png')
         self.particles = []
+        if x:
+            for i in terrainmask.mask1:
+                self.structuremap.smmap(i[0],self.tiles[i[1]])
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))
 #addtile(  tile('grass2',(230,230,230,255),["ground",2,10]))
