@@ -12,7 +12,7 @@ npcdia1 = {
 ,"6":["it is 25:0:2 standart military time ,\n date :  sep , 4 , 2076 ",{"i want to ask you":"menu","have a nice day ":0}]
 }
 npcdia2 = {
-"1":["Hi is there anything you want to know",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0}]    
+"1":["Hi is there anything you want to know",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0,"please tell me more about yourself ":"boutme"}]    
 ,"2":["it is $TIME ",{"thank you , have a good day":0,"i also want to ask you":5}]
 ,"5":["what else do you want to ask me",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0}]    
 ,"3":["where do you want the coordinates to ?",{"starter village":"st","medium village":"md","large village":"lg","cave entrance":"ce","small village":"sm","silver ore":"sv","gemstone":"gm","copper ore":"cp","plane wreck":"pw"}]
@@ -30,13 +30,13 @@ npcdia2 = {
 ,"gth":["good to hear \n, my programmer often worries about you \n, i can tell him everything is fine \n any more questions",{"yes":5,"no , have a good day though (exit dialog) ":0}]
 ,"kb":["reporting to programmer right now \n $SendContentID , in the meantime i hope your day gets better \n (i do not know how to express my empathy through dialog --benedikt le )",{" i also want to ask you":5,"you spelled your name wrong":"not_mistake","bye have a good day (exit dialog)":0}]
 ,"not_mistake":["receiving data stream :>> \n benedikt moore : \" sorry i wanted to mention you in the original \n text but then  i reprashed it and forgot to remove the le , \n however this is a production build so i am unable to \n fix it   \" ",{"i think it is ok , just leave it in":0,"ok we all make mistakes":0}]
-
+,"boutme":["$ABOUTME",{" i also want to ask you ":5,"thank you have a good day ":0}]
 
 
 }
 
 npcdia22 = {
-"1":["Hi is there anything you want to know",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0}]    
+"1":["Hi is there anything you want to know",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0,"please tell me more about yourself ":"boutme"}]    
 ,"2":["it is $TIME ",{"thank you , have a good day":0,"i also want to ask you":5}]
 ,"5":["what else do you want to ask me",{"what is the time ":"2","can you give me coordinates to ?":3,"anything i can do to help (quests)":"quest","how are you ?":4,"bye have a good day ":0}]    
 ,"3":["where do you want the coordinates to ?",{"starter village":"st","medium village":"md","large village":"lg","cave entrance":"ce","small village":"sm","silver ore":"sv","gemstone":"gm","copper ore":"cp","plane wreck":"pw"}]
@@ -54,11 +54,11 @@ npcdia22 = {
 ,"gth":["good to hear \n, my programmer often worries about you \n, i can tell him everything is fine \n any more questions",{"yes":5,"no , have a good day though (exit dialog) ":0}]
 ,"kb":["reporting to programmer right now \n $SendContentID , in the meantime i hope your day gets better \n (i do not know how to express my empathy through dialog --benedikt moore )",{" i also want to ask you":5,"bye have a good day (exit dialog)":0}]
 ,"not_mistake":["receiving data stream :>> \n benedikt le : \" sorry i wanted to mention you in the original \n text but then  i reprashed it and forgot to remove the le , \n however this is a production build so i am unable to \n fix it   \" ",{"i think it is ok , just leave it in":0,"ok we all make mistakes":0}]
-
+,"boutme":["$ABOUTME",{" i also want to ask you ":5,"thank you have a good day ":0}]
 
 
 }
-def gtqdia(dialog=["thank you for the offer \n but i have everything under control \n for now ",{"ok":1}]): 
+def gtqdia(do="sorry i  live under a rock , \n blame benedikt for forgetting to change this default text ;P \n (start  gitlab issue)",dialog=["thank you for the offer \n but i have everything under control \n for now ",{"ok":1}]): 
    global npcdia2,quests,confuseddia
    if "ART" in quests:
        if random.randint(1,100) == 1:
@@ -66,6 +66,7 @@ def gtqdia(dialog=["thank you for the offer \n but i have everything under contr
        else:
            t = npcdia22
        t["quest"] = dialog
+       t["boutme"][0] = do
    else:
         t = confuseddia
    return t
@@ -79,8 +80,7 @@ cgqd3 =  {
 
 
 def gnpcdia():
-    global npcdia1
-    return npcdia1
+     return gtqdia()
 
 hackerdia = {
 "1":["thank you for comming here \n i'll gather the robots \n and together we will \n make a more perfect  union , \n now to clear all this corruption\n ",{"you are welcome :D":2," at least this is not darksouls ...":3,"even undertale is better than this D:":4}]

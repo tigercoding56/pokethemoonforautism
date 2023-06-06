@@ -6,9 +6,10 @@ class ddialog():
         self.active = 0
         self.val = 0
 class nbcdialog():
-    def __init__(self,dialog):
+    def __init__(self,dialog,do=[]):
         self.dialog = dialog
         self.cp = 1
+        self.do = do
         self.cdlg = ""
         self.active = 1
         self.val = ""
@@ -38,7 +39,7 @@ def rnbcdialog(nbcdialog):## should not be blocking (i hope)
             tlx = nbcdialog.tlx
             tlh = nbcdialog.tlh
             
-            res = dialog.rndialog(dialogt[str(cp)][0],tlx,nbcdialog.cs)
+            res = dialog.rndialog(dialogt[str(cp)][0],tlx,nbcdialog.cs,nbcdialog.do)
             if not res[0] == nbcdialog.cs:
                  nbcdialog.cs = res[0]
             if res[1] == False and (not res[0] == None) :

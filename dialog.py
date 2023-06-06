@@ -17,7 +17,7 @@ def scale(x,y,x1,y1):
 sbtn = PygButton(caption="submit",rect=scale(370,250,50,70))
 surface = pygame.display.set_mode((X,Y))
 list_box = ListBox(0, 500, 740, 140, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
-def dialog(prompt="",options=["Exit"]):
+def dialog(prompt="",options=["Exit"],do=[]):
     global surface, list_box,diaoverides
     t = True
     list_box.setl(options)
@@ -25,6 +25,15 @@ def dialog(prompt="",options=["Exit"]):
     for i in diaoverides:
         #try:
             prompt = prompt.replace(i[0],eval(i[1]))
+    for i in do:
+        try:
+            prompt = prompt.replace(do[0],eval(do[1]))
+        except:
+            try:
+                prompt = prompt.replace(do[0],do[1])
+            except:
+               io = 0 
+            
         #except Exception as ex23:
            # io = 0
             #print(ex23)
@@ -46,7 +55,7 @@ def dialog(prompt="",options=["Exit"]):
     return  list_box.selected_item
 
 
-def rndialog(prompt="",options=["Exit"],cpos=0):
+def rndialog(prompt="",options=["Exit"],cpos=0,do=[]):
     global surface,list_box , diaoverides
     t = True
     for i in diaoverides:
@@ -54,6 +63,14 @@ def rndialog(prompt="",options=["Exit"],cpos=0):
             prompt = prompt.replace(i[0],eval(i[1]))
         except Exception as ex23:
             print("dia overide failed  \n " + str(i) + "\n error:" + "\n" + str(ex23))
+    for i in do:
+        try:
+            prompt = prompt.replace(do[0],eval(do[1]))
+        except:
+            try:
+                prompt = prompt.replace(do[0],do[1])
+            except:
+               io = 0 
     list_box.setl(options)
     for event in pygame.event.get():
             if "click" in sbtn.handleEvent(event):
