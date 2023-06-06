@@ -471,13 +471,17 @@ def main():
         
     if not (isinvo or  dlgtree.cnpcdial.active)  :
         pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
+        teal = 0.8
+        tealx = 0.7
+        pygame.draw.rect(drawsys.screen, (int(245*teal),int(235*teal),int(250*teal)), pygame.Rect(scale(322, 2, 418, 98)))
+        pygame.draw.rect(drawsys.screen, (int(25*tealx),int(235*tealx),int(29*tealx)), pygame.Rect(scale(322 + (cplayer.pos[0]*0.2), 2+(cplayer.pos[1]*0.2), 2, 2)))
         if ACTIVEAREA == "WMP":
             invbtn.draw(drawsys.screen)
             intbtn.draw(drawsys.screen)
             svbtn.draw(drawsys.screen)
             lvbtn.draw(drawsys.screen)
             if onweb == 0:
-                drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,40))
+                drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,200))
             ####other world related GUI is to be drawn here###
             #                                                #
             #                                                #

@@ -27,6 +27,7 @@ class playerobj():
         self.name = "olivia ,le"#hardcoded since who else is going to play?
         self.inventory = {}
         self.pos = [0,0]
+        self.questmarker = [[0,0],1]
         self.replacementwords = {"$player":self.name,"$time":str(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))}
         self.creature = 'none'
 
