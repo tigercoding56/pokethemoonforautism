@@ -81,17 +81,19 @@ def rndialog(prompt="",options=["Exit"],cpos=0,do=[]):
     pygame.draw.rect(surface, color, pygame.Rect(0, 0, 840, 640))
     for i in diaoverides:
         try:
-            prompt = prompt.replace(i[0],eval(i[1]))
+            if i[0] in prompt:
+                prompt = prompt.replace(i[0],eval(i[1]))
         except Exception as ex23:
             print("dia overide failed  \n " + str(i) + "\n error:" + "\n" + str(ex23))
     for i in do:
-        try:
-            prompt = prompt.replace(do[0],eval(do[1]))
-        except:
+        if i[0] in prompt:
             try:
-                prompt = prompt.replace(do[0],do[1])
+                prompt = prompt.replace(i[0],eval(i[1]))
             except:
-               io = 0 
+                try:
+                    prompt = prompt.replace(i[0],i[1])
+                except:
+                   io = 0 
     list_box.setl(options)
     for event in pygame.event.get():
             if "click" in sbtn.handleEvent(event):

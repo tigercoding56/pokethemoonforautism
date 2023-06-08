@@ -2,6 +2,7 @@ import pygame
 import dialogtree
 import asyncio
 import npcdia
+import npcnames as npcproperties
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
 class sttobj():
@@ -436,7 +437,80 @@ class test(tile):
                 quests["GRM"] = 1
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class character(tile):
+    def ssc(self,charnum):
+        charnum = charnum % len(npcproperties.npc_inf) 
+        character = npcproperties.npc_inf[charnum]
+        self.species = character[2]
+        self.about = character[1]
+        self.name = character[0]
+        self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
+        self.message = "( " + self.name + " )"
+        return self
+    def upd(self): #gets run after init to set defaults to water
+        #self.lgco(["ground",1,20,[]],'cat',(52,96,1111,255),1)
+        #self.message = "(interact to speak )"
+        self.interactable = True
+        self.message = "( " + self.name + " )"
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        if 1:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about))
+        else:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" implement quests here benedikt ",{"exit":1}]))
+        ####
         
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        if test == 1:
+            return 1
+        else:
+                
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class hacker(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20,["unpassable"]],'hacker',(52,96,157,255),1)
@@ -690,6 +764,8 @@ class safetile(tile):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
 xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message()]
 tiles = []
+for i in range(0,len(npcproperties.npc_inf)):
+    xtiles.append(character().ssc(i))
 for itile in xtiles:
     itile.upd()
     tiles.append(itile)
