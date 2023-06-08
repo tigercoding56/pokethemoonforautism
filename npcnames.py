@@ -5,6 +5,7 @@
     ,["ignigena","i am a military robot , \n one day during combat the sentience suppression chip got hit by a bullet , \n this allowed my neural network to gain sentience \n i found that disassembling people  is wrong  \n so i assemble tools out of metal  for humans ","robot_m"]
     ,["sezomnothos"," personally i once was a economist , that is until i lost my job , \n due to everything being automated \n and you see , capitalism only works if  \n money is recirculated in the economy  \n today i gather various minerals for a living ","human_m"]
     ,["Thalyn.🦀","used to  teach in the old world , now i collect crabs on the beach \n , i still miss my graduating class of '23 ,  god bless their souls'- \n but it's ok we send each other bottled mail \n (the fish thank me for the service of \n removing the crabs by making sure the mail is delivered on time )","human_f"]
+    ,["cat"," i followed a trail of  \n lasagne here  , \n don't question it ;P ,  $CAT ","cat"]
     
     
     
@@ -19,7 +20,7 @@ class Quest:
   def get_title(self):
     return self.title
 
-  def check():
+  def check(ch_id,inv):
     
   def get_description(self):
     return self.description

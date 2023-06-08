@@ -107,7 +107,7 @@ def rnbcdialog(nbcdialog):## should not be blocking (i hope)
         
 
 introdialog = {
-"1":[" you approach the robot and being by telling it...",{"...who are you ?":2,"...could you please move somewhere else":3,"...have  a nice day (exits dialog)":0}]
+"1":["   you approach the robot and being by telling it...",{"...who are you ?":2,"...could you please move somewhere else":3,"...have  a nice day (exits dialog)":0}]
 ,"2":["i am script_kiddi45 \n and  i am here because i need your help.!\n society is collapsing  after a evil hacker \n slowed down the text processors of the other robots \n now they are not able to communicate \n let alone work together in a functioning society \n  . (they could not figure out how to slow down your\n processor since \n it had a different architecture ) and \n i was camouflaged and hiding in the grass  ",{" once you move out of my way i can help you":4," how can i help you ":5,"go away":6,"happens to me every monday":5}]
 ,"3":["sorry , (moves away) i wanted to tell you ...",{" (listen)":10,"what did you want to tell me ?":2}]
 ,"10":["... i wanted to tell you that \n my name is script_kiddi45 \n and i am here because i need your help.!\n society is collapsing  after a evil hacker \n slowed down the text processors of the other robots \n now they are not able to communicate \n let alone work together in a functioning society \n  . (they could not figure out how to slow down your \n processor since \n it had a different architecture ) and \n i was camouflaged and hiding in the grass ",{" how can i help you ":5,"go away i do not wish to help you":6,"happens to me every monday":5,"maybe later ":6}]
