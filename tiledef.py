@@ -459,22 +459,30 @@ class character(tile):
         charnum = charnum % len(npcproperties.npc_inf) 
         character = npcproperties.npc_inf[charnum]
         self.species = character[2]
+        self.assignquest = npcproperties.genquest()
         self.about = character[1]
-        self.name = character[0]
+        self.cname = character[0]
         self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
-        self.message = "( " + self.name + " )"
+        self.message = "( " + self.cname + " )"
         return self
     def upd(self): #gets run after init to set defaults to water
         #self.lgco(["ground",1,20,[]],'cat',(52,96,1111,255),1)
         #self.message = "(interact to speak )"
         self.interactable = True
-        self.message = "( " + self.name + " )"
+        self.message = "( " + self.cname + " )"
     
     def interact(self,cplayer,cmap,message="found \n nothing"):
-        if 1:
-            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about))
+        if not npcproperties.activequest == None :
+            x = npcproperties.activequest.check(cplayer,self.cname)
+            if not x[1] == "":
+                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
+            else:
+                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" sorry it seems you already have a active quest\n (" +npcproperties.activequest.desc + ")",{"exit":0}]))
+            if npcproperties.activequest.done == 1:
+                npcproperties.activequest = None
         else:
-            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" implement quests here benedikt ",{"exit":1}]))
+            self.assignquest = npcproperties.quest(npcproperties.genquest())
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=["do you want to  " + self.assignquest.desc + " ?" ,{"no , thank you for the offer though":0,"yes":"questac"}]))
         ####
         
         return [cplayer,cmap,message]
@@ -482,7 +490,9 @@ class character(tile):
         if test == 1:
             return 1
         else:
-                
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "questac":
+                    npcproperties.activequest = self.assignquest
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
 

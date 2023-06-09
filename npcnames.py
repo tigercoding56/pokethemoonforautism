@@ -1,4 +1,7 @@
-import random
+import random ,time
+random.seed(time)
+activequest = None
+ALLNPCN = []
 npc_inf = [
     ["carpentarius"," fine ,  \n i moved here 8 years ago from the island of  tropica insulae \n after the goverment failed to implement universal basic income in time \n (bevore everyone lost their job due to all the jobs being automated )  \n and now i hand-craft furniture for various clients       ","human_m"]
     ,["masunta"," i was created as a prototype of a military robot , \n i was able to escape by improvising a fishing rod \n , and fishing enough fish to build a staircase out of the facility .\n i settled down here and now fish food for people","robot_b"]
@@ -21,10 +24,14 @@ alt_phrases = {
 "is":["inspect $ITEM , it seems to not be working "]#same as speak to but used for blocks 
 
 }
+def genquest():
+    global npc_inf
+    return [["gs",random.choice(npc_inf)[0],"thank you for speaking with me :D \n if you are seeing this quests work !!!"]]
 class quest():
      def __init__(self,code):
         global alt_phrases
         self.code = code
+        self.done = 0
         self.desc  = ""
         self.queststage = 0
         for x in range(0,len(self.code)) :
@@ -38,10 +45,16 @@ class quest():
                     nxita += random.choice(alt_phrases["at"])
                 
             self.desc = self.desc + nxita
-     def check(cplayer,name):
-         t = self.code[self.queststage]
-         invcheck(self,ist,rm=0,tm=1)
-         text == ""
+     def check(self,cplayer,name):
+         global activequest
+         try:
+             t = self.code[self.queststage]
+         except:
+            activequest == None
+            self.done = 1
+            return [len(self.code),""]
+         #invcheck(self,ist,rm=0,tm=1)
+         text = ""
          if t[0] == "f":
              if len(self.code) -1 > self.queststage:
                  x = self.code[self.queststage]
@@ -68,8 +81,10 @@ class quest():
                  self.queststage = self.queststage +1
                  if len(t) > 2:
                      text = t[2]
-         return [questage,text]
+         if self.queststage >= len(self.code)-1:
+             activequest == None
+         return [self.queststage,text]
          
                  
-activequest = []
+activequest = None
 targetd = [""]
