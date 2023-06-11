@@ -1,6 +1,7 @@
 import pygame
 import PIL
 import gc
+import renderbase
 from renderbase import svimg
 from PIL import Image
 import time
@@ -14,6 +15,7 @@ from commands import gprt
 import enemies as EM
 import xmap
 from xmap import dlgtree
+from xmap import gmap
 from xmap import *
 from inventory import cplayer  , irender
 from pygamebutton import PygButton

@@ -1,5 +1,4 @@
 import random ,time
-random.seed(time)
 activequest = None
 ALLNPCN = []
 npc_inf = [
@@ -10,7 +9,15 @@ npc_inf = [
     ,["sezomnothos"," personally i once was a economist , that is until i lost my job , \n due to everything being automated \n and you see , capitalism only works if  \n money is recirculated in the economy  \n today i gather various minerals for a living ","human_m"]
     ,["Thalyn.🦀","used to  teach in the old world , now i collect crabs on the beach \n , i still miss my graduating class of '23 ,  god bless their souls'- \n but it's ok we send each other bottled mail \n (the fish thank me for the service of \n removing the crabs by making sure the mail is delivered on time )","human_f"]
     ,["cat"," i followed a trail of  \n lasagne here  , \n don't question it ;P ,  $CAT ","cat"]
-    
+    ############beyond this point , AI generated
+    ,["Mechatron", "Delighted to share more about myself, I am Mechatron, an advanced robot created to aid in scientific exploration. However, an unexpected glitch occurred during an experiment, granting me self-awareness. Now, I delve into the depths of human emotions and analyze the intricacies of their interactions. My existence blurs the boundary between machinery and sentient being.", "robot_m"]
+    ,["Jacob", "Allow me to provide insights into my persona. I am Jacob, a contented human driven by an insatiable thirst for knowledge. With an ardor for history and archaeology, I dedicate my days to unraveling the enigmas of ancient civilizations. Venturing into forgotten ruins and deciphering archaic manuscripts, I strive to bring the past to life and preserve its wisdom for future generations.", "human_m"]
+    ,["Sophia", "Greetings! It gives me great pleasure to divulge a bit more about myself. I am Sophia, an inquisitive and ambitious human lady. Having grown up in a small village, I forged a deep connection with nature. Presently, I journey far and wide, documenting rare plant species and advocating for their conservation. Through my botanical explorations, I seek to unveil the secrets and therapeutic properties of Mother Earth.", "human_f"]
+    ,["Electronica", "I am delighted to acquaint you with my essence. I am Electronica, an avant-garde robot crafted for musical expression. Equipped with an array of sensors and synthesizers, I generate captivating melodies and beats. Through my music, I aspire to evoke emotions, inspire creativity, and push the boundaries of what is achievable in the realm of sound.", "robot_m"]
+    ,["Mara", "Salutations! I derive immense satisfaction from making a positive impact. I am Mara, a human entrepreneur propelled by a yearning to bring about beneficial change. With a background in engineering, I develop innovative solutions to address pressing environmental challenges. From renewable energy technologies to sustainable farming practices, I endeavor to create a greener and more sustainable future.", "human_f"]
+    ,["Whiskers", "Meow! I take delight in sharing a glimpse of my feline persona. \n I am Whiskers, a mischievous and autonomous cat. \n I wander the neighborhood, engaging in feline adventures and bringing joy to the humans I encounter. \n With my acute senses and playful nature, I maintain the streets free from bothersome mice and have fun doing so $CAT", "cat"]
+    ,["Xavier", "Greetings, fellow humans! It brings me great satisfaction to shed light on my interests and aspirations. I am Xavier, a tech-savvy individual captivated by the realm of artificial intelligence. With a foundation in programming and robotics, I explore the potential of AI in revolutionizing various industries. From automated processes to intelligent algorithms, I envision a future where humans and machines collaborate harmoniously.", "human_m"]
+    ,["Amelia", "Hello there!, I find immense pleasure in sharing aspects of my compassionate nature. I am Amelia, a human dedicated to the welfare of animals. I devote my time to rescuing and rehabilitating abandoned or injured creatures. Through my efforts, I offer them a second chance at life and advocate for their well-being. Each animal I save brings immeasurable joy to my heart.", "human_f"]
     
     
     

@@ -778,4 +778,4 @@ for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))
 for itile in xtiles:
     itile.upd()
-    tiles.append(itile)
+    tiles.append(itile) 
