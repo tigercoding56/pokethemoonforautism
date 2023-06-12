@@ -280,7 +280,7 @@ def interact(rlpos=None):
     if rlpos == None:
         rlpos = mousepos
         t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
-        t.pos = [cplayer.pos[0]+rlpos[0],cplayer.pos[1]+rlpos[1]]
+        #t.pos = [cplayer.pos[0]+rlpos[0],cplayer.pos[1]+rlpos[1]]
         if t.interactable :
             res = t.interact(cplayer,cmap)
             if len(res) > 0:

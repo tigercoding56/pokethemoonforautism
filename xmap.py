@@ -1,4 +1,5 @@
 import pygame
+import copy
 import PIL
 from PIL import Image
 import time
@@ -10,7 +11,8 @@ from tiledef import dialogtree as dlgtree
 import math
 import random
 import copy
-import terrainmask 
+import terrainmask
+
 def vec_add(y,t):
     r = []
     if len(y) == len(t):
@@ -95,7 +97,7 @@ class memorymap():
         l[1] = math.floor(l[1])
         key = str(l[0]) + "o" + str(l[1])
         i.pos = [l[0],l[1]]
-        self.mmap[key] = i
+        self.mmap[key] = copy.deepcopy(i)
     def getpixel(self,t,st="l"):
        # try:
             if st=="l":

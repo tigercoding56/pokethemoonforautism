@@ -36,6 +36,7 @@ class ptexture(): # a texture pointer class
 tiles = []
 quests = {"intro":0,"HOFF":0}
 class tile():
+    states = {}
     def interact(self,cplayer,cmap,message="found \n nothing"):
         return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
     
@@ -67,13 +68,108 @@ class tile():
         self.name = '404'
         self.message = ""
         self.hidden = 0
+        self.on = 0
+        self.state = 0
+        self.x = 0
+        self.y = 0
         #self.texture = ptexture('img/'+str(name)+'.png')
         self.texture = ptexture('img/404.png')
         self.textures = []
         self.pos = [0,0]
         self.attributes = ["ground",0,0,[]] ## sample ["detail"[group, if not set is assumed to be ground ],1 [enemy level to spawn 1 is basic enemies , 10 is challenging enemies],10 [chance of spawning (1 in #)],['unpassable','id32'] [list of attributes that can be used elsewhere in code , unpassable means player cannot walk through,"trader" [npc to spawn]]
 #### definitions start here
+rstates = {}
+class lever(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20],'lever',(255,255,999,255))
+        self.interactable = True
+        self.state = 0
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        self.state = (self.state + 1) %2
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+        nxt = [(-1,0),(0,1),(1,0),(0,-1)]
+        for x in range(0,3):
+            i = nxt[x]
+            tile2= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
+            if not tile2 == "none":
+                print(tile2)
+                if hasattr(tile2,'update_state'):
+                    try:
+                            cmap = tile2.update_state(cmap,self.state)
+                            cmap.structuremap =cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tile2)
+                    except Exception as e:
+                        print("NONCONDUCTING TILE HAS update_state function1 ")
+                        print(e)
+        return [cplayer,cmap,message]
 
+
+class conductor(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",0,0,[]],'wire0',(0,0,999,255))
+        self.txtoff = self.catchtxt('wire0')
+        self.txton = self.catchtxt('wire1')
+        self.on =0
+    def update_state(self,cmap,state,s=""):
+        global rstates
+        nxt = [(-1,0),(0,1),(1,0),(0,-1)]
+        lt = [2,3,0,1]
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+        self.on = state
+        if not s=="":
+            dntupd = lt[s]
+        else:
+            dntupd = ""
+        for i in nxt:
+            tilex= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
+            if not tilex == "none":
+                if hasattr(tilex,'update_state'):
+                    if not tilex.on == state:
+                        try:
+                            #if not x == dntupd:
+                                cmap = tilex.update_state(cmap,state)#,s=x)
+                                cmap.structuremap = cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tilex)
+                        except Exception as e:
+                            print("NONCONDUCTING TILE HAS update_state function ")
+                            print(e)
+            
+        return cmap
+    def gt(self):
+        if self.on == 1:
+            return self.txton
+        else:
+            return self.txtoff
+# class conductor(tile):
+#     def upd(self):
+#         self.txtoff = self.catchtxt('wire0')
+#         self.txton = self.catchtxt('wire1')
+#         self.on = 0
+# 
+#     def update_state(self, cmap, state):
+#        # if self.on != state:  # If the state is changing
+#             self.on = state
+#             self.texture = self.txton if self.on else self.txtoff
+# 
+#             nxt = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+#             for dx, dy in nxt:
+#                 tile = cmap.read(cmap.structuremap, self.x + dx, self.y + dy, True)
+#                 if isinstance(tile, conductor):
+#                         cmap = tile.update_state(cmap, state)
+#                         cmap.structuremap = cmap.sett(cmap.structuremap, tile.x, tile.y, tile)
+# 
+#             return cmap
+# 
+#     def gt(self):
+#         if self.on == 1:
+#             return self.txton
+#         else:
+#             return self.txtoff
+
+
+
+
+#############
 class water(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",0,0,["unpassable"]],'water',(0,0,0,255))
@@ -776,6 +872,7 @@ xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone()
 tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))
+xtiles = xtiles + [lever(),conductor()]
 for itile in xtiles:
     itile.upd()
     tiles.append(itile) 
