@@ -186,6 +186,13 @@ class gmap():
         else:
             t = imgmp.call((x, y),exc)
         return t
+    def getheight(self,x,y):
+        t = self.heightmap.rmmap((x, y))
+        x = self.structuremap.rmmap((x, y))
+        if x == "none":
+            return  t.height
+        else:
+           return x.height + t.height
     def readraw(self,imgmp,x,y):
         size = imgmp.size
         output = "none"

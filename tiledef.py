@@ -36,12 +36,13 @@ class ptexture(): # a texture pointer class
 tiles = []
 quests = {"intro":0,"HOFF":0}
 class tile():
-    states = {}
     def interact(self,cplayer,cmap,message="found \n nothing"):
         return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
     
     def gtx(self,fn):
         return self.gt()
+    def powerevent(self,cmap):
+        return cmap
     def gt(self):
         return self.texture
     def callback(self,cmap=0,cplayer=0,test=0):
@@ -51,6 +52,7 @@ class tile():
             return [cmap,cplayer]
     def lgco(self,attributes,name,color,a=0): # legacy compatibility
         self.name = name
+        self.rstate = [0,0,0,0]
         self.message = self.name
         self.color = color
         if len(attributes) > 3:
@@ -64,11 +66,13 @@ class tile():
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
+        self.height = 0
         self.place_last =0
         self.name = '404'
         self.message = ""
         self.hidden = 0
         self.on = 0
+        self.conductor = 0
         self.state = 0
         self.x = 0
         self.y = 0
@@ -77,39 +81,6 @@ class tile():
         self.textures = []
         self.pos = [0,0]
         self.attributes = ["ground",0,0,[]] ## sample ["detail"[group, if not set is assumed to be ground ],1 [enemy level to spawn 1 is basic enemies , 10 is challenging enemies],10 [chance of spawning (1 in #)],['unpassable','id32'] [list of attributes that can be used elsewhere in code , unpassable means player cannot walk through,"trader" [npc to spawn]]
-#### definitions start here
-rstates = {}
-class lever(tile):
-    def upd(self): #gets run after init to set defaults to water
-        self.lgco(["ground",1,20],'lever',(255,255,999,255))
-        self.interactable = True
-        self.state = 0
-    def interact(self,cplayer,cmap,message="found \n nothing"):
-        self.state = (self.state + 1) %2
-        self.x = self.pos[0]
-        self.y = self.pos[1]
-        nxt = [(-1,0),(0,1),(1,0),(0,-1)]
-        for x in range(0,3):
-            i = nxt[x]
-            tile2= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
-            if not tile2 == "none":
-                print(tile2)
-                if hasattr(tile2,'update_state'):
-                    try:
-                            cmap = tile2.update_state(cmap,self.state)
-                            cmap.structuremap =cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tile2)
-                    except Exception as e:
-                        print("NONCONDUCTING TILE HAS update_state function1 ")
-                        print(e)
-        return [cplayer,cmap,message]
-
-
-class conductor(tile):
-    def upd(self): #gets run after init to set defaults to water
-        self.lgco(["ground",0,0,[]],'wire0',(0,0,999,255))
-        self.txtoff = self.catchtxt('wire0')
-        self.txton = self.catchtxt('wire1')
-        self.on =0
     def update_state(self,cmap,state,s=""):
         global rstates
         nxt = [(-1,0),(0,1),(1,0),(0,-1)]
@@ -124,7 +95,7 @@ class conductor(tile):
         for i in nxt:
             tilex= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
             if not tilex == "none":
-                if hasattr(tilex,'update_state'):
+                if tilex.conductor == 1:
                     if not tilex.on == state:
                         try:
                             #if not x == dntupd:
@@ -134,7 +105,55 @@ class conductor(tile):
                             print("NONCONDUCTING TILE HAS update_state function ")
                             print(e)
             
+            else:
+                    try:
+                        tile2.rstate[lt[nxt.index(i)]] = state
+                        cmap = tile2.powerevent(cmap)
+                        cmap.structuremap = cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tilex)
+                    except Exception as e:
+                        print(e)
+                        
+        
         return cmap
+
+#### definitions start here
+rstates = {}
+
+class lever(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20],'lever',(255,255,999,255))
+        self.interactable = True
+        self.state = 0
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        self.state = (self.state + 1) %2
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+        nxt = [(-1,0),(0,1),(1,0),(0,-1)]
+        opnxt = [2,3,0,1]
+        for x in range(0,3):
+            i = nxt[x]
+            tile2= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
+            if not tile2 == "none":
+                print(tile2)
+                if tile2.conductor == 1:
+                    try:
+                            cmap = tile2.update_state(cmap,self.state)
+                            cmap.structuremap =cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tile2)
+                    except Exception as e:
+                        print("exception in lever class interact function")
+                        print(e)
+                
+        return [cplayer,cmap,message]
+
+
+class conductor(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",0,0,[]],'wire0',(0,0,999,255))
+        self.txtoff = self.catchtxt('wire0')
+        self.txton = self.catchtxt('wire1')
+        self.on =0
+        self.conductor = 1
+
     def gt(self):
         if self.on == 1:
             return self.txton
@@ -176,6 +195,7 @@ class water(tile):
         self.txt1 = self.catchtxt('water2')
         self.txt2 = self.catchtxt('water3')
         self.ft =0
+        self.height = 0
     def gt(self):
         return self.gtx(1)
     def gtx(self,fn):
@@ -191,6 +211,7 @@ class water(tile):
 class grass1(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
+        self.height = 1
 
 
 #start of a-10 tiles
@@ -305,6 +326,7 @@ class gemstone(tile):
         self.lgco(["ground",1,20],'gemstone',(77,77,157,255))
         self.message = "(interact to mine gem)"
         self.interactable = True
+        self.height = 1
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("gem",1)
         return [cplayer,cmap,message]
@@ -315,6 +337,7 @@ class goldstone(tile):
         self.lgco(["ground",1,20],'goldore',(196,189,62,255))
         self.message = "(interact to mine gold)"
         self.interactable = True
+        self.height = 1
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("gold",1)
         return [cplayer,cmap,message]
@@ -323,6 +346,7 @@ class silverstone(tile):
         self.lgco(["ground",1,20],'silverstone',(235,235,235,255))
         self.message = "(interact to mine silver)"
         self.interactable = True
+        self.height = 1
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("silver",1)
         return [cplayer,cmap,message]
@@ -331,6 +355,7 @@ class coalore(tile):
         self.lgco(["ground",1,20],'coalore',(69,20,20,255))
         self.message = "(interact to mine coal)"
         self.interactable = True
+        self.height = 1
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("coal",1)
         return [cplayer,cmap,message]
@@ -352,6 +377,7 @@ class copperore(tile):
         self.lgco(["ground",1,20],'copperore',(80,80,80,255))
         self.message = "(interact to mine copper)"
         self.interactable = True
+        self.height = 1
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("copper",1)
         return [cplayer,cmap,message]
@@ -359,6 +385,7 @@ class copperore(tile):
 class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
+        self.height = 2
 ###npc classes
 class npc(tile):
     def lgco(self,name,questn,pos,dialog,a=0,attributes=["ground",1,20,["unpassable"]],squestn=None): # legacy compatibility
@@ -777,21 +804,26 @@ class milvet(tile):
 class grass3(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",3,5],'grass3',(204,204,204,255))
+        self.height = 3
         
 class grass4(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",4,3],'grass4',(179,179,179,255))
+        self.height = 4
 
 class ice(tile):
     def upd(self):
         self.lgco(['ground', 4, 3, ['unpassable']],"ice",(153, 153, 153, 255))
+        self.height = 0
 class iceblock(tile):
     def upd(self):
         self.lgco(['ground', 4, 3],"iceblock",(33, 233, 222, 255))
+        self.height = 1
 class sand(tile):
     def upd(self):
         self.lgco(['ground', 2, 15],"sand",(128, 128, 128, 255))
         self.interactable = 0
+        self.height = 1
 class steppingstones(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"steppingstones",(10, 10, 10, 255),1)
@@ -850,21 +882,26 @@ class path(tile):
 class cobblestone(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"cobblestone",(0, 20, 20, 255))
+        self.height = 2
 class cobblestone(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"cobblestone",(20, 20, 20, 255))
+        self.height = 2
 class wood(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"wood",(255, 0, 161, 255))
+        self.height = 1
 class woodh(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"woodh",(255, 0, 0, 255))
+        self.height = 1
 class carpet(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"carpet",(0, 0, 255, 255))
 class tree(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"tree",(0, 96, 121, 255))
+        self.height = 1
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))

@@ -169,6 +169,8 @@ class render():
         global X,Y
         self.screen  = pygame.display.set_mode((X, Y))
         self.vbuffer  = pygame.surface.Surface((840, 640)).convert()
+        self.wrfb = pygame.surface.Surface((40,14)).convert()
+        self.wrfb2 = pygame.surface.Surface((40,8)).convert()
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
         self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
         self.arenaimg =  pygame.image.load("img/battlearena.png")
@@ -199,11 +201,31 @@ class render():
                 tile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile2= xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),True)
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
-                tile4= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
-                tile5= xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
-                tile6 = xgmap.readraw(xgmap.threedfx,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
+                tile4= xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
+                tile5=xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
+                tile6 = xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
                 vb1.append((img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
+                if tile.name == "water" and tile2 == "none":
+                    wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
+                    wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1,True)
+                    if not wtile.name == "water":
+                        self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile.gt().gt(), False, False), (40, 14)),[0,0])
+                        if not wtile2 == "none":
+                            if not wtile2.name ==  "steppingstones":
+                                self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, False), (40, 14)),[0,0])
+                        self.wrfb.set_alpha(125)
+                        vb5.append((self.wrfb,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)+26)))
+                if tile.name == "water" and tile2 == "none":
+                    wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
+                    wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1,True)
+                    if not wtile.name == "water":
+                        self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile.gt().gt(), False, True), (40, 8)),[0,0])
+                        if not wtile2 == "none":
+                            if not wtile2.name ==  "steppingstones":
+                                self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, True), (40, 8)),[0,0])
+                        self.wrfb2.set_alpha(125)
+                        vb5.append((self.wrfb2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                 if not (tile2 == "none"):
                     if tile2.name == "steppingstones":
                        threed = False
@@ -216,11 +238,11 @@ class render():
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
-                           if (tile4[0]) > (tile5[0]):
+                           if (tile4) > (tile5):
                                vb3.append((xgmap.threedoverlay,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                   if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
-                           if (tile4[0]) > (tile6[0]):
+                           if (tile4) > (tile6):
                                vb4.append((xgmap.threedoverlay2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
                    
                    
