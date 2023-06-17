@@ -1,6 +1,8 @@
 import pygame
 import PIL
+import waterFX
 import gc
+from copy import deepcopy 
 import renderbase
 from renderbase import svimg
 from PIL import Image
@@ -25,6 +27,20 @@ pos1 = [0,0]
 pos2 = [0,0]
 markp=0
 selectedt = 0
+
+ptextures = {}#optimisation to not need a rtx 4090 XYT
+class xtexture(): # a texture pointer class
+    def __init__(self,location,a=1,rescale=1):
+        global tile_textures
+        if not str(location) in ptextures:
+            a = 1
+            preimg = pygame.image.load(str(location)).convert_alpha()
+            ptextures[str(location)] = preimg
+            del(preimg)
+        self.location = str(location)
+    def gt(self):
+        global ptextures
+        return ptextures[self.location]
 if __import__("sys").platform == "emscripten":
     from platform import window
     onweb = 1
@@ -167,9 +183,13 @@ message = ["",0]
 class render():
     def __init__(self):
         global X,Y
+        self.optbuffer = {}
+        self.tilebuffer = {} ##this serves as a buffer for
+        self.skytexture = xtexture("img/sky.png").gt()
+        self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
         self.screen  = pygame.display.set_mode((X, Y))
-        self.vbuffer  = pygame.surface.Surface((840, 640)).convert()
-        self.wrfb = pygame.surface.Surface((40,14)).convert()
+        self.vbuffer  = pygame.surface.Surface((840, 840)).convert()
+        self.wrfb = pygame.surface.Surface((40,4)).convert()
         self.wrfb2 = pygame.surface.Surface((40,8)).convert()
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
         self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
@@ -185,18 +205,28 @@ class render():
                 color = self.screen.get_at((x, y))
     def renderarena(self):
         self.screen.blit(self.arenaimg,(0,0))
+    def hash_tile(self,tile1,tile2,tile4,tile5,tile6):
+        if tile2 == "none":
+            return hash(str(type(tile1).__name__)+str(tile4)+str(tile5)+str(tile6))
+        else:
+            return hash(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
     def renderwmp(self,camera,xgmap,frametime):
         global mousepos,message,onweb,selectedt
+        performance = 0
+        #watertxt = waterFX.apply_ripple(,wateroffsetext,3,2)
         getmessage()
+        wvb = []
         vb1 =[]
         vb2 = []
         vb3 = []
         vb4 = []
         vb5 = []
-        for x in range(-1,17):
-            for y in range(-1,17):
-                x = x 
-                y = y
+        wimg = ""
+        wimgb = ""
+        for xtt in range(-1,17):
+            for ytt in range(0,18):
+                x = xtt 
+                y = ytt
                 threed = True
                 tile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile2= xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),True)
@@ -205,47 +235,111 @@ class render():
                 tile5=xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
                 tile6 = xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
                 img = tile.gtx(frametime).gt()
-                vb1.append((img,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                if tile.name == "water" and tile2 == "none":
-                    wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
-                    wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1,True)
-                    if not wtile.name == "water":
-                        self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile.gt().gt(), False, False), (40, 14)),[0,0])
-                        if not wtile2 == "none":
-                            if not wtile2.name ==  "steppingstones":
-                                self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, False), (40, 14)),[0,0])
-                        self.wrfb.set_alpha(125)
-                        vb5.append((self.wrfb,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy)+26)))
-                if tile.name == "water" and tile2 == "none":
-                    wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
-                    wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1,True)
-                    if not wtile.name == "water":
-                        self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile.gt().gt(), False, True), (40, 8)),[0,0])
-                        if not wtile2 == "none":
-                            if not wtile2.name ==  "steppingstones":
-                                self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, True), (40, 8)),[0,0])
-                        self.wrfb2.set_alpha(125)
-                        vb5.append((self.wrfb2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                if not (tile2 == "none"):
-                    if tile2.name == "steppingstones":
-                       threed = False
-                    img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
-                    if not tile2.hidden:
-                        if  tile2.place_last: 
-                            vb2.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                        else:
-                            vb3.append((img2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                if threed == True:
-                  if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
-                      if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
-                           if (tile4) > (tile5):
-                               vb3.append((xgmap.threedoverlay,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                  if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
-                      if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
-                           if (tile4) > (tile6):
-                               vb4.append((xgmap.threedoverlay2,(x*40+self.gets(camera.cx),y*40+self.gets(camera.cy))))
-                   
-                   
+                if tile2 == "none":
+                    txa = 0
+                else:
+                    try:
+                        txa = tile2.animated
+                    except:
+                         tile2.animated = 0
+                         txa = 0
+                stile = 0        
+                
+                t = self.hash_tile(tile,tile2,tile4,tile5,tile6)
+                xtu =str(x) +","+str( y)
+                if xtu in self.optbuffer:
+                    if self.optbuffer[xtu] == t:
+                        stile = 1
+                    else:
+                        self.optbuffer[xtu] = t
+                else:
+                    self.optbuffer[xtu] = t
+                if not ( tile.animated == 0 and txa ==0):
+                    stile = 0
+                    self.optbuffer[xtu] = t
+                if tile.name == "water":
+                    stile = 0
+                if stile == 0:        
+                    if not tile.name == "water":
+                        ximg = img.copy()
+                        if hasattr(tile,"reflectivity"):
+                                xti = ""
+                                xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
+                                xti.set_alpha(tile.reflectivity)
+                                
+                                ximg.blit(xti,(0,0))
+                        vb1.append((ximg,(x*40,y*40)))
+                    else:
+                        if wimg == "":
+                            if (frametime % 4 ) == 1:
+                                self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
+                            wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
+                        xti = ""
+                        xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
+                        #xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
+                        xti.set_alpha(50)
+                        wimgx = wimg.copy()
+                        wimgx.blit(xti,(0,0))
+                        
+                            #wimg = img
+                            #wimg = wateroffsetext
+                        wvb.append((wimgx,(x*40,y*40)))
+                        if performance == 0:
+                            if tile.name == "water" and tile2 == "none":
+                                wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
+                                wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1,True)
+                                if not wtile.name == "water":
+                                    self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile.gt().gt(), False, False), (40, 4)),[0,0])
+                                    if not wtile2 == "none":
+                                        if not wtile2.name ==  "steppingstones":
+                                             self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, False), (40, 4)),[0,0])
+                                    #self.wrfb.set_alpha(125)
+                                    self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
+                                    self.wrfb.set_alpha(100)
+                                    vb5.append((self.wrfb,(x*40,y*40+36)))
+                                wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
+                                wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1,True)
+                                if not wtile.name == "water":
+                                    self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile.gt().gt(), False, True), (40, 8)),[0,0])
+                                    if not wtile2 == "none":
+                                        if not wtile2.name ==  "steppingstones":
+                                            self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, True), (40, 8)),[0,0])
+                                    self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
+                                    self.wrfb.set_alpha(100)
+                                    vb5.append((self.wrfb,(x*40,y*40)))
+                                    
+                    if not (tile2 == "none"):
+                        if tile2.name == "steppingstones":
+                           threed = False
+                        img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
+                        if tile2.name =="wheat":
+                            if wimgb == "":
+                                wimgb = waterFX.apply_waving_effect(img2,tile2.wavetxt.gt(),5,120,5,frametime)
+                            img2 = wimgb
+                        if not tile2.hidden:
+                            ximg2 = img2.copy()
+                            if hasattr(tile2,'reflectivity'):
+                                xti = ""
+                                xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
+                                xti.set_alpha(tile2.reflectivity)
+                                ximg2.blit(xti,(0,0))
+                            if  tile2.place_last: 
+                                vb2.append((ximg2,(x*40,y*40)))
+                            else:
+                                vb3.append((ximg2,(x*40,y*40)))
+                    if threed == True:
+                      if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
+                          if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
+                               if (tile4) > (tile5):
+                                   vb3.append((xgmap.threedoverlay,(x*40,y*40)))
+                      if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
+                          if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
+                               if (tile4) > (tile6):
+                                   vb4.append((xgmap.threedoverlay2,(x*40,y*40)))
+                       
+        if len(wvb)>0:
+            #wvb = waterFX.apply_ripple_to_blits(wvb,wateroffsetext,3,2)
+            self.vbuffer.blits(wvb)           
         self.vbuffer.blits(vb1)
         if len(vb2)>0:
             self.vbuffer.blits(vb2)
@@ -257,22 +351,28 @@ class render():
             self.vbuffer.blits(vb5)
         
             
-        self.vbuffer.blit(self.playerpreimg,(159*2,159*2))
+        
         blitpos = [0,0]
         if list(mousepos) == [-1,0]:
-            blitpos = ((140*2) + self.gets(camera.cx),(160*2) )
+            blitpos = ((140*2) +self.gets(camera.cx),(160*2) )
         elif list(mousepos) == [1,0] :
-            blitpos = ((200*2) + self.gets(camera.cx),(160*2) )
+            blitpos = ((200*2)+self.gets(camera.cx) ,(160*2) )
         elif list(mousepos) == [0,1]:
-            blitpos = ((160*2) ,(200*2) + self.gets(camera.cy))
+            blitpos = ((160*2) ,(200*2)+self.gets(camera.cy) )
         elif list(mousepos) == [0,-1] :
-            blitpos = ((160*2) ,(140*2) + self.gets(camera.cy))
-        self.vbuffer.blit(self.highlight,blitpos)
-        t = self.vbuffer
+            blitpos = ((160*2) ,(140*2) +self.gets(camera.cy)) 
+        t=self.vbuffer
+        #t = waterFX.apply_color_curves(t, 1, 1.0, 1.0)
+        #t = waterFX.apply_bloom(t,3,245,2)
+        #t=self.vbuffer
+        #t = waterFX.apply_color_curves(t, 0.8, 0.9, 0.7)
+        
         blitpos = list(blitpos)
         #blitpos[0] = blitpos[0]*2
         #blitpos[1] = blitpos[1]*2
-        self.screen.blit(t,(0,0))
+        self.screen.blit(t,(self.gets(camera.cx),self.gets(camera.cy)))
+        self.screen.blit(self.playerpreimg,(159*2,159*2))
+        self.screen.blit(self.highlight,blitpos)
         return blitpos
 
         
@@ -344,11 +444,14 @@ def getmessage():
 ###helper function
 isinvo = False
 endtime = 0
+clock = pygame.time.Clock()
 def main():
-    global ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global clock, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
+    dt = clock.tick(60)
+    #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
-    frametime = frametime + 1 % 20
+    frametime = frametime + 1 % 120
     tiledef.npcdia.quests = tiledef.quests
     mycam.run()
        # except:
@@ -363,7 +466,7 @@ def main():
             start_time = time.time()
             blitpos = drawsys.renderwmp(mycam,cmap,frametime)
             ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
-            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((-1/(endtime - start_time))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((1000/dt)), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
 
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
@@ -377,6 +480,7 @@ def main():
     #pygame.display.update()
     pokeinteraction = 0
     pokelevel = 0
+   # print(dt)
     if not (isinvo or  dlgtree.cnpcdial.active)  : 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -393,8 +497,8 @@ def main():
             if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
                 
                 keyeventlist = [0,0,0,0]
-                camerax = cplayer.pos[0]
-                cameray = cplayer.pos[1]
+                cplayer.pos[0] = cplayer.pos[0]
+                cplayer.pos[1] = cplayer.pos[1]
                 if event.key == pygame.K_RIGHT:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
@@ -444,31 +548,35 @@ def main():
 
                 nexttile = 0
                 if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
-                    if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:
-                        nexttile = cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],1)
-                        camerax = camerax - 1
+                    #for i in range(int((1+(1000/max(1,dt))*2))):
+                        if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:
+                            nexttile = cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],1)
+                            cplayer.pos[0] = cplayer.pos[0] - 1
                         
                 elif keyeventlist == [0,0,1,0]:
-                    if cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,4) == 1:
-                        nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,1)
-                        cameray = cameray - 1
+                    #for i in range(int(((1000/max(1,dt))*1))):
+                        if cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,4) == 1:
+                            nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,1)
+                            cplayer.pos[1] = cplayer.pos[1] - 1
                         
                 elif keyeventlist == [0,0,0,1]:
-                    if cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,4) == 1:
-                        nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,1)
-                        cameray = cameray + 1
+                   # for i in range(int((1000/max(1,dt))*1)):
+                        if cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,4) == 1:
+                            nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,1)
+                            cplayer.pos[1] = cplayer.pos[1] + 1
                         
                 elif keyeventlist == [0,1,0,0]:
-                    if cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],4) == 1:
-                        nexttile =  cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],1)
-                        camerax = camerax + 1
+                    #for i in range(int((1000/max(1,dt))*1)):
+                        if cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],4) == 1:
+                            nexttile =  cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],1)
+                            cplayer.pos[0] = cplayer.pos[0] + 1
                 if  nexttile != 0 and len(nexttile.attributes) > 1:
-                    print(nexttile)
+                    #print(nexttile)
                     if nexttile.attributes[1] > 0:
                         pokeinteraction = nexttile.attributes[1]
                         pokelevel = nexttile.attributes[2]
-                cplayer.pos[0] = camerax
-                cplayer.pos[1] = cameray
+                cplayer.pos[0] = cplayer.pos[0]
+                cplayer.pos[1] = cplayer.pos[1]
             
     if transition[0] < 0.5:
             transition[0] = transition[0] + 0.01
@@ -513,7 +621,9 @@ def main():
             
      # FPS = 1 / time to process loop
     endtime = time.time()
-    time.sleep(1/43)
+    #pygame.time.wait(10)
+    
+    #time.sleep(1/43)
     
 
 if __name__ == "__main__":

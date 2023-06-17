@@ -12,7 +12,7 @@ import math
 import random
 import copy
 import terrainmask
-
+import numpy as np
 def vec_add(y,t):
     r = []
     if len(y) == len(t):
@@ -82,15 +82,26 @@ class memorymap():
                      
                     
     
-    def rmmap(self,l):
-        l = list(l)
-        l[0] = math.floor(l[0])
-        l[1] = math.floor(l[1])
-        key = str(l[0]) + "o" + str(l[1])
+#     def rmmap(self,l):
+#         l = list(l)
+#         l[0] = math.floor(l[0])
+#         l[1] = math.floor(l[1])
+#         key = str(l[0]) + "o" + str(l[1])
+#         if key in self.mmap:
+#             return self.mmap[key]
+#         else:
+#             return tiles[0]
+    def rmmap(self, l):
+        l = list(map(math.floor, l))
+        key = f"{l[0]}o{l[1]}"
+        
         if key in self.mmap:
             return self.mmap[key]
         else:
-            return tiles[0]
+            result = tiles[0]
+            self.mmap[key] = result
+            return result
+
     def smmap(self,l,i):
         l = list(l)
         l[0] = math.floor(l[0])
@@ -110,11 +121,8 @@ class memorymap():
             self.smmap(t,temp)
             return u
 
-        #except:
-            #if st=="l":
-            #    return (0,0,0,255)
-           # else:
-                #return [(0,0,0,255),sttobj(0,0)]
+
+
 class gmap():
     def add_pt(color=[255,255,255],size=2,lifetime=30,position=[0,0],velocity=[0,0]):
         particle = {}
@@ -189,10 +197,13 @@ class gmap():
     def getheight(self,x,y):
         t = self.heightmap.rmmap((x, y))
         x = self.structuremap.rmmap((x, y))
-        if x == "none":
-            return  t.height
-        else:
-           return x.height + t.height
+        try:
+            if x == "none":
+                return  t.height
+            else:
+                return x.height + t.height
+        except:
+            return 0
     def readraw(self,imgmp,x,y):
         size = imgmp.size
         output = "none"

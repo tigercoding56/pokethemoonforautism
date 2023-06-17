@@ -41,6 +41,7 @@ class tile():
     
     def gtx(self,fn):
         return self.gt()
+        
     def powerevent(self,cmap):
         return cmap
     def gt(self):
@@ -66,6 +67,7 @@ class tile():
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
+        self.animated = 0
         self.height = 0
         self.place_last =0
         self.name = '404'
@@ -153,6 +155,7 @@ class conductor(tile):
         self.txton = self.catchtxt('wire1')
         self.on =0
         self.conductor = 1
+        self.animated = 1
 
     def gt(self):
         if self.on == 1:
@@ -196,6 +199,7 @@ class water(tile):
         self.txt2 = self.catchtxt('water3')
         self.ft =0
         self.height = 0
+        self.animated = 0
     def gt(self):
         return self.gtx(1)
     def gtx(self,fn):
@@ -221,13 +225,18 @@ class a_10nose(tile):
         self.message = ""
         self.place_last = 1
         self.walkable = 0
+        self.name = "a10-nose"
+        self.animated = 1
         self.texture = ptexture('img/a10-nose.png')
+        self.name = "a-10,126"
 class a_10cabin(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin',(88,88,88,255))
         self.message = ""
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
+        self.name = "a-10,125"
         self.texture = ptexture('img/a10-cabin.png')
 class a_10cabin2(tile):
     def upd(self):
@@ -235,6 +244,8 @@ class a_10cabin2(tile):
         self.message = ""
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
+        self.name = "a-10,123"
         self.texture = ptexture('img/a10-cabin2.png')
 class a_10tail(tile):
     def upd(self):
@@ -242,13 +253,17 @@ class a_10tail(tile):
         self.message = ""
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
+        self.name = "a-10,353"
         self.texture = ptexture('img/a10-tailb.png')
 class a_10section(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(147,147,147,255))
         self.message = ""
         self.place_last = 1
+        self.name = "a-10,23"
         self.walkable = 0
+        self.animated = 1
         self.texture = ptexture('img/a10-section1.png')
         self.texture2 = ptexture('img/a10-section2.png')
     def gt(self):
@@ -262,6 +277,8 @@ class a_10wing(tile):
         self.message = ""
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
+        self.name = "a-10,43"
         self.texture = ptexture('img/a10-winga.png')
         self.texture2 = ptexture('img/a10-wingb.png')
     def gt(self):
@@ -273,46 +290,58 @@ class a_10wingtipa(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(0,50,10,255))
         self.message = ""
+        self.name = "a-10,132344"
         self.place_last = 1
+        self.animated = 1
         self.texture = ptexture('img/a10-wingtipa.png')
 
 class a_10wingtipb(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(0,100,50,255))
         self.message = ""
+        self.name = "a-10,353"
         self.place_last = 1
+        self.animated = 1
         self.texture = ptexture('img/a10-wingtipb.png')
 
 class a_10turbinea(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(0,20,50,255))
         self.message = ""
+        self.name = "a-10,13423"
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
         self.texture = ptexture('img/a10-rightturbine.png')
 
 class a_10turbineb(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(0,50,20,255))
         self.message = ""
+        self.name = "a-10,433"
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
         self.texture = ptexture('img/a10-leftturbine.png')
 
 class a_10taila(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(0,200,50,255))
         self.message = ""
+        self.name = "a-10,343"
         self.place_last = 1
         self.walkable = 0
+        self.animated = 1
         self.texture = ptexture('img/a-10taila.png')
         
 class a_10tailb(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(0,20,200,255))
         self.message = ""
+        self.name = "a-10,23122"
         self.place_last = 1
         self.walkable = 1
+        self.animated = 1
         self.texture = ptexture('img/a10-tailc.png')
 
 
@@ -810,15 +839,25 @@ class grass4(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",4,3],'grass4',(179,179,179,255))
         self.height = 4
+        
+class wheat(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",4,3],'wheat',(1709,1079,1709,2505))
+        self.height = 0
+        self.wavetxt = ptexture('img/plantwave.png')
+        self.animated = 1
 
 class ice(tile):
     def upd(self):
         self.lgco(['ground', 4, 3, ['unpassable']],"ice",(153, 153, 153, 255))
-        self.height = 0
+        self.height = 1
+        #self.reflectivity = 50
 class iceblock(tile):
     def upd(self):
         self.lgco(['ground', 4, 3],"iceblock",(33, 233, 222, 255))
-        self.height = 1
+        self.height = 0
+        self.reflectivity = 25
+        self.animated = 1
 class sand(tile):
     def upd(self):
         self.lgco(['ground', 2, 15],"sand",(128, 128, 128, 255))
@@ -905,7 +944,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message()]
+xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message(),wheat()]
 tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))

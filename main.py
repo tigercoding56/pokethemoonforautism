@@ -15,17 +15,17 @@ async def main():
         # Do your rendering here, note that it's NOT an infinite loop,
         # and it is fired only when VSYNC occurs
         # Usually 1/60 or more times per seconds on desktop, maybe less on some mobile devices
-        #time.sleep(0.05)
-        libraries.main() 
+        #time.sleep(1/60)
+        libraries.main()
         pygame.display.update()
         #gc.collect(2)
 
-        await asyncio.sleep(0)  # Very important, and keep it 0
+        #await asyncio.sleep(0)  # Very important, and keep it 0
 
 
 
 # This is the program entry point:
 asyncio.run(main())
-
+#main()
 # Do not add anything from here
 # asyncio.run is non-blocking on pygame-wasm
