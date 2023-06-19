@@ -255,8 +255,8 @@ class render():
                 x = xtt 
                 y = ytt
                 threed = True
-                tile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
-                tile2= xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),True)
+                tile = xgmap.heightmap.rmmap((x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)))
+                tile2= xgmap.structuremap.rmmap((x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)),True)
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile4= xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
                 tile5=xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)

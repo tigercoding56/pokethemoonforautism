@@ -39,6 +39,8 @@ quests = {"intro":0,"HOFF":0}
 class tile():
     def init(self):
         pass
+    def initmp(self):
+        pass
     def interact(self,cplayer,cmap,message="found \n nothing"):
         return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
     
@@ -219,6 +221,22 @@ class grass1(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
         self.height = 1
+        
+class pipe1(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'pipe1',(255,25235,255,255))
+        self.height = 0
+        
+class pipe2(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'pipe2',(255,25235,255,255))
+        self.height = 0
+class pipe3(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'pipe3',(255,25235,255,255))
+        self.height = 0
+        
+        
         
         
 class town_marker(tile):  
@@ -672,6 +690,7 @@ class character(tile):
         
         self.about = character[1]
         self.cname = character[0]
+        self.name = self.cname
         self.assignquest = ""
         self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
         self.message = "( " + self.cname + " )"

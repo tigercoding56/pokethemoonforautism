@@ -69,7 +69,7 @@ class memorymap():
                        except:
                            io = 0
                    self.mmap[str(x) + "o" + str(y)] = output
-                   self.dgmap[str(x) + "o" + str(y)] = output
+            self.dgmap = self.mmap
     def getdiff(self):
        difftab = [] 
        for y in range(0,self.size[1] - 1):
@@ -95,16 +95,23 @@ class memorymap():
 #             return self.mmap[key]
 #         else:
 #             return tiles[0]
-    def rmmap(self, l):
+    def rmmap(self, l,clear=0):
         l = list(map(math.floor, l))
         key = f"{l[0]}o{l[1]}"
-        
-        if key in self.mmap:
-            return self.mmap[key]
+        if clear == 0:
+            if key in self.mmap:
+                return self.mmap[key]
+            else:
+                result = tiles[0]
+                #self.mmap[key] = copy.deepcopy(result)
+                return result
         else:
-            result = tiles[0]
-            self.mmap[key] = result
-            return result
+            if key in self.mmap:
+                return self.mmap[key]
+            else:
+                #result = tiles[0]
+                #self.mmap[key] = copy.deepcopy(result)
+                return "none"  
 
     def smmap(self,l,i,dg=0):
         l = list(l)
@@ -115,12 +122,12 @@ class memorymap():
         self.mmap[key] = copy.deepcopy(i)
         if dg:
             self.dgmap[key] = copy.deepcopy(i)
-    def getpixel(self,t,st="l"):
+    def getpixel(self,t,st="l",clear=0):
        # try:
             if st=="l":
                 return self.imgmp.getpixel(t)
             else:
-                return self.rmmap(t)
+                return self.rmmap(t,clear)
     def call(self,t,function):
             temp = self.rmmap(t)
             u = eval("temp." + str(function))
@@ -196,7 +203,7 @@ class gmap():
     def read(self,imgmp,x,y,clear=False,exc="none"):
         if exc == "none":
             size = imgmp.size
-            t = imgmp.getpixel((x, y),"m")
+            t = imgmp.getpixel((x, y),"m",clear)
         else:
             t = imgmp.call((x, y),exc)
         return t
@@ -230,7 +237,10 @@ class gmap():
         self.particles = []
         if x:
             for i in terrainmask.mask1:
-                self.structuremap.smmap(i[0],self.tiles[i[1]],dg=1)
+                t=self.tiles[i[1]]
+                t.initmp()
+                self.structuremap.smmap(i[0],t,dg=1)
+        self.structuremap.dgmap = self.structuremap.mmap
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))
 #addtile(  tile('grass2',(230,230,230,255),["ground",2,10]))

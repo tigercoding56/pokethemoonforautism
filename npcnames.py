@@ -73,6 +73,8 @@ def genquest(cplayer,npcn):
     pn = []
     lt = ["thank you for speaking with me :D \n if you are seeing this quests work !!!","Oh i forgot about the message from $SENDER","how could i forget ","$SENDER did not forget my birthday :D","Oh , sorry i need to contact $SENDER about the $SHOP right now , \n here is your payment ","*phone rings* yes i am here to order from $SHOP *mumbled voices * \n sorry for letting you wait \n here is your payment"] + pmessages
     x = ""
+    #print(npc_pos)
+    #print(npc_pos["Amelia"])
     for xi in range(2,5):
         for i in npc_pos:
             if (npc_pos[i][0]-cplayer.pos[0]) + (npc_pos[i][1]-cplayer.pos[1]) < (xi*20) and not(npcn == i):
@@ -83,8 +85,10 @@ def genquest(cplayer,npcn):
         t = 0
         while t == 0:
             npc = random.choice(npc_inf)[0]
-            if not npc == npcn:
-                t = 1
+            if not npc == npcn :
+                if npc in npc_pos:
+                    t = 1
+    #print(npc_pos[npc])
     message =  random.choice(lt)
     message = message.replace("$SENDER",npcn)
     message = message.replace("$RECEIVER",npc)
