@@ -1,5 +1,7 @@
 import pygame
 import PIL
+import UIdialogdef
+#import noise
 import waterFX
 import gc
 from copy import deepcopy 
@@ -26,8 +28,31 @@ onweb = 0
 pos1 = [0,0]
 pos2 = [0,0]
 markp=0
+sound_intr = -1
 selectedt = 0
 
+
+            
+muted = 1
+pygame.mixer.init()
+outsoundtrack = pygame.mixer.Sound('audio/peasant kingdom.ogg')
+insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
+#outsoundtrack.play(-1)
+#insoundtrack.play(-1)
+def intsound(x):
+    global sound_intr,outsoundtrack,insoundtrack,muted
+    if muted == 0:
+        if x == 1:
+            if not sound_intr == 1:
+                outsoundtrack.fadeout(2000)
+                insoundtrack.play(-1,fade_ms=2000)
+        if x == 0:
+            if not sound_intr == 0:
+                insoundtrack.fadeout(2000)
+                outsoundtrack.play(-1,fade_ms=2000)
+        sound_intr = x
+        outsoundtrack.set_volume(1-sound_intr)
+        insoundtrack.set_volume(sound_intr)
 ptextures = {}#optimisation to not need a rtx 4090 XYT
 class xtexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
@@ -92,6 +117,7 @@ def load(slot):
                     cmap.structuremap.applydiff(sd[2])
                     cmap.heightmap.applydiff(sd[3])
                     xmap.tiledef.quests = sd[4]
+                    xmap.tiledef.quests = {'intro': 3, 'HOFF': 0, 'getradio1': 1, 'seldone': 1, 'reportbackrd': 1, 'radiodone': 1, 'ART': 1, 'rbf2': 2, 'GTH': 1}
 
 ######################
 #player initial setup#
@@ -221,6 +247,7 @@ class render():
         vb3 = []
         vb4 = []
         vb5 = []
+        csound=0
         wimg = ""
         wimgb = ""
         for xtt in range(-1,17):
@@ -238,6 +265,8 @@ class render():
                 if tile2 == "none":
                     txa = 0
                 else:
+                    if tile2.name == "townmarker":
+                        csound = 1
                     try:
                         txa = tile2.animated
                     except:
@@ -370,6 +399,7 @@ class render():
         blitpos = list(blitpos)
         #blitpos[0] = blitpos[0]*2
         #blitpos[1] = blitpos[1]*2
+        intsound(csound) 
         self.screen.blit(t,(self.gets(camera.cx),self.gets(camera.cy)))
         self.screen.blit(self.playerpreimg,(159*2,159*2))
         self.screen.blit(self.highlight,blitpos)
@@ -444,9 +474,12 @@ def getmessage():
 ###helper function
 isinvo = False
 endtime = 0
+dlgtree.cnpcdial = dlgtree.UIdialogbase()
+#dlgtree.cnpcdial = UIdialogdef.spaceobserverdia()
+dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()
 def main():
-    global clock, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
     dt = clock.tick(60)
     #time.sleep(1/31)
@@ -595,7 +628,18 @@ def main():
             ACTIVEAREA = transition[2]
     try:
          if  dlgtree.cnpcdial.active:
-            dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+             if not hasattr(dlgtree.cnpcdial,'runUI'):
+                dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+             else:
+                dlgtree.cnpcdial.cmap = cmap
+                dlgtree.cnpcdial.drawsys = drawsys
+                dlgtree.cnpcdial.cplayer = cplayer
+                if dlgtree.cnpcdial.initialised == 0:
+                    dlgtree.cnpcdial.initialise()
+                dlgtree.cnpcdial.runUI()
+                cmap = dlgtree.cnpcdial.cmap
+                drawsys = dlgtree.cnpcdial.drawsys
+                cplayer = dlgtree.cnpcdial.cplayer
     except Exception as ex23:
         print(ex23)
         print(dlgtree.cnpcdial)

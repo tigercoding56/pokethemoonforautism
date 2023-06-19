@@ -1,10 +1,80 @@
-
+import ptext
 import dialog
 import time
+import pygame
+from pygamebutton import PygButton
+ccredits = {
+    "Curt":" \"Characters Zombies and Weapons Oh my \"- resource pack",
+    "GrafxKid":"\Gum Bot sprites\"-used for various robot sprites ",
+    "the tuxemon project":"inspiration (and also how i found the music for this game)",
+    "Olivia,le":"some drawings which have been used to make background for cat characters \n about-me dialog section",
+    "AndHeGames":"\"32x32 pixel art creatures volume 3\"- unused , but could be used later  \n(i am not sure if i will end up using them)",
+    "Spring Spring":"\"Peasant kingdom\"-used as music in the wild (under cc-by 3.0)",
+    "Yubatake":" \"JRPG collection \"-- JRPG_town_loop used for towns ",
+    "chatgtp":"somewhat helping me optimise my code \n(although it is a pain to get it to do what you want)",
+    "attribution notice for cc-by 3.0":"https://creativecommons.org/licenses/by/3.0/"
+    
+    
+}
 class ddialog():
     def __init__(self):
         self.active = 0
         self.val = 0
+class UIdialogbase():
+    def __init__(self):
+        self.active = 1
+        self.res = [840,640]
+        self.buttons = {}
+        self.initialised = 0
+        self.frametime = 0 
+    def scale(self,x,y):
+        return [int(x*self.res[0]),int(y*self.res[1])]
+    def initialise(self):
+        self.add_btn("start game","exitbtn",(0,0.9),(1,0.1))
+    def add_btn(self,text,name,pos,size):
+        pos = self.scale(pos[0],pos[1])
+        size=self.scale(size[0],size[1])
+        self.buttons[name] = PygButton(caption=text,rect=(pos[0],pos[1],size[0],size[1]))
+    def renderframe(self):
+        global ccredits
+        #self.drawsys.screen
+        teal = 0.1
+        self.frametime = (self.frametime + 1)%200
+        #time.sleep(0.05)
+        pygame.draw.rect(self.drawsys.screen, (int(245*teal),int(235*teal),int(250*teal)), pygame.Rect((self.scale(0, 0)+self.scale( 1, 1))))
+        ptext.draw( "sorry , for the lack of a good storyline  , \n i am bad at writing good dialog ...", (20,20), color="white",fontsize=32)
+        ptext.draw( "thank you to ", (60,100), color="white",fontsize=20)
+        indexx = 0
+        i = [6,4,7,8,4,5]
+        icolors = ["blue","red","black","yellow","gold","silver","green"]
+        for key in ccredits:
+            name = key
+            indexx += 1
+            work = ccredits[key]
+            ptext.draw( name + " for " + work, (20*i[indexx % 5],140+(((indexx*70))+(self.frametime*4.5) )%700), color=icolors[indexx%6],fontsize=30)
+        #ptext.draw( " ", (30,70), shadow=(1.0,1.0), scolor="gold",fontsize=16)
+    #def mouseklick(self,x,y):
+        #pass
+    def btnp(self,name):
+        if name == "exitbtn":
+            self.active = 0
+    def runUI(self):
+        self.renderframe()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            else:
+                for key,value in self.buttons.items():
+                    t= value.handleEvent(event)
+                    #print(t)
+                    if "down" in t:
+                        self.btnp(key)
+        for key , value in self.buttons.items():
+            value.draw(self.drawsys.screen)
+        time.sleep(0.05)
+                
+                        
+                
 class nbcdialog():
     def __init__(self,dialog,do=[]):
         self.dialog = dialog

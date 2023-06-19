@@ -3,6 +3,7 @@ import dialogtree
 import asyncio
 import npcdia
 import npcnames as npcproperties
+disptm = 1
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
 class sttobj():
@@ -36,6 +37,8 @@ class ptexture(): # a texture pointer class
 tiles = []
 quests = {"intro":0,"HOFF":0}
 class tile():
+    def init(self):
+        pass
     def interact(self,cplayer,cmap,message="found \n nothing"):
         return [cplayer,cmap,message]#usefull for modifying the worldmap  , or teleporting the player the last argument is a message 
     
@@ -213,9 +216,22 @@ class water(tile):
         
 
 class grass1(tile):
-    def upd(self): #gets run after init to set defaults to water
+    def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
         self.height = 1
+        
+        
+class town_marker(tile):  
+    def upd(self):
+        self.lgco(["ground",1,20],'townmarker',(25215,255,23155,255))
+        self.height = 0
+        self.hiddentxt = ptexture("img/townmarkerhidden.png")
+    def gt(self):
+        global disptm
+        if disptm == 1:
+            return self.texture
+        else:
+            return self.hiddentxt
 
 
 #start of a-10 tiles
@@ -598,6 +614,46 @@ class test(tile):
 
 
 
+class questobjective(tile):
+    def initmp(self):
+        npcproperties.npc_pos[self.cname] = self.pos
+    def ssc(self,charnum):
+        charnum = charnum % len(npcproperties.npc_inf) 
+        character = npcproperties.npc_inf[charnum]
+        self.species = character[2]
+        self.assignquest = npcproperties.genquest()
+        self.about = character[1]
+        self.cname = character[0]
+        self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
+        self.message = "( " + self.cname + " )"
+        return self
+    def upd(self): #gets run after init to set defaults to water
+        #self.lgco(["ground",1,20,[]],'cat',(52,96,1111,255),1)
+        #self.message = "(interact to speak )"
+        self.interactable = True
+        self.message = "( " + self.cname + " )"
+    def intx(self,cplayer,cmap):
+        return [cplayer,cmap]
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        if not npcproperties.activequest == None :
+            x = npcproperties.activequest.check(cplayer,self.cname,1)
+            if not x[1] == "":
+                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"ok":0}]})
+            else:
+                 dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[self.wdia,{"ok":0}]})
+            if npcproperties.activequest.done == 1:
+                npcproperties.activequest = None
+        else:
+           dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[self.wdia,{"ok":0}]})
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        if test == 1:
+            return 1
+        else:
+            io = 0
+        return [cmap,cplayer]
 
 
 
@@ -607,13 +663,16 @@ class test(tile):
 
 
 class character(tile):
+    def initmp(self):
+        npcproperties.npc_pos[self.cname] = self.pos
     def ssc(self,charnum):
         charnum = charnum % len(npcproperties.npc_inf) 
         character = npcproperties.npc_inf[charnum]
         self.species = character[2]
-        self.assignquest = npcproperties.genquest()
+        
         self.about = character[1]
         self.cname = character[0]
+        self.assignquest = ""
         self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
         self.message = "( " + self.cname + " )"
         return self
@@ -633,7 +692,7 @@ class character(tile):
             if npcproperties.activequest.done == 1:
                 npcproperties.activequest = None
         else:
-            self.assignquest = npcproperties.quest(npcproperties.genquest())
+            self.assignquest = npcproperties.quest(npcproperties.genquest(cplayer,self.cname))
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=["do you want to  " + self.assignquest.desc + " ?" ,{"no , thank you for the offer though":0,"yes":"questac"}]))
         ####
         
@@ -944,7 +1003,7 @@ class tree(tile):
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
-xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message(),wheat()]
+xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message(),wheat(),town_marker()]
 tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))

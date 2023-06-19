@@ -64,6 +64,10 @@ class memorymap():
                        output = tiles[0]
                    if not output == "none":
                        output.pos = [x,y]
+                       try:
+                           output.initmp()
+                       except:
+                           io = 0
                    self.mmap[str(x) + "o" + str(y)] = output
                    self.dgmap[str(x) + "o" + str(y)] = output
     def getdiff(self):
@@ -77,7 +81,7 @@ class memorymap():
        return difftab
     def applydiff(self,difftab):
        for i in difftab:
-           print(i)
+           #print(i)
            self.mmap[i[0]] = i[1]
                      
                     
@@ -102,13 +106,15 @@ class memorymap():
             self.mmap[key] = result
             return result
 
-    def smmap(self,l,i):
+    def smmap(self,l,i,dg=0):
         l = list(l)
         l[0] = math.floor(l[0])
         l[1] = math.floor(l[1])
         key = str(l[0]) + "o" + str(l[1])
         i.pos = [l[0],l[1]]
         self.mmap[key] = copy.deepcopy(i)
+        if dg:
+            self.dgmap[key] = copy.deepcopy(i)
     def getpixel(self,t,st="l"):
        # try:
             if st=="l":
@@ -224,7 +230,7 @@ class gmap():
         self.particles = []
         if x:
             for i in terrainmask.mask1:
-                self.structuremap.smmap(i[0],self.tiles[i[1]])
+                self.structuremap.smmap(i[0],self.tiles[i[1]],dg=1)
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))
 #addtile(  tile('grass2',(230,230,230,255),["ground",2,10]))

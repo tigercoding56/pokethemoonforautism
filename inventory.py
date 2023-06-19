@@ -89,6 +89,7 @@ possible_items = {
 "win":item("mysteriousdevice","this device should  tame all animals on this island . just place it down","md"),    
 "message_in_bottle":messageinbottle("message in bottle","interact to take out message "),
 "infochip":item("infochip"," this infochip contains a large amount of data"),
+"coin":item("coin","a coin inscriped \n with the face of a horse for some  reason \n maybe you'll find a use for it ")
 
 
 }
