@@ -8,6 +8,7 @@ import tiledef
 from tiledef import tiles
 from tiledef import sttobj
 from tiledef import dialogtree as dlgtree
+from dialogtree import cplayer ,irender 
 import math
 import random
 import copy
@@ -118,7 +119,8 @@ class memorymap():
         l[0] = math.floor(l[0])
         l[1] = math.floor(l[1])
         key = str(l[0]) + "o" + str(l[1])
-        i.pos = [l[0],l[1]]
+        if not i == "none":
+            i.pos = [l[0],l[1]]
         self.mmap[key] = copy.deepcopy(i)
         if dg:
             self.dgmap[key] = copy.deepcopy(i)
@@ -179,6 +181,8 @@ class gmap():
                 return tile
             else:
                 return tile2
+        elif idx == -1:
+            return tile
         else:
             if  tile2 == "none":
                 return tile.walkable
@@ -239,8 +243,15 @@ class gmap():
             for i in terrainmask.mask1:
                 t=self.tiles[i[1]]
                 t.initmp()
-                self.structuremap.smmap(i[0],t,dg=1)
+                layer=1
+                if len(i) > 2:
+                    layer = i[2]
+                if layer == 1:
+                    self.structuremap.smmap(i[0],t,dg=1)
+                else:
+                    self.heightmap.smmap(i[0],t,dg=1)
         self.structuremap.dgmap = self.structuremap.mmap
+        self.heightmap.dgmap = self.heightmap.mmap
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))
 #addtile(  tile('grass2',(230,230,230,255),["ground",2,10]))

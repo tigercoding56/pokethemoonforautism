@@ -72,8 +72,11 @@ class tile():
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
+        self.mp_item = None
         self.animated = 0
         self.height = 0
+        self.price = 0
+        self.PBA = 0
         self.place_last =0
         self.name = '404'
         self.message = ""
@@ -221,6 +224,13 @@ class grass1(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
         self.height = 1
+class housetile(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'place',(255,255,2585,255))
+        self.height = 0
+        self.name = "housetile"
+        self.message = ""
+        self.PBA = 1
         
 class pipe1(tile):
     def upd(self): 
@@ -231,10 +241,12 @@ class pipe2(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'pipe2',(255,25235,255,255))
         self.height = 0
+        self.cost = 1
 class pipe3(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'pipe3',(255,25235,255,255))
         self.height = 0
+        self.cost = 1
         
         
         
@@ -990,6 +1002,7 @@ class oilrigdrill4(tile):
         self.lgco(['ground', 0, 0],"oildrill5",(10, 154, 110, 255),1)
         self.message =""
         self.walkable = 0
+        self.price = 1
         
         
 ##end of oil rig tiles
@@ -1019,6 +1032,7 @@ class tree(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"tree",(0, 96, 121, 255))
         self.height = 1
+        self.price = 1
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
@@ -1026,7 +1040,12 @@ xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone()
 tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))
-xtiles = xtiles + [lever(),conductor()]
+xtiles = xtiles + [lever(),conductor(),housetile()]
 for itile in xtiles:
     itile.upd()
+    if itile.price > 0:
+        it = dialogtree.inv_handle.item("tile_" + str(itile.name),"this item allows you to costumise any \n applicable tiles with \n a"+str(itile.name),ptextpath=itile.gt().location,blockid=itile.__class__.__name__)
+        dialogtree.inv_handle.possible_items["tile_"+str(itile.name)] = it
+        print("tile_"+str(itile.name))
+        itile.mp_item = it
     tiles.append(itile) 

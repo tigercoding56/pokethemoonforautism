@@ -1,6 +1,11 @@
 import random ,time
 activequest = None
 ALLNPCN = []
+def insert_newlines(text):
+    words = text.split()
+    words_with_newlines = [words[i:i+10] for i in range(0, len(words), 10)]
+    lines = [' '.join(words) for words in words_with_newlines]
+    return '\n'.join(lines)
 npc_inf = [
     ["carpentarius"," fine ,  \n i moved here 8 years ago from the island of  tropica insulae \n after the goverment failed to implement universal basic income in time \n (bevore everyone lost their job due to all the jobs being automated )  \n and now i hand-craft furniture for various clients       ","human_m"]
     ,["masunta"," i was created as a prototype of a military robot , \n i was able to escape by improvising a fishing rod \n , and fishing enough fish to build a staircase out of the facility .\n i settled down here and now fish food for people","robot_b"]
@@ -93,7 +98,7 @@ def genquest(cplayer,npcn):
     message = message.replace("$SENDER",npcn)
     message = message.replace("$RECEIVER",npc)
     message = message.replace("$SHOP",random.choice(shop_names))
-    return [["gs",npc,message]]
+    return [["gs",npc,insert_newlines(message)]]
 class quest():
      def __init__(self,code):
         global alt_phrases

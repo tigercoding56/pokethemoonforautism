@@ -14,6 +14,9 @@ X = 840
 Y = 640
 color = (200,220,255)
 wcolor = (255,200,150)
+if __name__ == '__main__':
+    pygame.init()
+    pygame.display.set_mode((840,640))
 item_textures = {}#optimisation to not need a rtx 4090 XYT
 class ptexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
@@ -32,15 +35,19 @@ class ptexture(): # a texture pointer class
 def scale(x,y,x1,y1):
     return (x*2,y*2,x1*2,y1*2)
 class item():
-    def __init__(self,name="default",desc="description",place="no",uda=False):
+    def __init__(self,name="default",desc="description",place="no",uda=False,ptextpath=None,blockid=0):
         self.name = str(name)
         self.tname = tname = str(name).replace(" ","_")
         self.place = place
+        self.blockID = blockid
         self.uda = uda
         self.hash = hash(str(name) + str(desc))
         
         try:
-            texture = ptexture("img/items/" + tname + ".png")
+            if ptextpath == None:
+                texture = ptexture("img/items/" + tname + ".png")
+            else:
+                texture =ptexture(ptextpath)
         except:
             texture = ptexture("img/404.png")
             print("item " + str(name) + " needs a texture at img/items" + tname + ".png please ,add one")
@@ -99,7 +106,7 @@ def computestringdiff(actuall,inputst):
         
 
     
-
+list_box2 = ListBox(0, 0, 340, 840, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
 list_box = ListBox(500, 0, 340, 840, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
 surface = pygame.display.set_mode((X,Y))
 exitbtn = PygButton(caption="exit inventory",rect=scale(250,280,170,20))
@@ -163,22 +170,50 @@ class inventoryc:
 temp = inventoryc()
 temp.test()
 tempinventory = temp.inv 
-def setinv(inventory):
+def setinv(inventory,XI=0):
     global list_box,surface
     u = []
+    clist = []
+    sel_item_backup =list_box.selected_item
+    for key, value in inventory.items():
+        if value > 0:
+            if XI == 1:
+                if "tile_" in key.name:
+                    u.append(key.name + " "+str(value))
+                    clist.append(key)
+            else:
+                u.append(key.name + " "+str(value))
+                clist.append(key)
+    list_box.setl(u)
+    list_box.selected_item = sel_item_backup
+    list_box.draw(surface)
+    if list_box.selected_item ==None:
+        return  item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True)
+    return clist[math.floor((list_box.selected_item % len(u)))]
+def setinv2(inventory,IRX=0):
+    global list_box2,surface
+    u = []
+    sel_item_backup =list_box2.selected_item
     clist = []
     for key, value in inventory.items():
         if value > 0:
             u.append(key.name + " "+str(value))
             clist.append(key)
-    list_box.setl(u)
-    list_box.draw(surface)
-    if list_box.selected_item ==None:
-        return  item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True)
-    return clist[math.floor((list_box.selected_item % len(u)))] 
+    list_box2.setl(u)
+    list_box2.selected_item = sel_item_backup
+    list_box2.draw(surface)
+    if list_box2.selected_item ==None or len(u)==0:
+        if IRX == 0:
+            return  item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True)
+        else:
+            return None
+    return clist[math.floor((list_box2.selected_item % len(u)))] 
 
 def irender(player):
     exitinv = 0
+    intbtn.caption == " interact  "
+    delbtn.caption == "throw away "
+    delbtn.enabled = 1
     inventory = player
     invitem = setinv(inventory)
     if  invitem.use(test=1) == 1  and  invitem in inventory and inventory[invitem]  > 0 and invitem.uda == False:
@@ -218,10 +253,134 @@ def irender(player):
 
 player.inventory = inventoryc()
 
+def imvrender(player,inv2):
+    exitinv = 0
+    inventory = player
+    pygame.draw.rect(surface, color, pygame.Rect(scale(0, 0, 250, 320)))
+    inv2item = setinv2(inv2)
+    invitem = setinv(inventory)
+    intbtn.caption = "<-"
+    delbtn.caption = "->"
+    #if  invitem.use(test=1) == 1  and  invitem in inventory and inventory[invitem]  > 0 and invitem.uda == False:
+    #    intbtn.enabled = True
+    #else:
+     #   intbtn.enabled = False
+    for event in pygame.event.get():
+        list_box.handle_event(event)
+        list_box2.handle_event(event)
+        if 'click' in delbtn.handleEvent(event) :
+            print(inv2item.tname)
+            if inv2item.uda == False  and inv2[inv2item] > 0:
+                 if inv2item in inventory:
+                            inventory[inv2item]= inventory[inv2item]+1
+                 else:
+                            inventory[inv2item] = 1
+                 inv2[inv2item] = inv2[inv2item] -1
+        if 'click' in exitbtn.handleEvent(event):
+            exitinv = 1
+        if 'click' in intbtn.handleEvent(event):
+            if invitem.uda == False  and inventory[invitem] > 0:
+                 if invitem in inv2:
+                            inv2[invitem]= inv2[invitem]+1
+                 else:
+                            inv2[invitem] = 1
+                 inventory[invitem] = inventory[invitem] -1
+                #try:
+                   # if invitem.use(test=1) == 1 and inventory[invitem] > 0 and invitem.uda == False : 
+                        #inventory[invitem] = inventory[invitem] - 1
+                       # j = invitem.use()
+                        #print(j)
+                       # if j in inventory:
+                        #    inventory[j]= inventory[j]+1
+                        #else:
+                        #    inventory[j] = 1
+                #except:
+                   # iot = 0
+        if event.type == pygame.QUIT:
+            pygame.quit()
+    
+    
+    #ptext.draw( invitem.desc, (20, 140),  color="black")
+    #surface.blit(invitem.image.gt(),(5,5))
+    exitbtn.draw(surface)
+    delbtn.draw(surface)
+    intbtn.draw(surface)
+    pygame.display.flip()
+    return [exitinv,inventory,inv2] ## 0 means not finished yet ,1 means to exit
+
+def imxrender(player,inv2):
+    exitinv = 0
+    inventory = player
+    pygame.draw.rect(surface, color, pygame.Rect(scale(0, 0, 250, 320)))
+    inv2item = setinv2(inv2,1)
+    invitem = setinv(inventory,1)
+    if len(inv2) == 0:
+        delbtn.enabled = 0
+        intbtn.enabled = 1
+    else:
+        intbtn.enabled = 0
+        delbtn.enabled = 1
+    intbtn.caption = "<-"
+    delbtn.caption = "->"
+    #if  invitem.use(test=1) == 1  and  invitem in inventory and inventory[invitem]  > 0 and invitem.uda == False:
+    #    intbtn.enabled = True
+    #else:
+     #   intbtn.enabled = False
+    for event in pygame.event.get():
+        list_box.handle_event(event)
+        list_box2.handle_event(event)
+        if 'click' in delbtn.handleEvent(event) :
+            if not inv2item == None:
+                if inv2item.uda == False  and inv2[inv2item] > 0:
+                 if inv2item in inventory:
+                            inventory[inv2item]= inventory[inv2item]+1
+                 else:
+                            inventory[inv2item] = 1
+                 inv2[inv2item] = inv2[inv2item] -1
+        if 'click' in exitbtn.handleEvent(event):
+            exitinv = 1
+        if 'click' in intbtn.handleEvent(event):
+            if not invitem == None:
+                if invitem.uda == False  and inventory[invitem] > 0 and "tile_" in invitem.tname:
+                 if invitem in inv2:
+                            inv2[invitem]= inv2[invitem]+1
+                 else:
+                            inv2[invitem] = 1
+                 inventory[invitem] = inventory[invitem] -1
+                #try:
+                   # if invitem.use(test=1) == 1 and inventory[invitem] > 0 and invitem.uda == False : 
+                        #inventory[invitem] = inventory[invitem] - 1
+                       # j = invitem.use()
+                        #print(j)
+                       # if j in inventory:
+                        #    inventory[j]= inventory[j]+1
+                        #else:
+                        #    inventory[j] = 1
+                #except:
+                   # iot = 0
+        if event.type == pygame.QUIT:
+            pygame.quit()
+    
+    
+    #ptext.draw( invitem.desc, (20, 140),  color="black")
+    #surface.blit(invitem.image.gt(),(5,5))
+    exitbtn.draw(surface)
+    delbtn.draw(surface)
+    intbtn.draw(surface)
+    pygame.display.flip()
+    return [exitinv,inventory,inv2] ## 0 means not finished yet ,1 means to exit
+
+
+
+player.inventory = inventoryc()
+
 cplayer = player
 if __name__ == '__main__':
     t = playerobj()
+    xi = inventoryc().inv
     t.inventory = tempinventory
     while True :
-        t.inventory = irender(t)[1]
+        xo = imxrender(t.inventory,xi)
+        t.inventory = xo[1]
+        xi = xo[2]
         time.sleep(0.05)

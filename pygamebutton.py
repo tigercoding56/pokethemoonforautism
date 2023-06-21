@@ -70,12 +70,14 @@ class PygButton(object):
         else:
             self._rect = pygame.Rect(rect)
         self.wcolor = (190,100,120)
-        self.wfcolor = (225,225,225) 
+        self.wfcolor = (255,225,125) 
         self.enabled = 1
         self.en = 1
         self._caption = caption
         self._bgcolor = bgcolor
+        self.ebgcolor = bgcolor
         self._fgcolor = fgcolor
+        self.efgcolor = fgcolor
 
         if font is None:
             self._font = PYGBUTTON_FONT
@@ -117,6 +119,8 @@ class PygButton(object):
 
         if eventObj.type not in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN) or not self._visible:
             # The button only cares bout mouse-related events (or no events, if it is invisible)
+            return []
+        if self.enabled == 0:
             return []
 
         retVal = []
@@ -194,7 +198,7 @@ class PygButton(object):
         h = self._rect.height # syntactic sugar
 
         # fill background color for all buttons
-        if self.enabled :
+        if self.enabled == 1 :
             self.surfaceNormal.fill(self.bgcolor)
             self.surfaceDown.fill(self.bgcolor)
             self.surfaceHighlight.fill(self.bgcolor)

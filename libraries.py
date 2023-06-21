@@ -2,6 +2,7 @@ import pygame
 import PIL
 import UIdialogdef
 #import noise
+import standartUIdialogref
 import waterFX
 import gc
 from copy import deepcopy 
@@ -21,7 +22,6 @@ import xmap
 from xmap import dlgtree
 from xmap import gmap
 from xmap import *
-from inventory import cplayer  , irender
 from pygamebutton import PygButton
 from pygame.locals import DOUBLEBUF
 onweb = 0
@@ -138,6 +138,7 @@ invbtn = PygButton(caption="inventory",rect=scale(320,280,100,20))
 svbtn = PygButton(caption="save game",rect=scale(320,260,100,20))
 lvbtn = PygButton(caption="load game",rect=scale(320,240,100,20))
 intbtn = PygButton(caption="interact ",rect=scale(320,300,100,20))
+dbbtn = PygButton(caption="costumise tile",rect=scale(320,220,100,20))
 #intbtn = PygButton(caption="scavenge",rect=(320,260,100,20))
 
 
@@ -461,21 +462,34 @@ def interact(rlpos=None):
 
 
 def getmessage():
-    global message,cplayer,mousepos
+    global message,cplayer,mousepos,dbbtn
     rlpos = mousepos
+    mg = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
+    mg2 = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],-1)
     try:
-        message = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1).message
+        message = mg.message
     except:
-        print(cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1))
-            
+        #print(cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1))
+          io=0
+    #try:
+    if hasattr(mg2,'PBA'):
+        if mg2.PBA ==1:
+            dbbtn.enabled = 1
+        else:
+            dbbtn.enabled = 0
+    else:
+        dbbtn.enabled = 0
+    #except:
+        io = 0
         
     
     
 ###helper function
 isinvo = False
 endtime = 0
+cplayer.inventory.invadds("tile_tree")
 dlgtree.cnpcdial = dlgtree.UIdialogbase()
-#dlgtree.cnpcdial = UIdialogdef.spaceobserverdia()
+#
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()
 def main():
@@ -526,7 +540,13 @@ def main():
                 save("default")
             if 'click' in lvbtn.handleEvent(event):
                 load("default")
-            
+            if 'click' in dbbtn.handleEvent(event):
+                s = gtcpos(True)
+                seltile = cmap.heightmap.rmmap(s)
+                if hasattr(seltile,'PBA'):
+                    if seltile.PBA ==1 :
+                        dlgtree.cnpcdial = UIdialogdef.invdia(s[0],s[1])
+                
             if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
                 
                 keyeventlist = [0,0,0,0]
@@ -567,8 +587,11 @@ def main():
                     selectedt +=-1
                     selectedt = selectedt % len(cmap.tiles)
                 elif event.key == pygame.K_0 and onweb == 0:
-                    print(str([gtcpos(True),selectedt])+",",end='')
+                    print(str([gtcpos(True),selectedt,1])+",",end='')
                     cmap.structuremap.smmap(gtcpos(True),cmap.tiles[selectedt])
+                elif event.key == pygame.K_o and onweb == 0:
+                    print(str([gtcpos(True),selectedt,0])+",",end='')
+                    cmap.heightmap.smmap(gtcpos(True),cmap.tiles[selectedt])
                 elif event.key == pygame.K_1 and onweb == 0:
                             pos1 = gtcpos(True)
                 elif event.key == pygame.K_f and onweb == 0:
@@ -626,7 +649,8 @@ def main():
     else:
         if not ACTIVEAREA in ["inventory"]:
             ACTIVEAREA = transition[2]
-    try:
+   # try:
+    if 0==0:
          if  dlgtree.cnpcdial.active:
              if not hasattr(dlgtree.cnpcdial,'runUI'):
                 dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
@@ -640,10 +664,17 @@ def main():
                 cmap = dlgtree.cnpcdial.cmap
                 drawsys = dlgtree.cnpcdial.drawsys
                 cplayer = dlgtree.cnpcdial.cplayer
-    except Exception as ex23:
-        print(ex23)
-        print(dlgtree.cnpcdial)
-        dlgtree.cnpcdial = dlgtree.ddialog()
+                if dlgtree.cnpcdial.active == 0 and hasattr(dlgtree.cnpcdial,"returndialog"):
+                    try:
+                        dlgtree.cnpcdial = standartUIdialogref.SR[dlgtree.cnpcdial.returndialog]
+                    except:
+                        io = 0
+                    
+                
+   # except Exception as ex23:
+        #print(ex23)
+        #print(dlgtree.cnpcdial)
+        #dlgtree.cnpcdial = dlgtree.ddialog()
         
     if not (isinvo or  dlgtree.cnpcdial.active)  :
         pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
@@ -656,6 +687,7 @@ def main():
             intbtn.draw(drawsys.screen)
             svbtn.draw(drawsys.screen)
             lvbtn.draw(drawsys.screen)
+            dbbtn.draw(drawsys.screen)
             if onweb == 0:
                 drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,200))
             ####other world related GUI is to be drawn here###

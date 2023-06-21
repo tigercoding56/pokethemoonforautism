@@ -1,5 +1,7 @@
 import ptext
 import dialog
+import inventory as inv_handle
+from inventory import cplayer  , irender
 import time
 import pygame
 from pygamebutton import PygButton
@@ -11,6 +13,9 @@ ccredits = {
     "AndHeGames":"\"32x32 pixel art creatures volume 3\"- unused , but could be used later  \n(i am not sure if i will end up using them)",
     "Spring Spring":"\"Peasant kingdom\"-used as music in the wild (under cc-by 3.0)",
     "Yubatake":" \"JRPG collection \"-- JRPG_town_loop used for towns ",
+    "isaiah658":"\" isaiah658's Pixel Pack #2 \"-some tiles of it are used",
+    "BizmasterStudios":"\" Gold Coin/Token \" -base for coin texture ",
+    "Proxy Games":"\" Wooden Crate Texture\"-texture for sound markers ( basically the game switches sound track \n if you see one of these tiles)",
     "chatgtp":"somewhat helping me optimise my code \n(although it is a pain to get it to do what you want)",
     "attribution notice for cc-by 3.0":"https://creativecommons.org/licenses/by/3.0/"
     
@@ -58,6 +63,17 @@ class UIdialogbase():
     def btnp(self,name):
         if name == "exitbtn":
             self.active = 0
+    def touch(self,event):
+        pass
+    def keydown(self,key):
+        pass
+    def fill(self,x,y,w,h,bg,screen=None):
+        if  screen ==  None:
+             pygame.draw.rect(self.drawsys.screen, bg, (x, y, w, h))
+        else:
+             pygame.draw.rect(screen, bg, (x, y, w, h))
+    def string(self,stri,x,y,width=0,color="white"):
+        ptext.draw(str(stri),pos=(x,y),color=color )
     def runUI(self):
         self.renderframe()
         for event in pygame.event.get():
@@ -69,6 +85,12 @@ class UIdialogbase():
                     #print(t)
                     if "down" in t:
                         self.btnp(key)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.touch(pygame.mouse.get_pos())
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.active = 0
+                    self.keydown(event.key)
         for key , value in self.buttons.items():
             value.draw(self.drawsys.screen)
         time.sleep(0.05)
