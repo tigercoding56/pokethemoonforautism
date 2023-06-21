@@ -36,10 +36,10 @@ class UIdialogbase():
         return [int(x*self.res[0]),int(y*self.res[1])]
     def initialise(self):
         self.add_btn("start game","exitbtn",(0,0.9),(1,0.1))
-    def add_btn(self,text,name,pos,size):
+    def add_btn(self,text,name,pos,size=(0.1,0.1),text1=None,text2=None):
         pos = self.scale(pos[0],pos[1])
         size=self.scale(size[0],size[1])
-        self.buttons[name] = PygButton(caption=text,rect=(pos[0],pos[1],size[0],size[1]))
+        self.buttons[name] = PygButton(caption=text,rect=(pos[0],pos[1],size[0],size[1]),normal=text1,down=text1,highlight=text2)
     def renderframe(self):
         global ccredits
         #self.drawsys.screen
@@ -72,7 +72,7 @@ class UIdialogbase():
              pygame.draw.rect(self.drawsys.screen, bg, (x, y, w, h))
         else:
              pygame.draw.rect(screen, bg, (x, y, w, h))
-    def string(self,stri,x,y,width=0,color="white"):
+    def string(self,stri,x,y,width=0,color="white",size=16):#(string,x,y)
         ptext.draw(str(stri),pos=(x,y),color=color )
     def runUI(self):
         self.renderframe()

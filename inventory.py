@@ -103,7 +103,12 @@ possible_items = {
 def computestringdiff(actuall,inputst):
     return len(list(inputst.replace(actuall,"")))
 
-        
+def hashit(i):
+                if  hasattr(i, 'hash'):
+                        return i.hash
+                else:
+                    i.hash = hash(str(i.name) + str(i.desc))
+                    return i.hash
 
     
 list_box2 = ListBox(0, 0, 340, 840, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
@@ -332,11 +337,18 @@ def imxrender(player,inv2):
         if 'click' in delbtn.handleEvent(event) :
             if not inv2item == None:
                 if inv2item.uda == False  and inv2[inv2item] > 0:
-                 if inv2item in inventory:
-                            inventory[inv2item]= inventory[inv2item]+1
-                 else:
-                            inventory[inv2item] = 1
-                 inv2[inv2item] = inv2[inv2item] -1
+                    ihash = hashit(inv2item)
+                    ITX = inv2item
+                    for i in inventory:
+                        if hasattr(i,'name'):
+                            i2hash = hashit(i)
+                            if ihash == i2hash:
+                                ITX = i
+                    if ITX in inventory:
+                            inventory[ITX]= inventory[ITX]+1
+                    else:
+                            inventory[ITX] = 1
+                    inv2 = {}
         if 'click' in exitbtn.handleEvent(event):
             exitinv = 1
         if 'click' in intbtn.handleEvent(event):

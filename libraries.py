@@ -489,6 +489,7 @@ isinvo = False
 endtime = 0
 cplayer.inventory.invadds("tile_tree")
 dlgtree.cnpcdial = dlgtree.UIdialogbase()
+dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,30)
 #
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()

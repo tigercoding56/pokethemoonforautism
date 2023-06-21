@@ -262,20 +262,35 @@ class PygButton(object):
             downSurface = normalSurface
         if highlightSurface is None:
             highlightSurface = normalSurface
+        
 
         if type(normalSurface) == str:
             self.origSurfaceNormal = pygame.image.load(normalSurface)
+            self.surfaceNormal = self.origSurfaceNormal
+        else:
+            self.surfaceNormal = normalSurface
+            self.origSurfaceNormal = normalSurface
         if type(downSurface) == str:
             self.origSurfaceDown = pygame.image.load(downSurface)
+            self.surfaceDown = self.origSurfaceDown
+        else:
+            if not downSurface == None:
+                self.surfaceDown = downSurface
+                self.origSurfaceDown = downSurface
         if type(highlightSurface) == str:
             self.origSurfaceHighlight = pygame.image.load(highlightSurface)
+            self.surfaceHighlight = self.origSurfaceHighlight
+        else:
+            if not highlightSurface == None:
+                self.surfaceHighlight = highlightSurface
+                self.origSurfaceHighlight = highlightSurface
 
-        if self.origSurfaceNormal.get_size() != self.origSurfaceDown.get_size() != self.origSurfaceHighlight.get_size():
-            raise Exception('foo')
+       # if self.origSurfaceNormal.get_size() != self.origSurfaceDown.get_size() != self.origSurfaceHighlight.get_size():
+           # raise Exception('foo')
 
-        self.surfaceNormal = self.origSurfaceNormal
-        self.surfaceDown = self.origSurfaceDown
-        self.surfaceHighlight = self.origSurfaceHighlight
+        
+        
+        
         self.customSurfaces = True
         self._rect = pygame.Rect((self._rect.left, self._rect.top, self.surfaceNormal.get_width(), self.surfaceNormal.get_height()))
 

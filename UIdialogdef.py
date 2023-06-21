@@ -4,6 +4,8 @@ from dialogtree import pygame
 import time
 import ptext
 from inventory import imxrender
+import random
+import waterFX
 
 
 class IPXdraw():
@@ -130,7 +132,9 @@ class flappybird(UIdialogbase):
         x = ((t +(0-self.playerx)) % self.width)
         xt = (((t+7) +(0-self.playerx)) % self.width)
         if not (x > self.width or x < 10):
-                self.fill(x=x-5,y=(self.height - y),w=10,h=y,bg=(0,252,0),screen=self.screenb)
+                self.fill(x=x-5,y=(self.height - y),w=10,h=y,bg=(0,245,0),screen=self.screenb)
+                self.fill(x=x+3,y=(self.height - y),w=2,h=y,bg=(0,252,0),screen=self.screenb)
+                self.fill(x=x-5,y=(self.height - y),w=2,h=y,bg=(0,240,0),screen=self.screenb)
         if not (xt > self.width or xt < 6):
                 self.fill(x=xt,y=(self.height- y),w=4,h=y,bg=(0,0,255),screen=self.screenb)
         if x > 110 and x < 125:
@@ -197,7 +201,29 @@ class gameSwitcher(UIdialogbase):
             self.active = 0
        
 
-
+class vendingmachinedia(UIdialogbase):
+    def __init__(self,products,coins):
+        #(tile,price)
+        UIdialogbase.__init__(self)
+        self.products = products
+        self.choice = random.sample(products,3)
+        text4 = pygame.image.load('img/items/shopmenubutton.png')
+        text4_s = pygame.image.load('img/items/shopmenubutton_s.png')
+        rcolor = (0,255,27,255)
+        offset = (3,3)
+        text1 = waterFX.overlay_green_screen(text4, self.choice[0][0].gt().gt(), green_color=rcolor, offset=offset)
+        text2 = waterFX.overlay_green_screen(text4, self.choice[1][0].gt().gt(), green_color=rcolor, offset=offset)
+        text3 = waterFX.overlay_green_screen(text4, self.choice[2][0].gt().gt(), green_color=rcolor, offset=offset)
+        text1_s = waterFX.overlay_green_screen(text4_s, self.choice[0][0].gt().gt(), green_color=rcolor, offset=offset)
+        text2_s = waterFX.overlay_green_screen(text4_s, self.choice[1][0].gt().gt(), green_color=rcolor, offset=offset)
+        text3_s = waterFX.overlay_green_screen(text4_s, self.choice[2][0].gt().gt(), green_color=rcolor, offset=offset)
+        self.add_btn("","1",pos=(0.3,0.1),text1=pygame.transform.scale(text1,(160,160)),text2=pygame.transform.scale(text1_s,(160,160)))
+    def initialise(self):
+        self.initialised = 1
+    def renderframe(self):
+        self.drawsys.screen.fill((0, 0, 0))
+        self.string(str(self.products[0][1]),self.scale(0.3,0.4)[0],self.scale(0.7,0.4)[1])
+        #self.active = 0
 class invdia(UIdialogbase):#i have not tested this , at least it has a chance of working until tested 
     def __init__(self,x,y):
         UIdialogbase.__init__(self)
@@ -218,6 +244,7 @@ class invdia(UIdialogbase):#i have not tested this , at least it has a chance of
                 if tl.price > 0:
                     self.inv = {}
                     self.inv[tl.mp_item] = 1
+                    self.cmap.structuremap.smmap((self.cx,self.cy),"none")
                 else:
                     self.cmap.structuremap.smmap((self.cx,self.cy),"none")
                 

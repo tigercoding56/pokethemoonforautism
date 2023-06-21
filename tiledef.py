@@ -236,6 +236,7 @@ class pipe1(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'pipe1',(255,25235,255,255))
         self.height = 0
+        self.cost = 1
         
 class pipe2(tile):
     def upd(self): 
@@ -1025,6 +1026,7 @@ class woodh(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"woodh",(255, 0, 0, 255))
         self.height = 1
+        self.price = 1
 class carpet(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"carpet",(0, 0, 255, 255))
@@ -1041,11 +1043,14 @@ tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))
 xtiles = xtiles + [lever(),conductor(),housetile()]
+testlist = []
 for itile in xtiles:
     itile.upd()
     if itile.price > 0:
+        #testlist.append((itile))
         it = dialogtree.inv_handle.item("tile_" + str(itile.name),"this item allows you to costumise any \n applicable tiles with \n a"+str(itile.name),ptextpath=itile.gt().location,blockid=itile.__class__.__name__)
         dialogtree.inv_handle.possible_items["tile_"+str(itile.name)] = it
-        print("tile_"+str(itile.name))
+        #print("tile_"+str(itile.name))
         itile.mp_item = it
+        testlist.append((itile,itile.price))
     tiles.append(itile) 

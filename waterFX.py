@@ -630,3 +630,36 @@ def get_texture_slice(texture, x, y, slice_size=40):
         slice_texture.blit(texture, (texture_width - slice_x, texture_height - slice_y), pygame.Rect(0, 0, slice_size - (texture_width - slice_x), slice_size - (texture_height - slice_y)))
 
     return slice_texture
+
+def overlay_green_screen(background, foreground, green_color=(255, 255, 255,255), offset=(15, 0)):
+    # Create a copy of the background surface
+    overlay = background.copy()
+
+    # Iterate over each pixel of the background surface
+    for x in range(background.get_width()):
+        for y in range(background.get_height()):
+            # Get the color of the current pixel in the background
+            bg_color = background.get_at((x, y))
+
+            # Check if the color matches the green screen color
+            if bg_color == green_color:
+                # Calculate the coordinates for the current pixel in the foreground with the offset applied
+                fg_x = (x + offset[0]) % foreground.get_width()
+                fg_y = (y + offset[1]) % foreground.get_height()
+
+                # Get the color of the current pixel in the foreground
+                fg_pixel = foreground.get_at((fg_x, fg_y))
+
+                # Combine the alpha value of the foreground pixel with the background color
+                combined_color = (
+                    fg_pixel[0],
+                    fg_pixel[1],
+                    fg_pixel[2],
+                    bg_color[3]
+                )
+
+                # Set the color of the overlay surface to the combined color
+                overlay.set_at((x, y), combined_color)
+
+    # Return the overlay surface
+    return overlay
