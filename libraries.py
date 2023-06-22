@@ -434,6 +434,8 @@ def interact(rlpos=None):
         rlpos = mousepos
         t = cmap.gettile(cplayer.pos[0]+rlpos[0] ,cplayer.pos[1]+rlpos[1],1)
         #t.pos = [cplayer.pos[0]+rlpos[0],cplayer.pos[1]+rlpos[1]]
+        if t.name == "vendingmachine":
+            dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,cplayer.inventory.getcount("coin"))
         if t.interactable :
             res = t.interact(cplayer,cmap)
             if len(res) > 0:
@@ -487,9 +489,11 @@ def getmessage():
 ###helper function
 isinvo = False
 endtime = 0
-cplayer.inventory.invadds("tile_tree")
+for i in range(1,100):
+    cplayer.inventory.invadds("coin")
+    cplayer.inventory.invadds("tile_tree")
 dlgtree.cnpcdial = dlgtree.UIdialogbase()
-dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,30)
+#dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,1)
 #
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()

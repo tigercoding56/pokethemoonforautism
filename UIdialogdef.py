@@ -170,7 +170,7 @@ class flappybird(UIdialogbase):
         for i in range(0,5):
             self.pipe(self.bars[i], i * 150)
         self.drawsys.screen.blit(pygame.transform.scale(self.screenb,(840,640)),(0,0))
-        self.string("score:" +str(int(self.score)), 0, 0, width=240)
+        self.string("(esc key to exit game and return to world) score:" +str(int(self.score)), 0, 0, width=240)
     def touch(self, event):
             if self.velocity < 0:
                 self.velocity = self.velocity + 10
@@ -185,8 +185,10 @@ class flappybird(UIdialogbase):
 
 class gameSwitcher(UIdialogbase):
     def initialise(self):
-        self.add_btn("Pong", "pongBtn", (0.5, 0.3), (0.1, 0.1))
-        self.add_btn("Flappy Bird", "flappyBtn", (0.5, 0.6), (0.1, 0.1))
+        pong = pygame.image.load("img/pong.png")
+        flappy = pygame.image.load("img/flappybox.png")
+        self.add_btn("Pong", "pongBtn", (0.5, 0.3), (0.1, 0.1),text1=pong,text2=pong)
+        self.add_btn("Flappy Bird", "flappyBtn", (0.5, 0.6), (0.1, 0.1),text1=flappy,text2=flappy)
 
     def renderframe(self):
         self.drawsys.screen.fill((0, 0, 0))
@@ -205,24 +207,75 @@ class vendingmachinedia(UIdialogbase):
     def __init__(self,products,coins):
         #(tile,price)
         UIdialogbase.__init__(self)
-        self.products = products
+        
         self.choice = random.sample(products,3)
+        self.products = self.choice
+        self.coins = coins
+        #text4 = pygame.image.load('img/items/shopmenubutton.png')
+        #text4_s = pygame.image.load('img/items/shopmenubutton_s.png')
+        #rcolor = (0,255,27,255)
+        #offset = (3,3)
+        self.XI = 0
         text4 = pygame.image.load('img/items/shopmenubutton.png')
         text4_s = pygame.image.load('img/items/shopmenubutton_s.png')
         rcolor = (0,255,27,255)
         offset = (3,3)
+        coins = self.coins
         text1 = waterFX.overlay_green_screen(text4, self.choice[0][0].gt().gt(), green_color=rcolor, offset=offset)
         text2 = waterFX.overlay_green_screen(text4, self.choice[1][0].gt().gt(), green_color=rcolor, offset=offset)
         text3 = waterFX.overlay_green_screen(text4, self.choice[2][0].gt().gt(), green_color=rcolor, offset=offset)
         text1_s = waterFX.overlay_green_screen(text4_s, self.choice[0][0].gt().gt(), green_color=rcolor, offset=offset)
         text2_s = waterFX.overlay_green_screen(text4_s, self.choice[1][0].gt().gt(), green_color=rcolor, offset=offset)
         text3_s = waterFX.overlay_green_screen(text4_s, self.choice[2][0].gt().gt(), green_color=rcolor, offset=offset)
-        self.add_btn("","1",pos=(0.3,0.1),text1=pygame.transform.scale(text1,(160,160)),text2=pygame.transform.scale(text1_s,(160,160)))
+        self.add_btn("","1",pos=(0.05,0.1),text1=pygame.transform.scale(text1,(160,160)),text2=pygame.transform.scale(text1_s,(160,160)),enabled=(coins >= self.choice[0][1]))
+        self.add_btn("","2",pos=(0.37,0.1),text1=pygame.transform.scale(text2,(160,160)),text2=pygame.transform.scale(text2_s,(160,160)),enabled=(coins >= self.choice[1][1]))
+        self.add_btn("","3",pos=(0.7,0.1),text1=pygame.transform.scale(text3,(160,160)),text2=pygame.transform.scale(text3_s,(160,160)),enabled=(coins >= self.choice[2][1]))
+        #self.rtdia = self
+        #text1 = waterFX.overlay_green_screen(text4, self.choice[0][0].gt().gt(), green_color=rcolor, offset=offset)
+        #text2 = waterFX.overlay_green_screen(text4, self.choice[1][0].gt().gt(), green_color=rcolor, offset=offset)
+        #text3 = waterFX.overlay_green_screen(text4, self.choice[2][0].gt().gt(), green_color=rcolor, offset=offset)
+        #text1_s = waterFX.overlay_green_screen(text4_s, self.choice[0][0].gt().gt(), green_color=rcolor, offset=offset)
+        #text2_s = waterFX.overlay_green_screen(text4_s, self.choice[1][0].gt().gt(), green_color=rcolor, offset=offset)
+        #text3_s = waterFX.overlay_green_screen(text4_s, self.choice[2][0].gt().gt(), green_color=rcolor, offset=offset)
+        
+        #self.add_btn("","1",pos=(0.05,0.1),text1=pygame.transform.scale(text1,(160,160)),text2=pygame.transform.scale(text1_s,(160,160)),enabled=(coins >= self.choice[0][1]))
+        #self.add_btn("","2",pos=(0.37,0.1),text1=pygame.transform.scale(text2,(160,160)),text2=pygame.transform.scale(text2_s,(160,160)),enabled=(coins >= self.choice[1][1]))
+        #self.add_btn("","3",pos=(0.7,0.1),text1=pygame.transform.scale(text3,(160,160)),text2=pygame.transform.scale(text3_s,(160,160)),enabled=(coins >= self.choice[2][1]))
+    
     def initialise(self):
         self.initialised = 1
+        self.add_btn("exit vending machine","exitbtn",(0,0.9),(1,0.1))
+    def btnp(self, name):
+        if name == "1":
+            self.cplayer.inventory.rmitem("coin",self.choice[0][1])
+            self.cplayer.inventory.invadds(self.choice[0][0].mp_item.name)
+        if name == "2":
+            self.cplayer.inventory.rmitem("coin",self.choice[1][1])
+            self.cplayer.inventory.invadds(self.choice[1][0].mp_item.name)
+        if name == "3":
+            self.cplayer.inventory.rmitem("coin",self.choice[2][1])
+            self.cplayer.inventory.invadds(self.choice[2][0].mp_item.name)
+        #if name == "exitbtn":
+            #self.returndialog = "thisridiculeslylongstringwillmakesureyoucanexit:D"
+        self.active = 0
+    def autoswitch(self,val,strt=" coin"):
+        if val == 1:
+            return str(strt)
+        else:
+            return str(strt) + "s"
     def renderframe(self):
+
+            #coins = self.cplayer.inventory.getcount("coin")
+            #self.coins = coins
+
+            
+            
+        ###
         self.drawsys.screen.fill((0, 0, 0))
-        self.string(str(self.products[0][1]),self.scale(0.3,0.4)[0],self.scale(0.7,0.4)[1])
+        self.string("you have " + str(self.coins) +" coins remaining",20,20)
+        self.string(str(self.products[0][0].name) + " for "+ str(self.products[0][1])+self.autoswitch(self.products[0][1]),self.scale(0.05,0.4)[0],self.scale(0.7,0.4)[1])
+        self.string(str(self.products[1][0].name) + " for "+ str(self.products[1][1])+self.autoswitch(self.products[1][1]),self.scale(0.35,0.4)[0],self.scale(0.7,0.4)[1])
+        self.string(str(self.products[2][0].name) + " for "+ str(self.products[2][1])+self.autoswitch(self.products[2][1]),self.scale(0.7,0.4)[0],self.scale(0.7,0.4)[1])
         #self.active = 0
 class invdia(UIdialogbase):#i have not tested this , at least it has a chance of working until tested 
     def __init__(self,x,y):

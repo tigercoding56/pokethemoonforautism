@@ -120,6 +120,17 @@ intbtn = PygButton(caption=" interact  ",rect=scale(250,260,170,20))
 class inventoryc:
     def __init__(self):
         self.inv = {}
+    def getcount(self,itemname):
+        global possible_items
+        t = possible_items["coal"]
+        if itemname in possible_items:
+            t = possible_items[itemname]
+        th = t.name 
+        for key in self.inv:
+            if key.name == th:
+                return self.inv[key]
+
+        return 0
     def test(self):
         global possible_items
         for i in possible_items:
@@ -144,7 +155,7 @@ class inventoryc:
                     if i.hash == itemhash:
                         return 1
                 else:
-                    i.hash = hash(str(i.name) + str(i.desc))
+                    i.hash = i.name
                     if i.hash == itemhash:
                         return 1
                     
@@ -155,6 +166,17 @@ class inventoryc:
                 return i
         else:
             return it
+    def rmitem(self,itemname,count=0):
+        global possible_items
+        t = possible_items["coal"]
+        if itemname in possible_items:
+            t = possible_items[itemname]
+        th = t.name 
+        for key in self.inv:
+            if key.name == th:
+                 self.inv[key] = self.inv[key] - count
+                 return 1
+        return 0
     def invcheck(self,ist,rm=0,tm=1):#rm removes item # if greater than 0
         global possible_items
        # t = possible_items["coal"]

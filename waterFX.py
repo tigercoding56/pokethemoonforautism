@@ -630,7 +630,17 @@ def get_texture_slice(texture, x, y, slice_size=40):
         slice_texture.blit(texture, (texture_width - slice_x, texture_height - slice_y), pygame.Rect(0, 0, slice_size - (texture_width - slice_x), slice_size - (texture_height - slice_y)))
 
     return slice_texture
+def modify_image_color(surface, red_modifier, green_modifier, blue_modifier):
+    # Convert the surface to a NumPy array
+    pixels = pygame.surfarray.pixels3d(surface)
 
+    # Modify the color channels using NumPy array operations
+    pixels[..., 0] = np.minimum(pixels[..., 0] * red_modifier, 255)
+    pixels[..., 1] = np.minimum(pixels[..., 1] * green_modifier, 255)
+    pixels[..., 2] = np.minimum(pixels[..., 2] * blue_modifier, 255)
+
+    # Delete the NumPy array to unlock the surface
+    del pixels
 def overlay_green_screen(background, foreground, green_color=(255, 255, 255,255), offset=(15, 0)):
     # Create a copy of the background surface
     overlay = background.copy()

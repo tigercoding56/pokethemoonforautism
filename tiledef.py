@@ -3,6 +3,7 @@ import dialogtree
 import asyncio
 import npcdia
 import npcnames as npcproperties
+import UIdialogdef
 disptm = 1
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
@@ -462,6 +463,40 @@ class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
         self.height = 2
+        
+class plant1(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'plant1',(230,230,230,2515))
+        self.height = 0
+        self.price = 1
+        
+class table1(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'table',(230,230,230,2515))
+        self.height = 0
+        self.price = 1
+        
+class table2(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'table2',(230,230,230,2155))
+        self.height = 0
+        self.price = 1
+class table3(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'table3',(230,230,230,2155))
+        self.height = 0
+        self.price = 1
+class drawer(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'drawer',(230,230,230,2155))
+        self.height = 0
+        self.price = 1
+        
+class chair(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'chair',(230,230,230,1255))
+        self.height = 0
+        self.price = 1
 ###npc classes
 class npc(tile):
     def lgco(self,name,questn,pos,dialog,a=0,attributes=["ground",1,20,["unpassable"]],squestn=None): # legacy compatibility
@@ -720,7 +755,7 @@ class character(tile):
             if not x[1] == "":
                 dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
             else:
-                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" sorry it seems you already have a active quest\n (" +npcproperties.activequest.desc + ")",{"exit":0}]))
+                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" sorry it seems you already have a active quest\n (" +npcproperties.activequest.desc + ")",{"exit":0},{"cancel quest":"questrm"}]))
             if npcproperties.activequest.done == 1:
                 npcproperties.activequest = None
         else:
@@ -736,6 +771,8 @@ class character(tile):
             if not dialogtree.cnpcdial == None:
                 if  dialogtree.cnpcdial.val == "questac":
                     npcproperties.activequest = self.assignquest
+                if  dialogtree.cnpcdial.val == "questrm":
+                    npcproperties.activequest = None
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
 
@@ -808,6 +845,39 @@ class terminal1(tile):
                     cplayer.inventory = cplayer.inventory.invadds("infochip",1)
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
+class buyhouse(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'radio',(111,226,147,255),1)
+        self.message = "(interact to use the radio)"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+            self.price = 20
+            if cplayer.inventory.getcount("coin") >=  self.price:
+                dialogtree.cnpcdial = dialogtree.nbcdialog({1:["you have enough coins to buy this house ,\n do you want to buy this house for "+str(self.price) + " coins ?",{"yes":"bh","no":0}]})
+            else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog({1:["you don't have  enough coins to buy this house ,\n this house costs  "+str(self.price) + " coins to unlock ",{"exit dialog":0}]})
+            
+        ####
+        
+            return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "bh":
+                    cplayer.inventory.rmitem("coin",self.price)
+                    cmap.structuremap.smmap(self.pos,cmap.tiles[1])
+                    
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            
+            return [cmap,cplayer]
+
+
+
+
 
 class radio1(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -1026,7 +1096,7 @@ class woodh(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"woodh",(255, 0, 0, 255))
         self.height = 1
-        self.price = 1
+        self.price = 3
 class carpet(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"carpet",(0, 0, 255, 255))
@@ -1034,7 +1104,24 @@ class tree(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"tree",(0, 96, 121, 255))
         self.height = 1
+        self.price = 2
+class vendingmachine(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0, ['unpassable']],"vendingmachine",(0, 96, 121, 32255))
+
+class console(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0, []],"console",(0, 96, 121, 32255))
+        self.interactable = 1
         self.price = 1
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        dialogtree.cnpcdial = UIdialogdef.gameSwitcher()
+        #return [,cmap,message]
+        return []
+    def callback(self,cmap=0,cplayer=0,test=0):
+        #dialogtree.cnpcdial =  dialogtree.ddialog()
+        #return [cplayer,cmap]
+        return []
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
@@ -1042,7 +1129,7 @@ xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone()
 tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     xtiles.append(character().ssc(i))
-xtiles = xtiles + [lever(),conductor(),housetile()]
+xtiles = xtiles + [lever(),conductor(),housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer()]
 testlist = []
 for itile in xtiles:
     itile.upd()

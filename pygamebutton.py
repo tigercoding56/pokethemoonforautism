@@ -28,6 +28,18 @@ or implied, of Al Sweigart.
 """
 import pygame
 from pygame.locals import *
+import numpy as np
+def modify_image_color(surface, red_modifier, green_modifier, blue_modifier):
+    # Convert the surface to a NumPy array
+    pixels = pygame.surfarray.pixels3d(surface)
+
+    # Modify the color channels using NumPy array operations
+    pixels[..., 0] = np.minimum(pixels[..., 0] * red_modifier, 255)
+    pixels[..., 1] = np.minimum(pixels[..., 1] * green_modifier, 255)
+    pixels[..., 2] = np.minimum(pixels[..., 2] * blue_modifier, 255)
+
+    # Delete the NumPy array to unlock the surface
+    del pixels
 
 pygame.font.init()
 PYGBUTTON_FONT = pygame.font.Font('Resources/Vera.ttf', 14)
@@ -192,6 +204,10 @@ class PygButton(object):
             self.surfaceNormal    = pygame.transform.smoothscale(self.origSurfaceNormal, self._rect.size)
             self.surfaceDown      = pygame.transform.smoothscale(self.origSurfaceDown, self._rect.size)
             self.surfaceHighlight = pygame.transform.smoothscale(self.origSurfaceHighlight, self._rect.size)
+            if not self.enabled ==1:
+                modify_image_color(self.surfaceNormal, 1.2, 0.8,0.8)
+                modify_image_color(self.surfaceDown, 1.2, 0.8, 0.8)
+                modify_image_color(self.surfaceHighlight, 1.2, 0.8, 0.8)
             return
 
         w = self._rect.width # syntactic sugar
