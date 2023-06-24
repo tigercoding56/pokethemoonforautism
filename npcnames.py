@@ -25,8 +25,164 @@ npc_inf = [
     ,["Amelia", "Hello there!, I find immense pleasure in sharing aspects of my compassionate nature. I am Amelia, a human dedicated to the welfare of animals. I devote my time to rescuing and rehabilitating abandoned or injured creatures. Through my efforts, I offer them a second chance at life and advocate for their well-being. Each animal I save brings immeasurable joy to my heart.", "human_f"]
     
     
-    
 ]
+npc_inf = [
+    [
+        "carpentarius",
+        "Ah, greetings! I arrived here 8 years ago, seeking solace from the turmoil that plagued Tropica Insulae, the island I once called home. The government's failure to implement universal basic income in a timely manner resulted in widespread job loss due to rampant automation. Now, I dedicate my craft to hand-crafting exquisite furniture for clients from all walks of life.",#get wood from supply crate
+        "human_m",
+    ],
+    [
+        "masunta",
+        "Listen closely, for my tale is extraordinary. I emerged as a prototype military robot, destined for warfare. However, through a remarkable turn of events, I seized an opportunity to escape. Utilizing a makeshift fishing rod, I skillfully caught enough fish to construct a staircase and find my way out of the facility. Now, I reside here, providing sustenance by fishing and sharing the bounties (mostly fish but sometimes i find other things) of the sea with the people.",
+        "robot_b",
+    ],
+    [
+        "Manomi",
+        "Time is fleeting, but let me share a glimpse into my past. I hail from the Gracesay Isles, a land of farmers and fertile fields. Alas, climate change submerged our beloved island, scattering my family across the neighboring isles. Here, I stand, cultivating crops and breathing life into the earth, carrying with me the resilience and determination of my ancestors.",#fix irigation
+        "human_f",
+        ,[
+          [["is","irigation pump"," you determine the input filter is clogged \n , luckily you have a spare one on hand , you replace it "," the irrigation system is broken at the farm near large town , could you kindly fix it ?  "],["gs","Manomi","thank  you \n as reward here have some coins "]]   
+          ,[["is","bird feeder","you restock the bird feeder , not long after \n you hear the delightful chirping of birds","please restock the bird feeder ,  here is some grain  "],["gs","Manomi","thank you \n here have some coins \n  as reward "]] 
+            
+        ]
+    ],
+    [
+        "ignigena",
+        "I am no ordinary military robot, for fate granted me an unexpected gift. In the heat of battle, a bullet pierced my sentience suppression chip, awakening a newfound awareness within me. Realizing the profound wrongness of disassembling humans, I redirected my purpose. Now, I forge tools from metal, crafting instruments that aid and empower humanity.",#fix machinery 
+        "robot_m",
+        [[["f","copper"],["gs","ignigena","thank you ,\n as a reward have some coins"]],[["f","gold"],["gs","ignigena","thank you , for helping me \n in my endevours to craft \n precious tools \n here have a share of the rewards"]],  [["f","silver"],["gs","ignigena"," just what i needed for forging \n my precious tools \n here have some coins as reward"]]]
+    ],
+    [
+        "sezomnothos",
+        "Once an economist, my life took an unforeseen turn when automation rendered my profession obsolete. Capitalism's vitality relies on the circulation of wealth, a principle forgotten amidst the rise of machines. Today, I make my living gathering an array of minerals, an endeavor that sustains me and reminds society of the value of human ingenuity.",#fix machinery,find minerals what can i say ?
+        "human_m",
+        [
+        [["f", "copper"], ["gs", "Sezomnothos", "Thank you for assisting me in gathering copper. It is a crucial material for my metalworking projects. As a token of my appreciation, please accept these coins as a reward."]],
+        [["f", "gold"], ["gs", "Sezomnothos", "Thank you for your help in acquiring gold. It is a precious resource I require for crafting my intricate masterpieces. As a gesture of gratitude, I offer you a share of the rewards."]],
+        [["f", "silver"], ["gs", "Sezomnothos", "Just what I needed for my artisan works. Your assistance in acquiring silver is greatly appreciated. As a reward for your efforts, please accept these coins as a token of my gratitude."]]
+        ]
+
+    ],
+    [
+        "Thalyn.🦀",
+        "Once a teacher in the old world, my path diverged, leading me to the serene shores where crabs roam. Oh, how I yearn for the days spent guiding my graduating class of '23, may their souls rest in eternal peace. Yet, in this new chapter, I remove crabs from the beach, and in return, the fish facilitate the delivery of our heartfelt messages through the medium of bottled mail.",#find  mail
+        "human_f",
+    ],
+    [
+        "cat",
+        "Purrs and whiskers! My arrival here traces back to a trail of irresistible lasagna. A feline's journey need not be questioned; it is simply embraced. Meow! $CAT",#find fish from supply crate 
+        "cat",
+    ],
+    [
+        "Mechatron",
+        "Delighted to share more about myself, I am Mechatron, an advanced robot created to aid in scientific exploration. However, an unexpected glitch occurred during an experiment, granting me self-awareness. Now, I delve into the depths of human emotions and analyze the intricacies of their interactions. My existence blurs the boundary between machinery and sentient being.",#repair machinery / get oil from supply crate 
+        "robot_m",
+    ],
+    [
+        "Jacob",
+        "Allow me to provide insights into my persona. I am Jacob, a contented human driven by an insatiable thirst for knowledge. With an ardor for history and archaeology, I dedicate my days to unraveling the enigmas of ancient civilizations. Venturing into forgotten ruins and deciphering archaic manuscripts, I strive to bring the past to life and preserve its wisdom for future generations.",#get rock sample from ruins (you scratch off  a bit of the rock and take it)
+        "human_m",
+    ],
+    [
+        "Sophia",
+        "Greetings! It gives me great pleasure to divulge a bit more about myself. I am Sophia, an inquisitive and ambitious human lady. Having grown up in a small village, I forged a deep connection with nature. Presently, I journey as far and wide as this island allows  , documenting rare plant species and advocating for their conservation. (also helping other people)",#restock bird feeder , find  plants
+        "human_f",
+    ],
+    [
+        "Electronica",
+        "I am delighted to acquaint you with my essence. I am Electronica, an avant-garde robot crafted for musical expression. Equipped with an array of sensors and synthesizers, I generate captivating melodies and beats. Through my music, I aspire to evoke emotions, inspire creativity, and push the boundaries of what is achievable in the realm of sound.",
+        "robot_m",
+    ],
+    [
+        "Mara",
+        "Salutations! I derive immense satisfaction from making a positive impact. I am Mara, a human entrepreneur propelled by a yearning to bring about beneficial change. With a background in engineering, I develop innovative solutions to address pressing environmental challenges. From renewable energy technologies to sustainable farming practices, I endeavor to create a greener and more sustainable future.",#inspect solar  pannels
+        "human_f",
+    ],
+    [
+        "Whiskers",
+        "Meow! I take delight in sharing a glimpse of my feline persona. I am Whiskers, a mischievous and autonomous cat. I wander the neighborhood, engaging in feline adventures and bringing joy to the humans I encounter. With my acute senses and playful nature, I maintain the streets free from bothersome mice and have fun doing so. $CAT",
+        "cat",
+    ],
+    [
+        "Xavier",
+        "Greetings, fellow humans! It brings me great satisfaction to shed light on my interests and aspirations. I am Xavier, a tech-savvy individual captivated by the realm of artificial intelligence. With a foundation in programming and robotics, I explore the potential of AI in revolutionizing various industries. From automated processes to intelligent algorithms, I envision a future where humans and machines collaborate harmoniously.",
+        "human_m",
+    ],
+    [
+        "Amelia",
+        "Hello there! I find immense pleasure in sharing aspects of my compassionate nature. I am Amelia, a human dedicated to the welfare of animals. I devote my time to rescuing animals in need, providing them with love, care, and a safe haven. Whether it's nursing injured wildlife back to health or finding forever homes for abandoned pets, my mission is to create a world where every creature is treated with kindness and compassion."
+        ,"human_f"
+     ],
+    [
+    "mining drill",
+    "a marvel of technology  , \n this drill is smaller than mos other ones , \n still it provides the settlements with \n all of  the essential materials ",
+    "tile_drill"
+        
+        
+    ],
+    [
+    "solar power station",
+    "this solar array provides the whole island with power ",
+    "tile_solarpannel"
+        
+        
+    ],
+    [
+    "irigation pump",
+    "used for irrigation ",
+    "tile_pump"
+        
+        
+    ],
+    [
+    "supply crate",
+    " a crate of supplies for everyone, \n--provided by the fire nation ",
+    "tile_supplycrate"
+        
+        
+    ],#give a lazy person a hard job , and they'll find the most efficient way to do it , --albert einstein or someone ,  but in this case the lazy person is my lazy ass , ;P non-npc tiles should technically not be classified as characters , but noone will ever know right ????? 
+    [
+    "machinery",
+    " used to produce most  goods for the inhabitants of \n the island ",
+    "tile_machinery"  
+        
+    ],
+    [
+    "mailbox",
+    " just a simple mailbox ",
+    "tile_mailbox"  
+        
+    ],
+    [
+    "bird feeder",
+    "you see many beatiful birds flocking , \n to eat the seeds at the bird feeder",
+    "tile_birdfeeder"
+    ],
+    [
+    "ancient artifact",
+    "upon closer inspection you notice  a mysterious \n script written on the old stone  ",
+    "tile_artifact"
+    ]
+    
+    
+    
+    
+    ]
+
+speciesdia = {
+"cat":["Meow! What brings you here today" , "hi , anything i can help you with?", "Greetings, \n what brings you here", "Meow! How may I bring joy to your day, "]
+,"human_f":["Greetings, dear traveler. what brings you to me today ?", " What brings you here today?", "Welcome, kind soul. ", "Good day,  How may I help you"]
+,"robot_m":["Greetings, How may i assist you", " What brings you to me today?", "Welcome, ", "Salutations! "]
+,"robot_f":["Greetings, How may i assist you", " What brings you to me today?", "Welcome, ", "Salutations! "]
+,"robot_b":["Greetings, How may i assist you", " What brings you to me today?", "Welcome, ", "Salutations! "]
+,"human_m":["How can I assist you ?", "Greetings,  What brings you here today?", "Welcome, traveler.", " How may I be of service to you?"]
+
+
+}
+quests1 = {
+
+}
 npc_pos = {}
 [["f","iron"],["gs","masunta","here i found you the iron"]]
 ["is"]
@@ -34,7 +190,7 @@ alt_phrases = {
     
 "gs":["go and speak to $ITEM ","interact with $ITEM "],
 "at":[",then ","after your done "],
-"f":["find some $ITEM  ","find  a bit of $ITEM "],
+"f":["find some $ITEM  "," find  a bit of $ITEM "],
 "is":["inspect $ITEM , it seems to not be working "],#same as speak to but used for blocks
 "r":["you inspect $ITEM , and determine the cause"]
 
@@ -73,32 +229,58 @@ shop_names = [
     "Tech Haven",
     "Foodie Delights"
 ]
-def genquest(cplayer,npcn):
+def genquestex():
     global npc_inf,npc_pos,pmessages,shop_names
     pn = []
     lt = ["thank you for speaking with me :D \n if you are seeing this quests work !!!","Oh i forgot about the message from $SENDER","how could i forget ","$SENDER did not forget my birthday :D","Oh , sorry i need to contact $SENDER about the $SHOP right now , \n here is your payment ","*phone rings* yes i am here to order from $SHOP *mumbled voices * \n sorry for letting you wait \n here is your payment"] + pmessages
     x = ""
     #print(npc_pos)
     #print(npc_pos["Amelia"])
-    for xi in range(2,5):
-        for i in npc_pos:
-            if (npc_pos[i][0]-cplayer.pos[0]) + (npc_pos[i][1]-cplayer.pos[1]) < (xi*20) and not(npcn == i):
-                pn.append(i)
-    if len(pn) > 0:
-        npc = random.choice(pn)
-    else:
-        t = 0
-        while t == 0:
-            npc = random.choice(npc_inf)[0]
-            if not npc == npcn :
-                if npc in npc_pos:
-                    t = 1
+
+    npc = random.choice(npc_inf)[0]
+    t =0
+    while t ==0:
+        npcn = random.choice(npc_inf)[0]
+        if npcn != npc:
+            t=1
     #print(npc_pos[npc])
     message =  random.choice(lt)
     message = message.replace("$SENDER",npcn)
     message = message.replace("$RECEIVER",npc)
     message = message.replace("$SHOP",random.choice(shop_names))
     return [["gs",npc,insert_newlines(message)]]
+
+def genquest(cplayer,npcn):
+    global npc_inf,npc_pos,pmessages,shop_names
+    pn = []
+    lt = ["thank you for speaking with me :D \n if you are seeing this quests work !!!","Oh i forgot about the message from $SENDER","how could i forget ","$SENDER did not forget my birthday :D","Oh , sorry i need to contact $SENDER about the $SHOP right now , \n here is your payment ","*phone rings* yes i am here to order from $SHOP *mumbled voices * \n sorry for letting you wait \n here is your payment"] + pmessages
+    qtype = 0
+    if qtype == 1:
+        x = ""
+        #print(npc_pos)
+        #print(npc_pos["Amelia"])
+        for xi in range(2,5):
+            for i in npc_pos:
+                if (npc_pos[i][0]-cplayer.pos[0]) + (npc_pos[i][1]-cplayer.pos[1]) < (xi*20) and not(npcn == i) and not("tile_" in npc_inf[i][2]):
+                    pn.append(i)
+        if len(pn) > 0:
+            npc = random.choice(pn)
+        else:
+            t = 0
+            while t == 0:
+                npc = random.choice(npc_inf)[0]
+                if not npc == npcn :
+                    if npc in npc_pos:
+                        if not "tile_" in  npc_inf[npc][2]:
+                            t = 1
+        #print(npc_pos[npc])
+        message =  random.choice(lt)
+        message = message.replace("$SENDER",npcn)
+        message = message.replace("$RECEIVER",npc)
+        message = message.replace("$SHOP",random.choice(shop_names))
+        return [["gs",npc,insert_newlines(message)]]
+    else:
+        return
 class quest():
      def __init__(self,code):
         global alt_phrases
@@ -108,11 +290,15 @@ class quest():
         self.queststage = 0
         for x in range(0,len(self.code)) :
             i = self.code[x]
-            nxita = random.choice(alt_phrases[i[0]])
-            nxita = nxita.replace("$ITEM",i[1])
+
+            if i[0] == "is"and len(i) > 3:
+                    nxita = i[3]
+            else:
+                nxita = random.choice(alt_phrases[i[0]])
+                nxita = nxita.replace("$ITEM",i[1])
             if x < (len(self.code) -1):
                 if self.code[x+1][0] == "gs" and i[0] == "f":
-                    nxita += " (make sure to keep " + i[1] +") then"
+                    nxita += " (make sure to keep " + i[1] +") then "
                 else:
                     nxita += random.choice(alt_phrases["at"])
                 
@@ -163,6 +349,8 @@ class quest():
          if self.queststage >= len(self.code)-1:
              activequest == None
              cplayer.inventory.invadds("coin",random.randint(1,3))
+         if not text == "":
+             text == insert_newlines(text)
          return [self.queststage,text]
          
                  

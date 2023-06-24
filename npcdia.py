@@ -1,5 +1,7 @@
 quests = []
 import random
+from npcnames import npc_inf
+from npcnames import speciesdia
 npcdia1 = {
 "1":["hi how are you today ? \n",{"good":2,"could be better":3,"i am not feeling well":4}]    
 ,"2":[" good to hear , \n i am also feeling good ",{"bye":10}]
@@ -58,7 +60,12 @@ npcdia22 = {
 
 
 }
-def gtqdia(do="sorry i  live under a rock , \n blame benedikt for forgetting to change this default text ;P \n (start  gitlab issue)",dialog=["thank you for the offer \n but i have everything under control \n for now ",{"ok":1}]): 
+def insert_newlines(text):
+    words = text.split()
+    words_with_newlines = [words[i:i+10] for i in range(0, len(words), 10)]
+    lines = [' '.join(words) for words in words_with_newlines]
+    return '\n'.join(lines)
+def gtqdia(do="sorry i  live under a rock , \n blame benedikt for forgetting to change this default text ;P \n (start  gitlab issue)",dialog=["thank you for the offer \n but i have everything under control \n for now ",{"ok":1}],npcn=None): 
    global npcdia2,quests,confuseddia
    if "ART" in quests:
        if random.randint(1,100) == 1:
@@ -66,7 +73,14 @@ def gtqdia(do="sorry i  live under a rock , \n blame benedikt for forgetting to 
        else:
            t = npcdia22
        t["quest"] = dialog
-       t["boutme"][0] = do
+       t["boutme"][0] = insert_newlines(do)
+       if not npcn == None:
+           try:
+               species = npc_inf[npcn][2]
+               t["1"][0] = random.sample(speciesdia[species])[0]
+           except Exception as exc:
+               print("npc/species probably undefined")
+               print(exc)
    else:
         t = confuseddia
    return t

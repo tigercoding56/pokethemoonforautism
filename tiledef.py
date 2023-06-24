@@ -247,6 +247,7 @@ class pipe2(tile):
 class pipe3(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'pipe3',(255,25235,255,255))
+        self.texture = ptexture('img/pipe2')
         self.height = 0
         self.cost = 1
         
@@ -738,6 +739,9 @@ class character(tile):
         
         self.about = character[1]
         self.cname = character[0]
+        self.istile = 0
+        if "tile_" in self.species:
+            self.istile = 1
         self.name = self.cname
         self.assignquest = ""
         self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
@@ -750,18 +754,34 @@ class character(tile):
         self.message = "( " + self.cname + " )"
     
     def interact(self,cplayer,cmap,message="found \n nothing"):
-        if not npcproperties.activequest == None :
-            x = npcproperties.activequest.check(cplayer,self.cname)
-            if not x[1] == "":
-                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
+        if self.istile == 0:
+            if not npcproperties.activequest == None :
+                x = npcproperties.activequest.check(cplayer,self.cname)
+                if not x[1] == "":
+                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
+                else:
+                     dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" sorry it seems you already have a active quest\n (" +npcproperties.activequest.desc + ")",{"exit":0},{"cancel quest":"questrm"}],npcn=self.cname))
+                if npcproperties.activequest.done == 1:
+                    npcproperties.activequest = None
             else:
-                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=[" sorry it seems you already have a active quest\n (" +npcproperties.activequest.desc + ")",{"exit":0},{"cancel quest":"questrm"}]))
-            if npcproperties.activequest.done == 1:
-                npcproperties.activequest = None
+                self.assignquest = npcproperties.quest(npcproperties.genquest(cplayer,self.cname))
+                dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=["do you want to  " + self.assignquest.desc + " ?" ,{"no , thank you for the offer though":0,"yes":"questac"}],npcn=self.cname))
         else:
-            self.assignquest = npcproperties.quest(npcproperties.genquest(cplayer,self.cname))
-            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=self.about,dialog=["do you want to  " + self.assignquest.desc + " ?" ,{"no , thank you for the offer though":0,"yes":"questac"}]))
-        ####
+            if not npcproperties.activequest == None :
+                x = npcproperties.activequest.check(cplayer,self.cname)
+                if not x[1] == "":
+                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
+                else:
+                     dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[self.about,{"exit dialog":0}]})
+                if npcproperties.activequest.done == 1:
+                    npcproperties.activequest = None
+            else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[self.about,{"exit dialog":0}]})
+
+
+
+
+
         
         return [cplayer,cmap,message]
     def callback(self,cmap=0,cplayer=0,test=0):
@@ -844,35 +864,6 @@ class terminal1(tile):
                 if  dialogtree.cnpcdial.val == "ac":
                     cplayer.inventory = cplayer.inventory.invadds("infochip",1)
             dialogtree.cnpcdial = dialogtree.ddialog()
-            return [cmap,cplayer]
-class buyhouse(tile):
-    def upd(self): #gets run after init to set defaults to water
-        self.lgco(["ground",1,20,["unpassable"]],'radio',(111,226,147,255),1)
-        self.message = "(interact to use the radio)"
-        self.interactable = True
-    
-    def interact(self,cplayer,cmap,message="found \n nothing"):
-            self.price = 20
-            if cplayer.inventory.getcount("coin") >=  self.price:
-                dialogtree.cnpcdial = dialogtree.nbcdialog({1:["you have enough coins to buy this house ,\n do you want to buy this house for "+str(self.price) + " coins ?",{"yes":"bh","no":0}]})
-            else:
-                dialogtree.cnpcdial = dialogtree.nbcdialog({1:["you don't have  enough coins to buy this house ,\n this house costs  "+str(self.price) + " coins to unlock ",{"exit dialog":0}]})
-            
-        ####
-        
-            return [cplayer,cmap,message]
-    def callback(self,cmap=0,cplayer=0,test=0):
-        global quests
-        if test == 1:
-            return 1
-        else:
-            if not dialogtree.cnpcdial == None:
-                if  dialogtree.cnpcdial.val == "bh":
-                    cplayer.inventory.rmitem("coin",self.price)
-                    cmap.structuremap.smmap(self.pos,cmap.tiles[1])
-                    
-            dialogtree.cnpcdial = dialogtree.ddialog()
-            
             return [cmap,cplayer]
 
 
@@ -1107,7 +1098,7 @@ class tree(tile):
         self.price = 2
 class vendingmachine(tile):
     def upd(self):
-        self.lgco(['ground', 0, 0, ['unpassable']],"vendingmachine",(0, 96, 121, 32255))
+        self.lgco(['ground', 0, 0, ['unpassable']],"vendingmachine",(0, 96, 1281, 32255))
 
 class console(tile):
     def upd(self):
@@ -1122,15 +1113,64 @@ class console(tile):
         #dialogtree.cnpcdial =  dialogtree.ddialog()
         #return [cplayer,cmap]
         return []
+class telescope(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0, []],"telescope",(0, 96, 121, 32255))
+        self.interactable = 1
+        self.price = 1
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        dialogtree.cnpcdial = UIdialogdef.spaceobserverdia()
+        #return [,cmap,message]
+        return []
+    def callback(self,cmap=0,cplayer=0,test=0):
+        #dialogtree.cnpcdial =  dialogtree.ddialog()
+        #return [cplayer,cmap]
+        return []
 class safetile(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"grass1",(0, 255, 0, 255))
+        
+class buyhouse(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'bhouse',(111,226,147,2585),1)
+        self.message = "(interact to inspect house sale)"
+        self.interactable = True
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+            self.price = 20
+            if cplayer.inventory.getcount("coin") >=  self.price:
+                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["you have enough coins to buy this house ,\n do you want to buy this house for "+str(self.price) + " coins ?",{"yes":"bh","no":0}]})
+            else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["you don't have  enough coins to buy this house ,\n this house costs  "+str(self.price) + " coins to unlock ",{"exit dialog":0}]})
+            
+        ####
+        
+            return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "bh":
+                    cplayer.inventory.rmitem("coin",self.price)
+                    #cmap.structuremap.smmap(self.pos,cmap.tiles[1])
+                    return [cmap,cplayer,"",carpet()]
+                    
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            
+            return [cmap,cplayer]
+
 xtiles = [water(),safetile(),test(),tree(),woodh(),carpet(),wood(),cobblestone(),path(),steppingstones(),sand(),iceblock(),ice(),grass4(),grass3(),grass2(),grass1(),gemstone(),goldstone(),silverstone(),coalore(),copperore(),scriptkiddie1(),a_10cabin(),a_10cabin2(),a_10nose(),a_10section(),a_10tail(),a_10wing(),a_10wingtipa(),a_10wingtipb(),a_10taila(),a_10tailb(),a_10turbinea(),a_10turbineb(),terminal1(),radio1(),milvet(),oilrigdrill1(),oilrigdrill2(),oilrigdrill3(),oilrigdrill4(),oilrigpillar(),oilrigplatform(),oilrigplatformsupport1(),oilrigplatformsupport2(),teleporter(),oilrigplatformwood(),hacker(),sand_message(),wheat(),town_marker()]
 tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
-    xtiles.append(character().ssc(i))
-xtiles = xtiles + [lever(),conductor(),housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer()]
+    if not "tile" in  npcproperties.npc_inf[i][2]:
+        xtiles.append(character().ssc(i))
+xtiles = xtiles + [lever(),conductor(),housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope()]
 testlist = []
+for i in range(0,len(npcproperties.npc_inf)):
+    if  "tile" in  npcproperties.npc_inf[i][2]:
+        xtiles.append(character().ssc(i))
 for itile in xtiles:
     itile.upd()
     if itile.price > 0:

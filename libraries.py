@@ -500,7 +500,7 @@ clock = pygame.time.Clock()
 def main():
     global clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(60)
+    dt = clock.tick(50)
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 120
