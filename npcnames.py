@@ -1,9 +1,14 @@
 import random ,time
+def generate_20_digit_seed():
+    timestamp = str(time.time()).replace(".", "")  # Get timestamp and remove decimal point
+    seed = int(timestamp[:20])  # Convert the first 20 digits to an integer
+    return seed
+random.seed(generate_20_digit_seed())
 activequest = None
 ALLNPCN = []
 def insert_newlines(text):
     words = text.split()
-    words_with_newlines = [words[i:i+10] for i in range(0, len(words), 10)]
+    words_with_newlines = [words[i:i+7] for i in range(0, len(words), 7)]
     lines = [' '.join(words) for words in words_with_newlines]
     return '\n'.join(lines)
 npc_inf = [
@@ -31,6 +36,9 @@ npc_inf = [
         "carpentarius",
         "Ah, greetings! I arrived here 8 years ago, seeking solace from the turmoil that plagued Tropica Insulae, the island I once called home. The government's failure to implement universal basic income in a timely manner resulted in widespread job loss due to rampant automation. Now, I dedicate my craft to hand-crafting exquisite furniture for clients from all walks of life.",#get wood from supply crate
         "human_m",
+        [
+        [["is","supply crate","you take a bit of wood from the supply crate"," find wood in one of the many supply crates "],["gt","carpentarius","thank you , here are some coins as a reward"]]    
+        ]
     ],
     [
         "masunta",
@@ -41,7 +49,7 @@ npc_inf = [
         "Manomi",
         "Time is fleeting, but let me share a glimpse into my past. I hail from the Gracesay Isles, a land of farmers and fertile fields. Alas, climate change submerged our beloved island, scattering my family across the neighboring isles. Here, I stand, cultivating crops and breathing life into the earth, carrying with me the resilience and determination of my ancestors.",#fix irigation
         "human_f",
-        ,[
+        [
           [["is","irigation pump"," you determine the input filter is clogged \n , luckily you have a spare one on hand , you replace it "," the irrigation system is broken at the farm near large town , could you kindly fix it ?  "],["gs","Manomi","thank  you \n as reward here have some coins "]]   
           ,[["is","bird feeder","you restock the bird feeder , not long after \n you hear the delightful chirping of birds","please restock the bird feeder ,  here is some grain  "],["gs","Manomi","thank you \n here have some coins \n  as reward "]] 
             
@@ -66,8 +74,38 @@ npc_inf = [
     ],
     [
         "Thalyn.🦀",
-        "Once a teacher in the old world, my path diverged, leading me to the serene shores where crabs roam. Oh, how I yearn for the days spent guiding my graduating class of '23, may their souls rest in eternal peace. Yet, in this new chapter, I remove crabs from the beach, and in return, the fish facilitate the delivery of our heartfelt messages through the medium of bottled mail.",#find  mail
+        "Once a teacher in the old world, my path diverged, leading me to the serene shores where crabs roam. Oh, how I yearn for the days spent guiding my graduating class of '23, may their souls rest in eternal peace. Yet, in this new chapter of live , I remove crabs from the beach, and in return, the fish facilitate the delivery of our heartfelt messages through the medium of bottled mail.",#find  mail
         "human_f",
+        [#partly me and partly chatgtp , around 50% split , also do not worry  i got the names from the convenient slide you left me :D   , i am definately not trying to hack into the school network now (or at least i stopped trying for now ... )
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from olivia.le \n a student of my freshmen class of 23' \n  i am excited to read ,  \n but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from ezrael  \n a student of my graduating  class of 23' \n  i am cannot wait  to read  it , \n hopefully everything is fine ,  \n but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from esther \n a student of my 4th period  class of 23' \n  i am excited to read ,  \n but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Ivanna  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Valerie  a student of my 4th period  class of 23'   bless their soul , i am going to read the letter  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Matt  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Tracen  a student of my 4th period  class of 23'    how nice of them  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Najma  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Katie  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Leah  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Kenzie  a student of my 4th period  class of 23'    how nice of them  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Cody  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from JaidenJulianne  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from QueenJin  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Noah  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Mikayla  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from IzzyAmilia  a student of my 4th period  class of 23'    Oh i really can't wait to read ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Jayven  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Tiffini  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Louisa  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Denise  a student of my 4th period  class of 23'   bless their soul , i am going to read the letter  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Ben  a student of my 4th period  class of 23'    how nice of them  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Hanae  a student of my 4th period  class of 23'   bless their soul , i am going to read the letter  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Max  a student of my 4th period  class of 23'   bless their soul , i am going to read the letter  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Kai  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from  Nathaniel  a student of my 4th period  class of 23'   bless their soul , i am going to read the letter  ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Rishi  a student of my 4th period  class of 23'   i am excited to read their letter ,   but first  here is your payment    "]],
+        [["is","mailbox","you find letters in the mail"," please check my mailbox "],["gs","Thalyn.🦀","thank you *opens letter* Oh its from Mateo  a student of my 4th period  class of 23'    how nice of them  ,   but first  here is your payment    "]]
+        ]
     ],
     [
         "cat",
@@ -83,6 +121,9 @@ npc_inf = [
         "Jacob",
         "Allow me to provide insights into my persona. I am Jacob, a contented human driven by an insatiable thirst for knowledge. With an ardor for history and archaeology, I dedicate my days to unraveling the enigmas of ancient civilizations. Venturing into forgotten ruins and deciphering archaic manuscripts, I strive to bring the past to life and preserve its wisdom for future generations.",#get rock sample from ruins (you scratch off  a bit of the rock and take it)
         "human_m",
+        [
+        [["is","ancient artifact"," you chip a small piece of rock out of the artifact "," take a rock sample out of one of the ancient artifacts "],["gt","Jacob","thank you \n here is your reward "]]    
+        ]
     ],
     [
         "Sophia",
@@ -97,7 +138,11 @@ npc_inf = [
     [
         "Mara",
         "Salutations! I derive immense satisfaction from making a positive impact. I am Mara, a human entrepreneur propelled by a yearning to bring about beneficial change. With a background in engineering, I develop innovative solutions to address pressing environmental challenges. From renewable energy technologies to sustainable farming practices, I endeavor to create a greener and more sustainable future.",#inspect solar  pannels
-        "human_f",
+        "human_f",[
+        [["is","solar power station"," you clean the solar pannel ,  "," the solar power station , has a reduced energy output because a solar pannel is too dusty to generate power \n meaning the backup generators need to run \n which pollutes the sky  , \n if you clean the solar pannel  i will pay you 1-3  gold coins (random chance) "],["gt","Mara","thank you \n here is your reward "]]
+            
+            
+        ]
     ],
     [
         "Whiskers",
@@ -249,12 +294,23 @@ def genquestex():
     message = message.replace("$RECEIVER",npc)
     message = message.replace("$SHOP",random.choice(shop_names))
     return [["gs",npc,insert_newlines(message)]]
-
+def find_item_by_string(lst, search_string):
+    for item in lst:
+        try:
+            if item[0] == search_string:
+                return item
+        except:
+            io = 0
+    return None
 def genquest(cplayer,npcn):
     global npc_inf,npc_pos,pmessages,shop_names
     pn = []
     lt = ["thank you for speaking with me :D \n if you are seeing this quests work !!!","Oh i forgot about the message from $SENDER","how could i forget ","$SENDER did not forget my birthday :D","Oh , sorry i need to contact $SENDER about the $SHOP right now , \n here is your payment ","*phone rings* yes i am here to order from $SHOP *mumbled voices * \n sorry for letting you wait \n here is your payment"] + pmessages
-    qtype = 0
+    qtype = 1
+    npcninf = find_item_by_string(npc_inf,npcn)
+    if len(npcninf)>3:
+        if random.randint(1,2) > 0:
+            qtype = 0
     if qtype == 1:
         x = ""
         #print(npc_pos)
@@ -280,7 +336,7 @@ def genquest(cplayer,npcn):
         message = message.replace("$SHOP",random.choice(shop_names))
         return [["gs",npc,insert_newlines(message)]]
     else:
-        return
+        return random.sample(npcninf[3],1)[0]
 class quest():
      def __init__(self,code):
         global alt_phrases

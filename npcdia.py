@@ -73,6 +73,7 @@ def gtqdia(do="sorry i  live under a rock , \n blame benedikt for forgetting to 
        else:
            t = npcdia22
        t["quest"] = dialog
+       t["quest"][0] = insert_newlines(dialog[0])
        t["boutme"][0] = insert_newlines(do)
        if not npcn == None:
            try:
