@@ -592,17 +592,17 @@ def main():
                     selectedt +=-1
                     selectedt = selectedt % len(cmap.tiles)
                 elif event.key == pygame.K_0 and onweb == 0:
-                    print(str([gtcpos(True),selectedt,1])+",",end='')
+                    print(str([gtcpos(True),cmap.tiles[selectedt].name + cmap.tiles[selectedt].__class__.__name__,1])+",",end='')
                     cmap.structuremap.smmap(gtcpos(True),cmap.tiles[selectedt])
                 elif event.key == pygame.K_o and onweb == 0:
-                    print(str([gtcpos(True),selectedt,0])+",",end='')
+                    print(str([gtcpos(True),cmap.tiles[selectedt].name + cmap.tiles[selectedt].__class__.__name__,0])+",",end='')
                     cmap.heightmap.smmap(gtcpos(True),cmap.tiles[selectedt])
                 elif event.key == pygame.K_1 and onweb == 0:
                             pos1 = gtcpos(True)
                 elif event.key == pygame.K_f and onweb == 0:
                             for tx in gprt(pos1[0],pos2[0]):
                                 for ty in gprt(pos1[1],pos2[1]):
-                                    print(str([[tx,ty],selectedt])+",",end='')
+                                    print(str([[tx,ty],cmap.tiles[selectedt].name + cmap.tiles[selectedt].__class__.__name__,1])+",",end='')
                                     cmap.structuremap.smmap([tx,ty],cmap.tiles[selectedt])
                 elif event.key == pygame.K_2 and onweb == 0:
                     pos2 = gtcpos(True)

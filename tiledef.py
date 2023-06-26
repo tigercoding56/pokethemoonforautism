@@ -739,6 +739,7 @@ class character(tile):
         
         self.about = character[1]
         self.cname = character[0]
+        self.name = character[0]
         self.istile = 0
         if "tile_" in self.species:
             self.istile = 1

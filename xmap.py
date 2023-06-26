@@ -1,6 +1,7 @@
 import pygame
 import copy
 import PIL
+import base64
 from PIL import Image
 import time
 import ptext
@@ -12,8 +13,10 @@ from dialogtree import cplayer ,irender
 import math
 import random
 import copy
-import terrainmask
+import terrainmask2
 import numpy as np
+import pickle
+terrainlist  = []
 def vec_add(y,t):
     r = []
     if len(y) == len(t):
@@ -230,6 +233,7 @@ class gmap():
                 output = t
         return output
     def __init__(self,tiles):
+        global terrainlist
         self.tiles = tiles
         x = 1
         self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
@@ -240,18 +244,34 @@ class gmap():
         self.threedfx = self.loadtxt('img/3dheight.png')
         self.particles = []
         if x:
-            for i in terrainmask.mask1:
-                t=self.tiles[i[1]]
+            for i in terrainmask2.mask1:
+                t=self.tiles[0]
+                for xi in self.tiles:
+                    if i[1] == xi.name + xi.__class__.__name__:
+                        t = xi
+                        #print(i[1])
+                        #print(",")
+                       # print(xi.name + xi.__class__.__name__)
+                       # print("#####")
+                   # else:
+                       # if "tile_" in i[1] and "tile_" in xi.name:
+                           # pass
+                
                 t.initmp()
                 layer=1
+                
                 if len(i) > 2:
                     layer = i[2]
+                    #terrainlist.append([i[0],t.name + t.__class__.__name__,i[2]])
+                    #terrainlist.append([i[0],t.name + t.__class__.__name__,1])
                 if layer == 1:
                     self.structuremap.smmap(i[0],t,dg=1)
                 else:
                     self.heightmap.smmap(i[0],t,dg=1)
         self.structuremap.dgmap = self.structuremap.mmap
         self.heightmap.dgmap = self.heightmap.mmap
+       # print(terrainlist)
+        #base64.b64encode(pickle.dumps(sd)).decode('ascii')
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))
 #addtile(  tile('grass2',(230,230,230,255),["ground",2,10]))
@@ -270,4 +290,4 @@ class gmap():
 # addtile(  tile('carpet',(0,0,255,255),["ground",0,0]))
 # addtile(  tile('tree',(0,96,121,255),["ground",0,0,["unpassable"]]))
 # addtile(  tile('safetile',(0,255,0,255),["ground",0,0]))
-cmap = gmap(tiles)
+#cmap = gmap(tiles)
