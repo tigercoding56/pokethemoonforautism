@@ -317,17 +317,25 @@ def genquest(cplayer,npcn):
         #print(npc_pos["Amelia"])
         for xi in range(2,5):
             for i in npc_pos:
-                if (npc_pos[i][0]-cplayer.pos[0]) + (npc_pos[i][1]-cplayer.pos[1]) < (xi*20) and not(npcn == i) and not("tile_" in npc_inf[i][2]):
-                    pn.append(i)
+                #print(npc_pos)
+               # try:
+                    if (npc_pos[i][0]-cplayer.pos[0]) + (npc_pos[i][1]-cplayer.pos[1]) < (xi*20) and not(npcn == i) and not("tile_" in find_item_by_string(npc_inf,i)[2]):
+                        pn.append(i)
+               # except:
+                   # print(i)
+                   # print("###|")
+                   # print("###V")
+                   # print(npc_inf)
         if len(pn) > 0:
             npc = random.choice(pn)
         else:
             t = 0
             while t == 0:
-                npc = random.choice(npc_inf)[0]
+                npcx = random.choice(npc_inf)
+                npc = npcx[0]
                 if not npc == npcn :
                     if npc in npc_pos:
-                        if not "tile_" in  npc_inf[npc][2]:
+                        if not "tile_" in  npcx[2]:
                             t = 1
         #print(npc_pos[npc])
         message =  random.choice(lt)

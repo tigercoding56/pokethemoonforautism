@@ -731,6 +731,8 @@ class questobjective(tile):
 
 class character(tile):
     def initmp(self):
+        if not npcproperties.npc_pos.__class__.__name__ == "dict":
+          npcproperties.npc_pos = {}  
         npcproperties.npc_pos[self.cname] = self.pos
     def ssc(self,charnum):
         charnum = charnum % len(npcproperties.npc_inf) 
