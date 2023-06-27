@@ -34,6 +34,11 @@ class ptexture(): # a texture pointer class
         self.location = str(location)
     def gt(self):
         return tile_textures[self.location]
+class fptexture():
+    def __init__(self,surface):
+        self.surf = surface
+    def gt(self):
+        return self.surf
         
 tiles = []
 quests = {"intro":0,"HOFF":0}
@@ -73,6 +78,8 @@ class tile():
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
+        self.rstate = [0,0,0,0]
+        self.tst = [ptexture('mesecons/S0O.png'),ptexture('mesecons/S1O.png'),ptexture('mesecons/OO.png'),ptexture('mesecons/S3O.png')]
         self.mp_item = None
         self.animated = 0
         self.height = 0
@@ -116,10 +123,10 @@ class tile():
                             print("NONCONDUCTING TILE HAS update_state function ")
                             print(e)
             
-            else:
+                else:
                     try:
-                        tile2.rstate[lt[nxt.index(i)]] = state
-                        cmap = tile2.powerevent(cmap)
+                        tilex.rstate[lt[nxt.index(i)]] = state
+                        cmap = tilex.powerevent(cmap)
                         cmap.structuremap = cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tilex)
                     except Exception as e:
                         print(e)
@@ -141,11 +148,11 @@ class lever(tile):
         self.y = self.pos[1]
         nxt = [(-1,0),(0,1),(1,0),(0,-1)]
         opnxt = [2,3,0,1]
-        for x in range(0,3):
+        for x in range(0,4):
             i = nxt[x]
             tile2= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
             if not tile2 == "none":
-                print(tile2)
+               # print(tile2)
                 if tile2.conductor == 1:
                     try:
                             cmap = tile2.update_state(cmap,self.state)
@@ -219,7 +226,71 @@ class water(tile):
             return self.txt1
         else:
             return self.txt2
-        
+class TESTGATE(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'grass1',(255,255,2505,255))
+        self.height = 0
+        self.name = "DEBUG_GATE"
+        self.animated = 1
+        self.ft = 1
+        self.texture = ptexture('mesecons/DEBUG_GATE.png')
+        self.tst = [ptexture('mesecons/S0O.png'),ptexture('mesecons/S3O.png'),ptexture('mesecons/OO.png'),ptexture('mesecons/S1O.png')]
+    def gt(self):
+        t = self.texture.gt()
+        it = t.copy()
+        for i in range(0,4):
+            x = self.rstate[i]
+            if x == 1:
+                it.blit(self.tst[i].gt(),(0,0))
+        return fptexture(it)
+    def powerevent(self,cmap):
+        print(self.rstate)
+        return cmap
+
+class NOTGATE(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'grass1',(255,255,2505,255))
+        self.height = 0
+        self.name = "DEBUG_GATE"
+        self.animated = 1
+        self.ft = 1
+        self.rxo = 0
+        self.texture = ptexture('mesecons/jeija_gate_not.png')
+        self.tst = [ptexture('mesecons/S0O.png'),ptexture('mesecons/S3O.png'),ptexture('mesecons/OO.png'),ptexture('mesecons/S1O.png')]
+    def gt(self):
+        t = self.texture.gt()
+        it = t.copy()
+        if self.rxo == 1:
+            it.blit(self.tst[2].gt(),(0,0))
+       # for i in range(0,4):
+           #x = self.rstate[i]
+           # if x == 1:
+                #it.blit(self.tst[i].gt(),(0,0))
+        return fptexture(it)
+    def powerevent(self,cmap):
+        print(self.rstate)
+        self.rxo = int(not(self.rstate[0]))
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+        i = [1,0]
+        tilex= cmap.read(cmap.structuremap,self.x+i[0],self.y+i[1],True)
+        if not tilex == "none":
+                if tilex.conductor == 1:
+                    if not tilex.on == self.rxo:
+                        try:
+                            #if not x == dntupd:
+                                cmap = tilex.update_state(cmap,self.rxo)#,s=x)
+                                cmap.structuremap = cmap.sett(cmap.structuremap,self.x+i[0],self.y+i[1],tilex)
+                        except Exception as e:
+                            print("NONCONDUCTING TILE HAS update_state function ")
+                            print(e)
+
+ 
+        return cmap
+         
+
+
+
 
 class grass1(tile):
     def upd(self): 
@@ -1169,7 +1240,7 @@ tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     if not "tile" in  npcproperties.npc_inf[i][2]:
         xtiles.append(character().ssc(i))
-xtiles = xtiles + [lever(),conductor(),housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope()]
+xtiles = xtiles + [housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),TESTGATE()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     if  "tile" in  npcproperties.npc_inf[i][2]:

@@ -11,7 +11,7 @@ for tx in gprt(pos1[0],pos2[0]):
 '''
 def gprt(n1,n2):
     dist = n2-n1
-    abdist = abs(dist)
+    abdist = abs(dist) + 0.0000001
     it = int(dist/abdist)
     return  range(int(n1),int(n2)+it,it)
 

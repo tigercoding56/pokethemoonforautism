@@ -2,9 +2,11 @@ import pygame
 import PIL
 import UIdialogdef
 #import noise
+import numpy as np
 import standartUIdialogref
 import waterFX
 import gc
+from math import floor
 from copy import deepcopy 
 import renderbase
 from renderbase import svimg
@@ -207,6 +209,50 @@ class camera():
             self.cx = self.targetx
             self.cy = self.targety
 message = ["",0]
+
+
+def calc_dir(point1, point2):
+    # Check if the points are the same
+    #if point1 == point2:
+        # Return a default direction or handle as desired
+        #return 45  # Replace None with your desired default value or handle the case differently
+
+    # Calculate the direction in radians
+    dx = point2[0] - point1[0]
+    dy = point2[1] - point1[1]
+    direction_rad = math.atan2(dy, dx)
+
+    # Convert the direction to degrees within the range of 0 to 360
+    direction_deg = math.degrees(direction_rad)
+    if direction_deg < 0:
+        direction_deg += 360
+
+    # Convert the direction to an integer
+    direction_int = int(round(direction_deg))
+
+    return direction_int
+def get_tile_value(x, y, frametime, skip_percentage=2):
+    # Calculate the tile position in the chess grid
+    tile_x = x   # Assuming each tile is 10 units in width
+    tile_y = y  # Assuming each tile is 10 units in height
+
+    # Calculate the total number of tiles in the grid
+    num_tiles_x = 4000  # Assuming a 40x40 grid
+    num_tiles_y = 4000
+
+    # Calculate the interlaced pattern based on tile position and skip percentage
+    skip_tiles = int((num_tiles_x * num_tiles_y) * (skip_percentage / 100))
+    tile_index = (tile_x + tile_y * num_tiles_x) % (num_tiles_x * num_tiles_y)
+    interlace_state = int((tile_index // num_tiles_x + tile_index % num_tiles_x + frametime // (skip_percentage + 1)) % 2 == 0 and tile_index >= skip_tiles)
+
+    # Determine the color of the tile based on frametime and interlace state
+    if frametime % (skip_percentage + 1) == interlace_state:
+        return 1
+    else:
+        return 0
+
+
+
 class render():
     def __init__(self):
         global X,Y
@@ -221,6 +267,12 @@ class render():
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
         self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
         self.arenaimg =  pygame.image.load("img/battlearena.png")
+        self.grass_texture_image = pygame.transform.scale(pygame.image.load("Resources/MISC_ASSETS/Grass_color.png").convert(),(400,400))
+        self.grass_normal_map_image = pygame.transform.scale(pygame.image.load("Resources/MISC_ASSETS/Grass_normal.png").convert(),(400,400))
+        self.grass_texture_image = texture_array = pygame.surfarray.array3d(self.grass_texture_image).astype(np.uint8) / 255.0
+        self.grass_normal_map_image= normal_map_array = pygame.surfarray.array3d(self.grass_normal_map_image).astype(np.uint8) / 255.0
+        self.bggrasstxt = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,45,(0,0))
+    
     def gets(self,value,t="False"):
         if t == True:
             return value #- (value % 10)
@@ -284,11 +336,19 @@ class render():
                         self.optbuffer[xtu] = t
                 else:
                     self.optbuffer[xtu] = t
+                xs = stile
                 if not ( tile.animated == 0 and txa ==0):
                     stile = 0
                     self.optbuffer[xtu] = t
                 if tile.name == "water":
                     stile = 0
+                    #if get_tile_value(xtt, ytt, frametime,1.2) == 0 and not xs == 0:
+                       # stile = 1
+                if  "grass" in tile.name  and tile2 == "none":
+                    
+                    stile = 0
+                    if ((xtt % 5) +(frametime%5 )+random.randint(1,4))%10 == 0 and not xs == 0:
+                        stile = 1
                 if stile == 0:        
                     if not tile.name == "water":
                         ximg = img.copy()
@@ -298,8 +358,17 @@ class render():
                                 xti.set_alpha(tile.reflectivity)
                                 
                                 ximg.blit(xti,(0,0))
+                        if  "grass" in tile.name and tile2 == "none":
+                            point = (((40*xtt)+ floor(self.gets(camera.cy,True))*40),(ytt + floor(self.gets(camera.cy,True)) * 40))
+                            xti = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,calc_dir(point,(840+(self.gets(camera.cx,True)*40),(self.gets(camera.cy,True)*40))),point)
+                            xti.set_alpha(20)
+                            ximg.blit(xti,(0,0))
+                        else:
+                            xti = self.bggrasstxt
+                            xti.set_alpha(20)
+                            ximg.blit(xti,(0,0))
                         vb1.append((ximg,(x*40,y*40)))
-                    else:
+                    elif tile.name == "water":
                         if wimg == "":
                             if (frametime % 4 ) == 1:
                                 self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
@@ -337,7 +406,17 @@ class render():
                                     self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
                                     self.wrfb.set_alpha(100)
                                     vb5.append((self.wrfb,(x*40,y*40)))
-                                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     if not (tile2 == "none"):
                         if tile2.name == "steppingstones":
                            threed = False
@@ -492,7 +571,7 @@ endtime = 0
 for i in range(1,100):
     cplayer.inventory.invadds("coin")
     cplayer.inventory.invadds("tile_tree")
-dlgtree.cnpcdial = dlgtree.UIdialogbase()
+#dlgtree.cnpcdial = dlgtree.UIdialogbase()
 #dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,1)
 #
 dlgtree.cnpcdial.active = 1
@@ -500,7 +579,7 @@ clock = pygame.time.Clock()
 def main():
     global clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(50)
+    dt = clock.tick(30)
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 120
@@ -658,7 +737,10 @@ def main():
     if 0==0:
          if  dlgtree.cnpcdial.active:
              if not hasattr(dlgtree.cnpcdial,'runUI'):
-                dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+                 if not dlgtree.cnpcdial.__class__.__name__ == "ddialog":
+                        dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
+                 else:
+                     dlgtree.cnpcdial.active = 0
              else:
                 dlgtree.cnpcdial.cmap = cmap
                 dlgtree.cnpcdial.drawsys = drawsys

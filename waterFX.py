@@ -673,3 +673,47 @@ def overlay_green_screen(background, foreground, green_color=(255, 255, 255,255)
 
     # Return the overlay surface
     return overlay
+
+
+def apply_normal_map(texture, normal_map, lighting_angle, section):
+    #global cached_sin_angle, cached_cos_angle, previous_angle
+
+    # Convert the lighting angle to radians
+    lighting_angle_rad = math.radians(lighting_angle)
+ 
+    # Check if the angle has changed
+    #if lighting_angle_rad != previous_angle:
+        # Cache the values of sin and cos
+    cached_sin_angle = np.sin(lighting_angle_rad)
+    cached_cos_angle = np.cos(lighting_angle_rad)
+    previous_angle = lighting_angle_rad
+
+    # Determine the section coordinates with wraparound
+    height, width = texture.shape[:2]
+    y_start = section[0] % height
+    x_start = section[1] % width
+    y_end = (y_start + 20) % height
+    x_end = (x_start + 20) % width
+
+    # Extract the wrapped section of the texture and normal map
+    if y_end < y_start:
+        texture_section = np.concatenate((texture[y_start:height, x_start:x_end], texture[0:y_end, x_start:x_end]), axis=0)
+        normal_map_section = np.concatenate((normal_map[y_start:height, x_start:x_end], normal_map[0:y_end, x_start:x_end]), axis=0)
+    elif x_end < x_start:
+        texture_section = np.concatenate((texture[y_start:y_end, x_start:width], texture[y_start:y_end, 0:x_end]), axis=1)
+        normal_map_section = np.concatenate((normal_map[y_start:y_end, x_start:width], normal_map[y_start:y_end, 0:x_end]), axis=1)
+    else:
+        texture_section = texture[y_start:y_end, x_start:x_end]
+        normal_map_section = normal_map[y_start:y_end, x_start:x_end]
+
+    # Calculate the dot product of the normal map and lighting angle using cached values
+    dot_product = normal_map_section[..., 0] * cached_cos_angle + normal_map_section[..., 1] * cached_sin_angle
+    dot_product = np.abs(dot_product)
+
+    # Perform the multiplication and scaling in the same line
+    result_array = np.clip(texture_section *255* dot_product[..., np.newaxis], 0, 255).astype(np.uint8)
+
+    # Convert the result array to a Pygame surface
+    result_surface = pygame.surfarray.make_surface(result_array)
+    result_surface = pygame.transform.scale2x(result_surface)
+    return result_surface
