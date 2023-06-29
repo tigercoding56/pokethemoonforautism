@@ -17,7 +17,7 @@ def surface_to_array(surface):
     return array_3d
 class nxtexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
-        global tile_textures
+        global ptextures
         if not str(location) in ptextures:
             a = 1
             preimg = pygame.image.load(str(location)).convert_alpha()

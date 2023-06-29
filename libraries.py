@@ -273,6 +273,7 @@ class render():
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
         self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
         self.arenaimg =  pygame.image.load("img/battlearena.png")
+        #print("render_init")
         self.grass_texture_image = "Resources/MISC_ASSETS/Grass_color.png"
         self.grass_normal_map_image = "Resources/MISC_ASSETS/Grass_normal.png"
         self.bggrasstxt = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,45,(0,0))
