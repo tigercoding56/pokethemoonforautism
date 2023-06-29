@@ -1,8 +1,8 @@
 import pygame
-import PIL
 import UIdialogdef
 #import noise
-import numpy as np
+#import numpy as np
+#import numpy
 import standartUIdialogref
 import waterFX
 import gc
@@ -10,7 +10,8 @@ from math import floor
 from copy import deepcopy 
 import renderbase
 from renderbase import svimg
-from PIL import Image
+#import PIL
+#from PIL import Image
 import time
 import ptext
 import pickle
@@ -36,9 +37,10 @@ selectedt = 0
 
             
 muted = 1
-pygame.mixer.init()
-outsoundtrack = pygame.mixer.Sound('audio/peasant kingdom.ogg')
-insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
+#pygame.mixer.init()
+cmap = gmap(tiles)
+#outsoundtrack = pygame.mixer.Sound('audio/peasant kingdom.ogg')
+#insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
 #outsoundtrack.play(-1)
 #insoundtrack.play(-1)
 def intsound(x):
@@ -46,19 +48,22 @@ def intsound(x):
     if muted == 0:
         if x == 1:
             if not sound_intr == 1:
-                outsoundtrack.fadeout(2000)
-                insoundtrack.play(-1,fade_ms=2000)
+                #outsoundtrack.fadeout(2000)
+                #insoundtrack.play(-1,fade_ms=2000)
+                pass
         if x == 0:
             if not sound_intr == 0:
-                insoundtrack.fadeout(2000)
-                outsoundtrack.play(-1,fade_ms=2000)
+               # insoundtrack.fadeout(2000)
+                #outsoundtrack.play(-1,fade_ms=2000)
+                pass
         sound_intr = x
-        outsoundtrack.set_volume(1-sound_intr)
-        insoundtrack.set_volume(sound_intr)
+        #outsoundtrack.set_volume(1-sound_intr)
+        #insoundtrack.set_volume(sound_intr)
 ptextures = {}#optimisation to not need a rtx 4090 XYT
 class xtexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
-        global tile_textures
+        global ptextures
+        #print("init_xtexture")
         if not str(location) in ptextures:
             a = 1
             preimg = pygame.image.load(str(location)).convert_alpha()
@@ -71,6 +76,7 @@ class xtexture(): # a texture pointer class
 if __import__("sys").platform == "emscripten":
     from platform import window
     onweb = 1
+    muted = 0
     window.fs_loaded = False
 else:
     import os
@@ -86,7 +92,6 @@ AREAS = ["WMP","ARENA","INV"]## these will be implemented later
 ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled while WMP is active 
 X = 840
 Y = 640
-cmap = gmap(tiles)
 def save(slot):
     global cmap,onweb,xmap,cplayer
     if onweb :
@@ -145,7 +150,6 @@ dbbtn = PygButton(caption="costumise tile",rect=scale(320,220,100,20))
 
 
 ######################
-defaultpk = EM.pokemons[0].pclone()
 pygame.key.set_repeat(250)
 
 def getattacks():
@@ -203,11 +207,13 @@ class camera():
     def run(self):
         if (self.percentage < self.steps):
             self.percentage = self.percentage +1
-            self.cx = self.lerp(self.lx,self.targetx,1/((self.steps - self.percentage)+0.000001))
-            self.cy = self.lerp(self.ly,self.targety,1/((self.steps - self.percentage)+0.000001))
+            #if (self.steps - self.percentage) == 0:
+               # self.percentage = self.steps + 0.01
+            self.cx = self.lerp(self.lx,self.targetx,1/((self.steps - self.percentage)))
+            self.cy = self.lerp(self.ly,self.targety,1/((self.steps - self.percentage)))
         if self.percentage >= self.steps :
             self.cx = self.targetx
-            self.cy = self.targety
+            self.cy = self.targety 
 message = ["",0]
 
 
@@ -267,17 +273,15 @@ class render():
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
         self.highlight =  pygame.transform.scale( pygame.image.load("img/hilight.png"),(40,40))
         self.arenaimg =  pygame.image.load("img/battlearena.png")
-        self.grass_texture_image = pygame.transform.scale(pygame.image.load("Resources/MISC_ASSETS/Grass_color.png").convert(),(400,400))
-        self.grass_normal_map_image = pygame.transform.scale(pygame.image.load("Resources/MISC_ASSETS/Grass_normal.png").convert(),(400,400))
-        self.grass_texture_image = texture_array = pygame.surfarray.array3d(self.grass_texture_image).astype(np.uint8) / 255.0
-        self.grass_normal_map_image= normal_map_array = pygame.surfarray.array3d(self.grass_normal_map_image).astype(np.uint8) / 255.0
+        self.grass_texture_image = "Resources/MISC_ASSETS/Grass_color.png"
+        self.grass_normal_map_image = "Resources/MISC_ASSETS/Grass_normal.png"
         self.bggrasstxt = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,45,(0,0))
     
     def gets(self,value,t="False"):
         if t == True:
-            return value #- (value % 10)
+            return int(value) #- (value % 10)
         else:
-            return ((value-8) % 1)*-40
+            return int(((value-8) % 1)*-40)
     def shaderz(self):
         for x in range(1,320):
             for y in range(1,320):
@@ -286,12 +290,12 @@ class render():
         self.screen.blit(self.arenaimg,(0,0))
     def hash_tile(self,tile1,tile2,tile4,tile5,tile6):
         if tile2 == "none":
-            return hash(str(type(tile1).__name__)+str(tile4)+str(tile5)+str(tile6))
+            return str(str(type(tile1).__name__)+str(tile4)+str(tile5)+str(tile6))
         else:
-            return hash(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
+            return str(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
     def renderwmp(self,camera,xgmap,frametime):
         global mousepos,message,onweb,selectedt
-        performance = 0
+        performance = 1
         #watertxt = waterFX.apply_ripple(,wateroffsetext,3,2)
         getmessage()
         wvb = []
@@ -308,12 +312,12 @@ class render():
                 x = xtt 
                 y = ytt
                 threed = True
-                tile = xgmap.heightmap.rmmap((x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)))
-                tile2= xgmap.structuremap.rmmap((x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)),True)
+                tile = xgmap.heightmap.rmmap((int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True))))
+                tile2= xgmap.structuremap.rmmap((int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True))),True)
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
-                tile4= xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
-                tile5=xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
-                tile6 = xgmap.getheight(x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
+                tile4= xgmap.getheight(int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True)))
+                tile5=xgmap.getheight(int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True)+1))
+                tile6 = xgmap.getheight(int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True)-1))
                 img = tile.gtx(frametime).gt()
                 if tile2 == "none":
                     txa = 0
@@ -337,6 +341,7 @@ class render():
                 else:
                     self.optbuffer[xtu] = t
                 xs = stile
+                performance = 1
                 if not ( tile.animated == 0 and txa ==0):
                     stile = 0
                     self.optbuffer[xtu] = t
@@ -345,45 +350,52 @@ class render():
                     #if get_tile_value(xtt, ytt, frametime,1.2) == 0 and not xs == 0:
                        # stile = 1
                 if  "grass" in tile.name  and tile2 == "none":
-                    
                     stile = 0
-                    if ((xtt % 5) +(frametime%5 )+random.randint(1,4))%10 == 0 and not xs == 0:
+                    if performance ==0:
+                        if ((xtt % 5) +(frametime%5 ))%10 == 0 and not xs == 0:
+                            stile = 1
+                if stile == 0 and not xs == 0:
+                    if ((xtt % 5) +(frametime%5 ))%2 == 1:
                         stile = 1
-                if stile == 0:        
-                    if not tile.name == "water":
+                if stile == 0  :        
+                    if not (tile.name == "water"):
                         ximg = img.copy()
-                        if hasattr(tile,"reflectivity"):
+                        if hasattr(tile,"reflectivity") and not performance == 1:
                                 xti = ""
                                 xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
                                 xti.set_alpha(tile.reflectivity)
                                 
                                 ximg.blit(xti,(0,0))
-                        if  "grass" in tile.name and tile2 == "none":
-                            point = (((40*xtt)+ floor(self.gets(camera.cy,True))*40),(ytt + floor(self.gets(camera.cy,True)) * 40))
-                            xti = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,calc_dir(point,(840+(self.gets(camera.cx,True)*40),(self.gets(camera.cy,True)*40))),point)
-                            xti.set_alpha(20)
-                            ximg.blit(xti,(0,0))
-                        else:
-                            xti = self.bggrasstxt
-                            xti.set_alpha(20)
-                            ximg.blit(xti,(0,0))
+                        if performance ==0:
+                            if  "grass" in tile.name and tile2 == "none":
+                                point = (((40*xtt)+ floor(self.gets(camera.cy,True))*40),(ytt + floor(self.gets(camera.cy,True)) * 40))
+                                xti = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,calc_dir(point,(840+(self.gets(camera.cx,True)*40),(self.gets(camera.cy,True)*40))),point)
+                                xti.set_alpha(20)
+                                ximg.blit(xti,(0,0))
+                            elif "grass" in tile.name:
+                                xti = self.bggrasstxt
+                                xti.set_alpha(20)
+                                ximg.blit(xti,(0,0))
                         vb1.append((ximg,(x*40,y*40)))
                     elif tile.name == "water":
-                        if wimg == "":
-                            if (frametime % 4 ) == 1:
-                                self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
-                            wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
+                        wimg = img
+                        #if wimg == "":
+                           # if (frametime % 4 ) == 1:
+                               # if performance == 0:
+                                   # self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
+                            #wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
+                                   
                         xti = ""
-                        xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
+                        #xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
                         #xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
-                        xti.set_alpha(50)
+                        #xti.set_alpha(50)
                         wimgx = wimg.copy()
-                        wimgx.blit(xti,(0,0))
+                        #wimgx.blit(xti,(0,0))
                         
                             #wimg = img
                             #wimg = wateroffsetext
                         wvb.append((wimgx,(x*40,y*40)))
-                        if performance == 0:
+                        if 0== 0:
                             if tile.name == "water" and tile2 == "none":
                                 wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1)
                                 wtile2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)+1,True)
@@ -421,10 +433,10 @@ class render():
                         if tile2.name == "steppingstones":
                            threed = False
                         img2 = xgmap.read(xgmap.structuremap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True),exc="gt()").gt()
-                        if tile2.name =="wheat":
-                            if wimgb == "":
-                                wimgb = waterFX.apply_waving_effect(img2,tile2.wavetxt.gt(),5,120,5,frametime)
-                            img2 = wimgb
+                        #if tile2.name =="wheat":
+                            #if wimgb == "":
+                               # wimgb = waterFX.apply_waving_effect(img2,tile2.wavetxt.gt(),5,120,5,frametime)
+                            #img2 = wimgb
                         if not tile2.hidden:
                             ximg2 = img2.copy()
                             if hasattr(tile2,'reflectivity'):
@@ -480,10 +492,11 @@ class render():
         #blitpos[0] = blitpos[0]*2
         #blitpos[1] = blitpos[1]*2
         intsound(csound) 
-        self.screen.blit(t,(self.gets(camera.cx),self.gets(camera.cy)))
+        self.screen.blit(t,(int(self.gets(camera.cx)),int(self.gets(camera.cy))))
         self.screen.blit(self.playerpreimg,(159*2,159*2))
         self.screen.blit(self.highlight,blitpos)
         return blitpos
+
 
         
         
@@ -568,10 +581,11 @@ def getmessage():
 ###helper function
 isinvo = False
 endtime = 0
-for i in range(1,100):
-    cplayer.inventory.invadds("coin")
-    cplayer.inventory.invadds("tile_tree")
-#dlgtree.cnpcdial = dlgtree.UIdialogbase()
+#for i in range(1,100):
+    #cplayer.inventory.invadds("coin")
+    #cplayer.inventory.invadds("tile_tree")
+if onweb :
+    dlgtree.cnpcdial = dlgtree.UIdialogbase()
 #dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,1)
 #
 dlgtree.cnpcdial.active = 1
@@ -579,7 +593,7 @@ clock = pygame.time.Clock()
 def main():
     global clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(30)
+    dt = clock.tick(300)
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     frametime = frametime + 1 % 120
@@ -794,3 +808,4 @@ if __name__ == "__main__":
     import main
     mycam.tp( 52,13)
     cplayer.pos = [52,13]
+

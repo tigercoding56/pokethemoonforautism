@@ -1,8 +1,8 @@
 import pygame
 import copy
-import PIL
+#import PIL
 import base64
-from PIL import Image
+#from PIL import Image
 import time
 import ptext
 import tiledef
@@ -15,6 +15,7 @@ import random
 import copy
 import terrainmask2
 import numpy as np
+import numpy
 import pickle
 terrainlist  = []
 def vec_add(y,t):
@@ -52,27 +53,34 @@ def nrl(l1,l2):
 class memorymap():
     def __init__(self,imgmp,gstate=True,topt=0):
         if gstate:
-            self.size = imgmp.size
+            self.size = imgmp.get_size()
             self.imgmp = imgmp
             self.mmap = {}
             self.dgmap = {}
-            for y in range(0,self.size[1] - 1):
-                for x in range(0,self.size[0] - 1):
-                   t = imgmp.getpixel((x, y))
-                   output = "none"
-                   for i in tiles:
-                       if list[i.color] == list[t] :
-                           # print("match" + str(i))
-                            output = i      
-                   if output == "none" and topt==0 :
-                       output = tiles[0]
-                   if not output == "none":
-                       output.pos = [x,y]
-                       try:
-                           output.initmp()
-                       except:
-                           io = 0
-                   self.mmap[str(x) + "o" + str(y)] = output
+            lookup = {}
+            for i in tiles:
+                lookup[str(list[i.color])] = i
+            for y in range(self.size[1] - 1):
+                for x in range(self.size[0] - 1):
+                    xil = list(imgmp.get_at((x, y)))
+                    #xil[3] = 255
+                    t = 'list' + str(xil)
+                    output = "none"
+                    if t in lookup:
+                        output = lookup[t]
+                    #else:
+                        #print("__")
+                        #print(t)
+                        #print(lookup)
+                    if output == "none" and topt == 0:
+                        output = tiles[0]
+                    if output != "none":
+                        output.pos = [x, y]
+                        try:
+                            output.initmp()
+                        except:
+                            io = 0
+                    self.mmap[str(x) + "o" + str(y)] = output
             self.dgmap = self.mmap
     def getdiff(self):
        difftab = [] 
@@ -165,9 +173,9 @@ class gmap():
                 del(self.particles[i])
     def loadtxt(self,name):
         try:
-            return Image.open(name).convert("RBG")
+            return pygame.image.load(name)
         except:
-            return Image.open(name)
+            return pygame.image.load(name)
     def gettile(self,x,y,idx=0):
         x = x + 8
         y = y + 8
@@ -244,33 +252,34 @@ class gmap():
         self.threedfx = self.loadtxt('img/3dheight.png')
         self.particles = []
         if x:
+            tile_lookup = {xi.name + xi.__class__.__name__: xi for xi in self.tiles}
+
             for i in terrainmask2.mask1:
-                t=self.tiles[0]
-                for xi in self.tiles:
-                    if i[1] == xi.name + xi.__class__.__name__:
-                        t = xi
-                        #print(i[1])
-                        #print(",")
-                       # print(xi.name + xi.__class__.__name__)
-                       # print("#####")
-                   # else:
-                       # if "tile_" in i[1] and "tile_" in xi.name:
-                           # pass
-                
-                t.initmp()
-                layer=1
-                
-                if len(i) > 2:
-                    layer = i[2]
-                    #terrainlist.append([i[0],t.name + t.__class__.__name__,i[2]])
-                    #terrainlist.append([i[0],t.name + t.__class__.__name__,1])
-                if layer == 1:
-                    self.structuremap.smmap(i[0],t,dg=1)
-                else:
-                    self.heightmap.smmap(i[0],t,dg=1)
-        self.structuremap.dgmap = self.structuremap.mmap
-        self.heightmap.dgmap = self.heightmap.mmap
-       # print(terrainlist)
+                t = tile_lookup.get(i[1])
+
+                if t is not None:
+                    t.initmp()
+                    layer = i[2] if len(i) > 2 else 1
+
+                    if layer == 1:
+                        self.structuremap.smmap(i[0], t, dg=1)
+                    else:
+                        self.heightmap.smmap(i[0], t, dg=1)
+
+            self.structuremap.dgmap = self.structuremap.mmap
+            self.heightmap.dgmap = self.heightmap.mmap
+
+
+
+
+
+
+
+
+
+
+
+# print(terrainlist)
         #base64.b64encode(pickle.dumps(sd)).decode('ascii')
 
 #addtile( tile('grass1',(255,255,255,255),["ground",1,20]))

@@ -1,209 +1,35 @@
-# import pygame
-# import numpy as np
-# import math
-# def apply_ripple_to_blits(blits_list, displacement_map, amplitude, speed):
-#     # Create a surface to store the result of the blits
-#     result_image = pygame.Surface(pygame.display.get_surface().get_size())
-# 
-#     # Perform the blit operations
-#     result_image.blits(blits_list)
-# 
-#     # Create a copy of the result image to preserve the original
-#     copied_image = result_image.copy()
-# 
-#     # Apply the ripple effect to the copied image
-#     copied_image = apply_ripple(copied_image, displacement_map, amplitude, speed)
-# 
-#     # Create an updated list of blit operations
-#     updated_blits_list = []
-# 
-#     # Iterate over the original and copied images, updating only the modified pixels
-#     for y in range(result_image.get_height()):
-#         for x in range(result_image.get_width()):
-#             original_color = result_image.get_at((x, y))
-#             copied_color = copied_image.get_at((x, y))
-# 
-#             # Check if the pixel was modified by the blit operations
-#             if original_color != copied_color:
-#                 # Calculate the position of the pixel
-#                 pos = (x, y)
-# 
-#                 # Find the original surface and rect in the blits list
-#                 for surf, rect in blits_list:
-#                     #if rect.collidepoint(pos):
-#                         updated_blits_list.append((surf, rect))
-# 
-#                 # Add the modified pixel to the updated blits list
-#                 updated_blits_list.append((copied_image, pygame.Rect(pos, (1, 1))))
-# 
-#     return updated_blits_list
-# def apply_ripple(texture, displacement_map, amplitude, speed):
-#     width, height = texture.get_width(), texture.get_height()
-#     displacement_width, displacement_height = displacement_map.get_width(), displacement_map.get_height()
-# 
-#     # Create NumPy arrays from the textures for faster pixel manipulation
-#     texture_pixels = pygame.surfarray.pixels3d(texture)
-#     displacement_pixels = pygame.surfarray.pixels3d(displacement_map)
-# 
-#     # Create a new surface to hold the result
-#     result_surface = pygame.Surface((width, height))
-# 
-#     for y in range(height):
-#         for x in range(width):
-#             # Calculate the displacement amount based on the displacement map
-#             displacement_x = displacement_pixels[x % displacement_width, y % displacement_height, 2] / 255.0 * amplitude
-#             displacement_y = displacement_pixels[x % displacement_width, y % displacement_height, 1] / 255.0 * amplitude
-# 
-#             # Calculate the new coordinates based on the ripple effect
-#             new_x = int(x + displacement_x * np.sin(speed * y))
-#             new_y = int(y + displacement_y * np.sin(speed * x))
-# 
-#             # Get the pixel color from the texture at the new coordinates
-#             pixel_color = texture_pixels[new_x % width, new_y % height]
-# 
-#             # Set the pixel color in the result surface
-#             result_surface.set_at((x, y), pixel_color)
-# 
-#     # Release the reference to the NumPy arrays to avoid memory leaks
-#     del texture_pixels
-#     del displacement_pixels
-# 
-#     return result_surface
-# def generate_texture(time,width=40, height=40):
-#     SHOW_TILING = False
-#     pixels = pygame.Surface((width, height))
-#     TAU = 6.28318530718
-#     MAX_ITER = 5
-#     for y in range(height):
-#         for x in range(width):
-#             uv_x = (x % 40) / 40.0
-#             uv_y = (y % 40) / 40.0
-#             uv = [uv_x, uv_y]
-#             
-#             if SHOW_TILING:
-#                 p = [(uv[0] * TAU * 2.0) % TAU - 250.0, (uv[1] * TAU * 2.0) % TAU - 250.0]
-#             else:
-#                 p = [(uv[0] * TAU) % TAU - 250.0, (uv[1] * TAU) % TAU - 250.0]
-#             
-#             i = p.copy()
-#             c = 1.0
-#             inten = 0.005
-#             
-#             for n in range(MAX_ITER):
-#                 t = time * (1.0 - (3.5 / float(n + 1)))
-#                 i = [p[0] + (math.cos(t - i[0]) + math.sin(t + i[1])),
-#                      p[1] + (math.sin(t - i[1]) + math.cos(t + i[0]))]
-#                 c += 1.0 / math.hypot(p[0] / (math.sin(i[0] + t) / inten),
-#                                       p[1] / (math.cos(i[1] + t) / inten))
-#             
-#             c /= float(MAX_ITER)
-#             c = 1.17 - math.pow(c, 1.4)
-#             colour = [math.pow(abs(c), 8.0)]
-#             colour[0] = min(max(colour[0] + 0.0, 0.1), 1.0)
-#             
-#             if SHOW_TILING:
-#                 pixel = [2.0 / width, 2.0 / height]
-#                 uv[0] *= 2.0
-#                 uv[1] *= 2.0
-#                 f = math.floor(time * 0.5 % 2.0)  # Flash value.
-#                 first = f if uv[0] >= pixel[0] and uv[1] >= pixel[1] else 0.0  # Rule out first screen pixels and flash.
-#                 uv[0] %= 1.0
-#                 uv[1] %= 1.0
-#                 if uv[0] >= pixel[0] and uv[1] >= pixel[1]:
-#                     colour = [1.0, 1.0, 0.0]  # Yellow line
-# 
-#             pixels.set_at((x, y), (int(colour[0] * 25), int(colour[0] * 65), int(colour[0] * 255)))
-#                 #print(colour*255)
-# 
-#     
-#     return pygame.transform.scale2x(pixels)
-# 
-# 
-# 
-# 
-# import pygame
-# import numpy as np
-# 
-# 
-# def apply_bloom(surface, intensity):
-#     if surface.get_bytesize() == 1:
-#         # Convert indexed surface to 24-bit RGB surface
-#         surface = surface.convert(24)
-# 
-#     # Extract RGB channels as separate arrays
-#     pixels = pygame.surfarray.array3d(surface)
-#     red_channel = pixels[:, :, 0].astype(np.float32)
-#     green_channel = pixels[:, :, 1].astype(np.float32)
-#     blue_channel = pixels[:, :, 2].astype(np.float32)
-# 
-#     # Apply bloom effect by adding blurred version of the image
-#     blurred_surface = pygame.Surface(surface.get_size())
-#     blurred_surface.blit(surface, (0, 0))
-#     pygame.transform.scale(blurred_surface, (blurred_surface.get_width() // 2, blurred_surface.get_height() // 2))
-#     pygame.transform.scale(blurred_surface, surface.get_size(), surface)
-# 
-#     # Adjust the intensity of the bloom effect
-#     red_channel += intensity * pixels[:, :, 0]
-#     green_channel += intensity * pixels[:, :, 1]
-#     blue_channel += intensity * pixels[:, :, 2]
-# 
-#     # Clamp values between 0 and 255
-#     red_channel = np.clip(red_channel, 0, 255).astype(np.uint8)
-#     green_channel = np.clip(green_channel, 0, 255).astype(np.uint8)
-#     blue_channel = np.clip(blue_channel, 0, 255).astype(np.uint8)
-# 
-#     # Combine the channels and create a new surface
-#     del(blurred_surface)
-#     del(pixels)
-#     processed_surface = np.stack((red_channel, green_channel, blue_channel), axis=2)
-#     return pygame.surfarray.make_surface(processed_surface)
-# 
-# 
-# 
-# 
-# 
-# def apply_color_curves(surface, red_curve, green_curve, blue_curve):
-#     if surface.get_bytesize() == 1:
-#         # Convert indexed surface to 24-bit RGB surface
-#         surface = surface.convert(24)
-# 
-#     # Extract RGB channels as separate arrays
-#     pixels = pygame.surfarray.array3d(surface)
-#     red_channel = pixels[:, :, 0].astype(np.float32)
-#     green_channel = pixels[:, :, 1].astype(np.float32)
-#     blue_channel = pixels[:, :, 2].astype(np.float32)
-# 
-#     # Apply color curves to each channel
-#     red_channel = red_curve * red_channel
-#     green_channel = green_curve * green_channel
-#     blue_channel = blue_curve * blue_channel
-# 
-#     # Clamp values between 0 and 255
-#     red_channel = np.clip(red_channel, 0, 255).astype(np.uint8)
-#     green_channel = np.clip(green_channel, 0, 255).astype(np.uint8)
-#     blue_channel = np.clip(blue_channel, 0, 255).astype(np.uint8)
-# 
-#     # Combine the channels and create a new surface
-#     processed_surface = np.stack((red_channel, green_channel, blue_channel), axis=2)
-#     return pygame.surfarray.make_surface(processed_surface)
-# 
-# 
-# 
-# def apply_outline(surface, color, thickness):
-#     # Create a new surface with the outline effect
-#     outline_surface = pygame.Surface(surface.get_size())
-#     outline_surface.blit(surface, (0, 0))
-#     pygame.draw.rect(outline_surface, color, outline_surface.get_rect(), thickness)
-# 
-#     # Combine the original surface and outline surface
-#     processed_surface = pygame.Surface(surface.get_size())
-#     processed_surface.blit(surface, (0, 0))
-#     processed_surface.blit(outline_surface, (0, 0))
-# 
-#     return processed_surface
+
 import pygame
+import pygame.surfarray
 import numpy as np
 import math
+ptextures = {}#optimisation to not need a rtx 4090 XYT
+def surface_to_array(surface):
+    width, height = surface.get_size()
+    byte_string = pygame.image.tostring(surface, 'RGB')
+    array_1d = np.frombuffer(byte_string, dtype=np.uint8)
+    array_3d = array_1d.reshape((height, width, 3))
+
+    return array_3d / 255.0
+def surface_to_array(surface):
+    array_3d = pygame.surfarray.array3d(surface).astype(np.float32)
+    array_3d /= 255.0
+    return array_3d
+class nxtexture(): # a texture pointer class
+    def __init__(self,location,a=1,rescale=1):
+        global tile_textures
+        if not str(location) in ptextures:
+            a = 1
+            preimg = pygame.image.load(str(location)).convert_alpha()
+            #preimg = pygame.surfarray.array3d(preimg).astype(np.uint8) / 255.0
+            preimg = surface_to_array(preimg)
+            ptextures[str(location)] = preimg
+            del(preimg)
+        self.location = str(location)
+    def gt(self):
+        global ptextures
+        return ptextures[self.location]
+
 
 def replace_color(texture, target_color, replacement_color):
     # Create a copy of the texture to modify
@@ -233,10 +59,10 @@ def apply_waving_effect(texture, displacement_map, amplitude, frequency, phase_s
     tex_width, tex_height = texture.get_width(), texture.get_height()
 
     # Convert the texture surface to a NumPy array
-    texture_array = pygame.surfarray.pixels3d(texture).astype(np.float32) / 255.0
+    texture_array = surface_to_array(texture)
 
     # Convert the displacement map surface to a NumPy array
-    displacement_map_array = pygame.surfarray.array3d(displacement_map).astype(np.float32) / 255.0
+    displacement_map_array = surface_to_array(displacement_map)
     time_factor = frame_count / 120.0
     # Create the wave displacement array
     x = np.arange(tex_width) / (frequency* time_factor )+ phase_shift
@@ -630,6 +456,7 @@ def get_texture_slice(texture, x, y, slice_size=40):
         slice_texture.blit(texture, (texture_width - slice_x, texture_height - slice_y), pygame.Rect(0, 0, slice_size - (texture_width - slice_x), slice_size - (texture_height - slice_y)))
 
     return slice_texture
+
 def modify_image_color(surface, red_modifier, green_modifier, blue_modifier):
     # Convert the surface to a NumPy array
     pixels = pygame.surfarray.pixels3d(surface)
@@ -677,7 +504,8 @@ def overlay_green_screen(background, foreground, green_color=(255, 255, 255,255)
 
 def apply_normal_map(texture, normal_map, lighting_angle, section):
     #global cached_sin_angle, cached_cos_angle, previous_angle
-
+    texture = nxtexture(texture).gt()
+    normal_map = nxtexture(normal_map).gt()
     # Convert the lighting angle to radians
     lighting_angle_rad = math.radians(lighting_angle)
  

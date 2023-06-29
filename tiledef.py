@@ -24,6 +24,7 @@ class ptexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
         global tile_textures
         if not str(location) in tile_textures:
+            #print("intitialising_ptexture")
             a = 1
             preimg = pygame.image.load(str(location)).convert_alpha()
             if rescale:

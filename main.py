@@ -5,7 +5,7 @@ import libraries
 
 #asyncio.run( micropip.install("https://github.com/tigercoding56/pygbag-costum-wheels/blob/main/pygame_gui-0.6.8-py3-none-any.whl?raw=true",deps=False))
 # Do init here and load any assets right now to avoid lag at runtime or network errors.
-
+#asyncio.get_event_loop().set_debug(True)
 
 async def main():
     global libraries
@@ -20,7 +20,7 @@ async def main():
         pygame.display.update()
         #gc.collect(2)
 
-        #await asyncio.sleep(0)  # Very important, and keep it 0
+        await asyncio.sleep(0)  # Very important, and keep it 0
 
 
 

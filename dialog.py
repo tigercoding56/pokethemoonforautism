@@ -31,7 +31,8 @@ wcolor = (255,200,150)
 def scale(x,y,x1,y1):
     return (x*2,y*2,x1*2,y1*2)
 sbtn = PygButton(caption="submit",rect=scale(370,250,50,70))
-surface = pygame.display.set_mode((X,Y))
+#surface = pygame.display.set_mode((X,Y))
+surface = pygame.display.set_mode((1,1), pygame.NOFRAME)
 list_box = ListBox(0, 500, 740, 140, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
 # def dialog(prompt="",options=["Exit"],do=[]): //blocking
 #     global surface, list_box,diaoverides

@@ -3,24 +3,7 @@ import time
 import math
 import ptext
 
-#
-#debugging code be like
-#
-# ░░░░▄▄▄▄▀▀▀▀▀▀▀▀▄▄▄▄▄▄
-# ░░░░█░░░░▒▒▒GLITCH▒▒▒░░▀▀▄
-# ░░░█░░░▒▒▒▒▒▒░░░░░░░░▒▒▒░░█
-# ░░█░░░░░░▄██▀▄▄░░░░░▄▄▄░░░█
-# ░▀▒▄▄▄▒░█▀▀▀▀▄▄█░░░██▄▄█░░░█
-# █▒█▒▄░▀▄▄▄▀░░░░░░░░█░░░▒▒▒▒▒█    -------------------------------_
-# █▒█░█▀▄▄░░░░░█▀░░░░▀▄░░▄▀▀▀▄▒█  / It will never work  as intended \
-# ░█▀▄░█▄░█▀▄▄░▀░▀▀░▄▄▀░░░░█░░█  | muhahahahaha                      |
-# ░░█░░▀▄▀█▄▄░█▀▀▀▄▄▄▄▀▀█▀██░█   |   ______________----------------- /
-# ░░░█░░██░░▀█▄▄▄█▄▄█▄████░█    /-----`
-# ░░░░█░░░▀▀▄░█░░░█░███████░█
-# ░░░░░▀▄░░░▀▀▄▄▄█▄█▄█▄█▄▀░░█
-# ░░░░░░░▀▄▄░▒▒▒▒░░░░░░░░░░█
-# ░░░░░░░░░░▀▀▄▄░▒▒▒▒▒▒▒▒▒▒░█
-# ░░░░░░░░░░░░░░▀▄▄▄▄▄▄▄▄▄▄█
+
 #import pqGUI as agui
 #from pqGUI import App
 from player import messages
@@ -132,7 +115,7 @@ def hashit(i):
     
 list_box2 = ListBox(0, 0, 340, 840, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
 list_box = ListBox(500, 0, 340, 840, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5', 'Item 6'])
-surface = pygame.display.set_mode((X,Y))
+surface = pygame.display.set_mode((1,1), pygame.NOFRAME)
 exitbtn = PygButton(caption="exit inventory",rect=scale(250,280,170,20))
 delbtn = PygButton(caption="throw away ",rect=scale(250,300,170,20))
 intbtn = PygButton(caption=" interact  ",rect=scale(250,260,170,20))
