@@ -10,7 +10,24 @@ from __future__ import division, print_function
 from math import ceil, sin, cos, radians, exp
 from collections import namedtuple
 import pygame
+font_buffer = {}
 
+def pygfontb(fontname, size, **kwargs):
+    # Check if the font is already in the buffer
+    key = (fontname, size, frozenset(kwargs.items()))
+    if key in font_buffer:
+        return font_buffer[key]
+    
+    # Font not found in the buffer, load and add it to the buffer
+    font = pygame.font.Font(fontname, size)
+    font.set_bold(kwargs.get('bold', False))
+    font.set_italic(kwargs.get('italic', False))
+    font.set_underline(kwargs.get('underline', False))
+    # Add more customizations as needed
+    
+    font_buffer[key] = font
+    
+    return font
 # Global default values
 DEFAULT_FONT_SIZE = 24
 REFERENCE_FONT_SIZE = 100
@@ -366,7 +383,7 @@ def getfont(**kwargs):
         font = pygame.font.SysFont(options.sysfontname, options.fontsize, options.bold or False, options.italic or False)
     else:
         try:
-            font = pygame.font.Font(options.getfontpath(), options.fontsize)
+            font = pygfontb(options.getfontpath(), options.fontsize)
         except IOError:
             raise IOError("unable to read font filename: %s" % options.getfontpath())
     if options.bold is not None:
@@ -576,7 +593,7 @@ class _Span:
         self.tagspec = tagspec
         self.x = x  # Offset from the beginning of the line
         self.font = font
-        self.backupfont =  pygame.font.Font("Resources/Vera.ttf", 16)
+        self.backupfont =  pygfontb("Resources/Vera.ttf", 16)
         self.settext(text)
     # Phase 2: set by _wrap
     def setlayout(self, jpara, jline, linewidth):

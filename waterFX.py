@@ -3,6 +3,12 @@ import pygame
 import pygame.surfarray
 import numpy as np
 import math
+xit = pygame.image.load
+def load_image(filename):
+    global xit
+    print("Image loaded:", filename)
+    return xit(filename)
+pygame.image.load = load_image
 ptextures = {}#optimisation to not need a rtx 4090 XYT
 def surface_to_array(surface):
     width, height = surface.get_size()

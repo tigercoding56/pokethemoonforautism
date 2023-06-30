@@ -1,4 +1,4 @@
-import pygame
+#import pygame
 import copy
 #import PIL
 import base64
@@ -7,7 +7,7 @@ import time
 import ptext
 import tiledef
 from tiledef import tiles
-from tiledef import sttobj
+from tiledef import sttobj,pygame
 from tiledef import dialogtree as dlgtree
 from dialogtree import cplayer ,irender 
 import math

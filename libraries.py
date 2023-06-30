@@ -34,7 +34,6 @@ markp=0
 sound_intr = -1
 selectedt = 0
 
-
             
 muted = 1
 #pygame.mixer.init()
@@ -191,10 +190,12 @@ class camera():
     def move(self,tx,ty,steps=10):
         self.targetx = tx
         self.targety = ty
-        self.lx = self.cx
-        self.ly = self.cy
+        self.lx = self.ctx
+        self.ly = self.cty
         self.steps = steps
         self.percentage = 0
+        self.cx = tx
+        self.cy = ty
     def tp(self,tx,ty):
         self.steps = 0
         self.percentage = 0
@@ -202,6 +203,8 @@ class camera():
         self.ly = ty
         self.targetx = tx
         self.targety = ty
+        self.ctx = tx
+        self.cty = ty
         self.cx = tx
         self.cy = ty
     def run(self):
@@ -209,11 +212,13 @@ class camera():
             self.percentage = self.percentage +1
             #if (self.steps - self.percentage) == 0:
                # self.percentage = self.steps + 0.01
-            self.cx = self.lerp(self.lx,self.targetx,1/((self.steps - self.percentage)))
-            self.cy = self.lerp(self.ly,self.targety,1/((self.steps - self.percentage)))
+            self.ctx = self.lerp(self.lx,self.targetx,1/((self.steps - self.percentage)))
+            self.cty = self.lerp(self.ly,self.targety,1/((self.steps - self.percentage)))
         if self.percentage >= self.steps :
-            self.cx = self.targetx
-            self.cy = self.targety 
+            self.ctx = self.targetx
+            self.cty = self.targety
+        self.cx = int(self.ctx)
+        self.cy = int(self.cty)
 message = ["",0]
 
 
@@ -295,13 +300,14 @@ class render():
         else:
             return str(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos,message,onweb,selectedt
-        performance = 1
-        #watertxt = waterFX.apply_ripple(,wateroffsetext,3,2)
+        global mousepos,message,onweb,selectedt,rlcam
+        performance = 0
+        #watertxt = waterFX.apply_ripple(self.wateroffsetext,self.wateroffsetext,3,2)
         getmessage()
         wvb = []
         vb1 =[]
         vb2 = []
+        vbr = []
         vb3 = []
         vb4 = []
         vb5 = []
@@ -346,51 +352,55 @@ class render():
                 if not ( tile.animated == 0 and txa ==0):
                     stile = 0
                     self.optbuffer[xtu] = t
-                if tile.name == "water":
-                    stile = 0
+                
                     #if get_tile_value(xtt, ytt, frametime,1.2) == 0 and not xs == 0:
                        # stile = 1
-                if  "grass" in tile.name  and tile2 == "none":
+               # if  "grass" in tile.name  and tile2 == "none":
+                   # stile = 0
+                   # if performance ==0:
+                       # if ((xtt % 5) +(frametime%5 ))%10 == 0 and not xs == 0:
+                            #stile = 1
+                if tile.name == "water":
+                    #if frametime % 2 == 1:
                     stile = 0
-                    if performance ==0:
-                        if ((xtt % 5) +(frametime%5 ))%10 == 0 and not xs == 0:
-                            stile = 1
-                if stile == 0 and not xs == 0:
-                    if ((xtt % 5) +(frametime%5 ))%2 == 1:
-                        stile = 1
+                #if stile == 0 and not xs == 0:
+                   #if ((xtt % 5) +(frametime%5 ))%2 == 1:
+                       # stile = 1
+                
                 if stile == 0  :        
                     if not (tile.name == "water"):
                         ximg = img.copy()
                         if hasattr(tile,"reflectivity") and not performance == 1:
                                 xti = ""
-                                xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
+                                xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
                                 xti.set_alpha(tile.reflectivity)
                                 
                                 ximg.blit(xti,(0,0))
-                        if performance ==0:
+                        if performance ==3:
                             if  "grass" in tile.name and tile2 == "none":
-                                point = (((40*xtt)+ floor(self.gets(camera.cy,True))*40),(ytt + floor(self.gets(camera.cy,True)) * 40))
-                                xti = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,calc_dir(point,(840+(self.gets(camera.cx,True)*40),(self.gets(camera.cy,True)*40))),point)
-                                xti.set_alpha(20)
+                                point = (((40*xtt)+ floor(self.gets(camera.cty,True))*40),(ytt + floor(self.gets(camera.cty,True)) * 40))
+                                xti = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,calc_dir(point,(840+(self.gets(camera.ctx,True)*40),(self.gets(camera.cty,True)*40))),point)
+                                xti.set_alpha(100)
                                 ximg.blit(xti,(0,0))
                             elif "grass" in tile.name:
                                 xti = self.bggrasstxt
-                                xti.set_alpha(20)
+                                xti.set_alpha(100)
                                 ximg.blit(xti,(0,0))
                         vb1.append((ximg,(x*40,y*40)))
                     elif tile.name == "water":
                         wimg = img
-                        #if wimg == "":
-                           # if (frametime % 4 ) == 1:
-                               # if performance == 0:
-                                   # self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
-                            #wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
+                        if wimg == "":
+                            if (frametime % 4 ) == 1:
+                                if performance == 0:
+                                    self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
+                            wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
                                    
                         xti = ""
-                        #xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.cx),(ytt*40)+self.gets(camera.cy))
+                        xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
                         #xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
-                        #xti.set_alpha(50)
+                        xti.set_alpha(50)
                         wimgx = wimg.copy()
+                        vbr.append([xti,((xtt*40),(ytt*40))])
                         #wimgx.blit(xti,(0,0))
                         
                             #wimg = img
@@ -416,7 +426,7 @@ class render():
                                     if not wtile2 == "none":
                                         if not wtile2.name ==  "steppingstones":
                                             self.wrfb2.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, True), (40, 8)),[0,0])
-                                    self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
+                                   # self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
                                     self.wrfb.set_alpha(100)
                                     vb5.append((self.wrfb,(x*40,y*40)))
                     
@@ -465,6 +475,8 @@ class render():
         self.vbuffer.blits(vb1)
         if len(vb2)>0:
             self.vbuffer.blits(vb2)
+        if len(vbr)>0:
+            self.vbuffer.blits(vbr)
         if len(vb3) > 0:
             self.vbuffer.blits(vb3)
         if len(vb4) > 0:
@@ -476,13 +488,13 @@ class render():
         
         blitpos = [0,0]
         if list(mousepos) == [-1,0]:
-            blitpos = ((140*2) +self.gets(camera.cx),(160*2) )
+            blitpos = ((140*2)+self.gets(camera.ctx) ,(160*2) )#
         elif list(mousepos) == [1,0] :
-            blitpos = ((200*2)+self.gets(camera.cx) ,(160*2) )
+            blitpos = ((200*2)+self.gets(camera.ctx) ,(160*2) )#
         elif list(mousepos) == [0,1]:
-            blitpos = ((160*2) ,(200*2)+self.gets(camera.cy) )
+            blitpos = ((160*2) ,(200*2)+self.gets(camera.cty) )
         elif list(mousepos) == [0,-1] :
-            blitpos = ((160*2) ,(140*2) +self.gets(camera.cy)) 
+            blitpos = ((160*2) ,(140*2) +self.gets(camera.cty)) 
         t=self.vbuffer
         #t = waterFX.apply_color_curves(t, 1, 1.0, 1.0)
         #t = waterFX.apply_bloom(t,3,245,2)
@@ -493,7 +505,7 @@ class render():
         #blitpos[0] = blitpos[0]*2
         #blitpos[1] = blitpos[1]*2
         intsound(csound) 
-        self.screen.blit(t,(int(self.gets(camera.cx)),int(self.gets(camera.cy))))
+        self.screen.blit(t,(self.gets(camera.ctx),self.gets(camera.cty)))
         self.screen.blit(self.playerpreimg,(159*2,159*2))
         self.screen.blit(self.highlight,blitpos)
         return blitpos
@@ -505,11 +517,14 @@ class render():
 ##initialise stuff
 drawsys = render()
 mycam = camera()
-mycam.tp(218,40)
-#mycam.tp(226,26)
-#mycam.tp(480,240)
+rlcam = camera()
 cplayer.pos[0] = 218
 cplayer.pos[1] = 21
+mycam.tp(218,21)
+rlcam.tp(mycam.cx,mycam.cy)
+#mycam.tp(226,26)
+#mycam.tp(480,240)
+
 #cplayer.pos[0] = 405#uncomment to tp to oilrig
 #cplayer.pos[1] = 33
 frametime = 0
@@ -592,14 +607,19 @@ if onweb :
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()
 def main():
-    global clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(300)
+    dt = clock.tick(30)
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
+    #rlcam.move(cplayer.pos[0],cplayer.pos[1])
+    #rlcam.run()
+    mycam.run()
+    #mycam.ctx = rlcam.ctx
+    #mycam.cty = rlcam.cty
     frametime = frametime + 1 % 120
     tiledef.npcdia.quests = tiledef.quests
-    mycam.run()
+    
        # except:
            # ActionQueue = []
            # print("ActionQueue failed")
