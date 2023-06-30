@@ -36,28 +36,36 @@ selectedt = 0
 
             
 muted = 1
-#pygame.mixer.init()
+pygame.mixer.init()
 cmap = gmap(tiles)
-#outsoundtrack = pygame.mixer.Sound('audio/peasant kingdom.ogg')
-#insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
+outsoundtrack = pygame.mixer.Sound('audio/peasant kingdom.ogg')
+insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
 #outsoundtrack.play(-1)
 #insoundtrack.play(-1)
+fcw = 0
+def fancywatertrans(x):
+    global fcw
+    fcw = fcw + (int(x)*0.1)
+    if fcw > 1:
+        fcw = 1
+    elif fcw < 0.1:
+        fcw = 0
 def intsound(x):
     global sound_intr,outsoundtrack,insoundtrack,muted
     if muted == 0:
         if x == 1:
             if not sound_intr == 1:
-                #outsoundtrack.fadeout(2000)
-                #insoundtrack.play(-1,fade_ms=2000)
+                outsoundtrack.fadeout(2000)
+                insoundtrack.play(-1,fade_ms=2000)
                 pass
         if x == 0:
             if not sound_intr == 0:
-               # insoundtrack.fadeout(2000)
-                #outsoundtrack.play(-1,fade_ms=2000)
+                insoundtrack.fadeout(2000)
+                outsoundtrack.play(-1,fade_ms=2000)
                 pass
         sound_intr = x
-        #outsoundtrack.set_volume(1-sound_intr)
-        #insoundtrack.set_volume(sound_intr)
+        outsoundtrack.set_volume(1-sound_intr)
+        insoundtrack.set_volume(sound_intr)
 ptextures = {}#optimisation to not need a rtx 4090 XYT
 class xtexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
@@ -150,7 +158,11 @@ dbbtn = PygButton(caption="costumise tile",rect=scale(320,220,100,20))
 
 ######################
 pygame.key.set_repeat(250)
-
+fancywaterl = 0
+def smwt(x):
+    fancywaterl = fancywaterl + (x*0.1)
+    if fancywaterl < 0.1:
+        fancywaterl = 0
 def getattacks():
      global defaultpk
      return defaultpk
@@ -266,7 +278,7 @@ def get_tile_value(x, y, frametime, skip_percentage=2):
 
 class render():
     def __init__(self):
-        global X,Y
+        global X,Y,fcw
         self.optbuffer = {}
         self.TUPD = 0
         self.tilebuffer = {} ##this serves as a buffer for
@@ -301,7 +313,7 @@ class render():
         else:
             return str(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos,message,onweb,selectedt,rlcam
+        global mousepos,message,onweb,selectedt,rlcam,fcw
         performance = 0
         tileupd = self.TUPD
         self.TUPD = 0
@@ -317,6 +329,10 @@ class render():
         csound=0
         wimg = ""
         wimgb = ""
+        if tileupd < 100:
+            fancywatertrans(1)
+        else:
+            fancywatertrans(-1)
         for xtt in range(-1,17):
             for ytt in range(0,18):
                 x = xtt 
@@ -361,16 +377,29 @@ class render():
                # if  "grass" in tile.name  and tile2 == "none":
                    # stile = 0
                    # if performance ==0:
-                       # if ((xtt % 5) +(frametime%5 ))%10 == 0 and not xs == 0:
+                       # if ((xtt % 5) +(frametime%5 ))%10 == 0 and not xs == 0:             LEVEL OF DETAIL AND OR_GATE :D
                             #stile = 1
-                if tile.name == "water":
+                
                     #if frametime % 2 == 1:
                     stile = 0
+                #if tile.name == "water":
+                  #  stile = 0
                 #based on how many animated tiles where on screen last frame --this should improve performance at the cost of some visual fidelity (especially if there is a lot of water)
+                if tile.name == "water" and tileupd < 105:
+                    stile = 0
                 if stile == 0 and not xs == 0:
-                   if tileupd > 80 and ((xtt % 5) +(frametime%5 ))%(int(tileupd/45)) != 1  :
+                   if tileupd > 105 and ((xtt % 5) +(frametime%5 ))%(int(tileupd/30)) != 1  :
                         stile = 1
                 
+                if tile.name == "water":
+                    #stile = 0
+                    fn = frametime % 30
+                    if fn ==0 :
+                        stile = 0
+                    elif fn==11:
+                        stile = 0
+                    elif fn == 22:
+                        stile = 0
                 if stile == 0  :
                     self.TUPD = self.TUPD + 1
                     if not (tile.name == "water"):
@@ -398,14 +427,15 @@ class render():
                             if (frametime % 4 ) == 1:
                                 if performance == 0:
                                     self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
-                            wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
+                            #wimg = waterFX.apply_ripple(img,self.wateroffsetext,3,2)
                                    
                         xti = ""
-                        xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
-                        #xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
-                        xti.set_alpha(50)
                         wimgx = wimg.copy()
-                        vbr.append([xti,((xtt*40),(ytt*40))])
+                        if fcw > 0:
+                            xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
+                        #xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
+                            xti.set_alpha((fcw*50))
+                            vbr.append([xti,((xtt*40),(ytt*40))])
                         #wimgx.blit(xti,(0,0))
                         
                             #wimg = img
@@ -614,7 +644,7 @@ clock = pygame.time.Clock()
 def main():
     global rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(300)
+    dt = clock.tick(30)
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     #rlcam.move(cplayer.pos[0],cplayer.pos[1])

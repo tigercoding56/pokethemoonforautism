@@ -245,9 +245,8 @@ class TESTGATE(tile):
                 it.blit(self.tst[i].gt(),(0,0))
         return fptexture(it)
     def powerevent(self,cmap):
-        print(self.rstate)
+        #print(self.rstate)
         return cmap
-
 class NOTGATE(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,2505,255))
@@ -288,6 +287,53 @@ class NOTGATE(tile):
 
  
         return cmap
+class ORGATE(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'grass1',(255,255,2505,255))
+        self.height = 0
+        self.name = "DEBUG_GATE"
+        self.animated = 1
+        self.ft = 1
+        self.texture = ptexture('mesecons/jeija_gate_or.png')
+        self.tst = [ptexture('mesecons/S0O.png'),ptexture('mesecons/S3O.png'),ptexture('mesecons/OO.png'),ptexture('mesecons/S1O.png')]
+    def gt(self):
+        t = self.texture.gt()
+        it = t.copy()
+        for i in range(0,4):
+            x = self.rstate[i]
+            if x == 1:
+                it.blit(self.tst[i].gt(),(0,0))
+        return fptexture(it)
+    def powerevent(self,cmap):
+        #print(self.rstate)
+        state = 0
+        self.x = self.pos[0]
+        self.y = self.pos[1]
+        if self.rstate[1]==1 or self.rstate[3] ==1:
+            state =1
+        self.rstate[2] = state 
+        tilex= cmap.read(cmap.structuremap,self.x+1,self.y,True)
+        if not tilex == "none":
+                print(tilex)
+                if tilex.conductor == 1:
+                    if not tilex.on == state:
+                        try:
+                            #if not x == dntupd:
+                                cmap = tilex.update_state(cmap,state)#,s=x)
+                                cmap.structuremap = cmap.sett(cmap.structuremap,self.x+1,self.y+0,tilex)
+                        except Exception as e:
+                            print("NONCONDUCTING TILE HAS update_state function ")
+                            print(e)
+            
+                else:
+                    try:
+                        tilex.rstate[0] = state
+                        cmap = tilex.powerevent(cmap)
+                        cmap.structuremap = cmap.sett(cmap.structuremap,self.x+1,self.y+0,tilex)
+                    except Exception as e:
+                        print(e)
+        return cmap
+
          
 
 
@@ -1241,7 +1287,7 @@ tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     if not "tile" in  npcproperties.npc_inf[i][2]:
         xtiles.append(character().ssc(i))
-xtiles = xtiles + [housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),TESTGATE()]
+xtiles = xtiles + [housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),TESTGATE()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     if  "tile" in  npcproperties.npc_inf[i][2]:
