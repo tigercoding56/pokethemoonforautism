@@ -268,6 +268,7 @@ class render():
     def __init__(self):
         global X,Y
         self.optbuffer = {}
+        self.TUPD = 0
         self.tilebuffer = {} ##this serves as a buffer for
         self.skytexture = xtexture("img/sky.png").gt()
         self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
@@ -302,6 +303,8 @@ class render():
     def renderwmp(self,camera,xgmap,frametime):
         global mousepos,message,onweb,selectedt,rlcam
         performance = 0
+        tileupd = self.TUPD
+        self.TUPD = 0
         #watertxt = waterFX.apply_ripple(self.wateroffsetext,self.wateroffsetext,3,2)
         getmessage()
         wvb = []
@@ -363,11 +366,13 @@ class render():
                 if tile.name == "water":
                     #if frametime % 2 == 1:
                     stile = 0
-                #if stile == 0 and not xs == 0:
-                   #if ((xtt % 5) +(frametime%5 ))%2 == 1:
-                       # stile = 1
+                #based on how many animated tiles where on screen last frame --this should improve performance at the cost of some visual fidelity (especially if there is a lot of water)
+                if stile == 0 and not xs == 0:
+                   if tileupd > 80 and ((xtt % 5) +(frametime%5 ))%(int(tileupd/45)) != 1  :
+                        stile = 1
                 
-                if stile == 0  :        
+                if stile == 0  :
+                    self.TUPD = self.TUPD + 1
                     if not (tile.name == "water"):
                         ximg = img.copy()
                         if hasattr(tile,"reflectivity") and not performance == 1:
@@ -416,7 +421,7 @@ class render():
                                         if not wtile2.name ==  "steppingstones":
                                              self.wrfb.blit(pygame.transform.scale(pygame.transform.flip(wtile2.gt().gt(), False, False), (40, 4)),[0,0])
                                     #self.wrfb.set_alpha(125)
-                                    self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
+                                    #self.wrfb = waterFX.apply_ripple(self.wrfb,self.wateroffsetext,3,2)
                                     self.wrfb.set_alpha(100)
                                     vb5.append((self.wrfb,(x*40,y*40+36)))
                                 wtile = xgmap.read(xgmap.heightmap,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True)-1)
@@ -609,7 +614,7 @@ clock = pygame.time.Clock()
 def main():
     global rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(30)
+    dt = clock.tick(300)
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     #rlcam.move(cplayer.pos[0],cplayer.pos[1])

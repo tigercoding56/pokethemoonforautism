@@ -551,3 +551,50 @@ def apply_normal_map(texture, normal_map, lighting_angle, section):
     result_surface = pygame.surfarray.make_surface(result_array)
     result_surface = pygame.transform.scale2x(result_surface)
     return result_surface
+
+
+def get_texture_slice(texture, x, y, slice_size=40):
+    x = int(x)
+    y = int(y)
+
+    texture_width, texture_height = texture.get_width(), texture.get_height()
+
+    tile_x = x // texture_width
+    tile_y = y // texture_height
+
+    slice_x = x % texture_width
+    slice_y = y % texture_height
+
+    wraparound_x = (slice_x + slice_size) % texture_width
+    wraparound_y = (slice_y + slice_size) % texture_height
+
+    slice_texture = pygame.Surface((slice_size, slice_size), pygame.SRCALPHA)
+
+    if wraparound_x >= slice_x and wraparound_y >= slice_y:
+        slice_rect = pygame.Rect(slice_x, slice_y, slice_size, slice_size)
+        slice_texture.blit(texture, (0, 0), slice_rect)
+    else:
+        subsurfaces = []
+
+        if wraparound_x < slice_x:
+            subsurfaces.append((slice_x, slice_y, texture_width - slice_x, slice_size))
+            subsurfaces.append((0, slice_y, slice_size - (texture_width - slice_x), slice_size))
+
+        if wraparound_y < slice_y:
+            subsurfaces.append((slice_x, slice_y, slice_size, texture_height - slice_y))
+            subsurfaces.append((slice_x, 0, slice_size, slice_size - (texture_height - slice_y)))
+
+        if wraparound_x < slice_x and wraparound_y < slice_y:
+            subsurfaces.append((slice_x, slice_y, texture_width - slice_x, texture_height - slice_y))
+            subsurfaces.append((0, slice_y, slice_size - (texture_width - slice_x), texture_height - slice_y))
+            subsurfaces.append((slice_x, 0, texture_width - slice_x, slice_size - (texture_height - slice_y)))
+            subsurfaces.append((0, 0, slice_size - (texture_width - slice_x), slice_size - (texture_height - slice_y)))
+
+        for subsurface in subsurfaces:
+            src_x, src_y, dest_w, dest_h = subsurface
+            slice_rect = pygame.Rect(src_x, src_y, dest_w, dest_h)
+            dest_x = 0 if src_x != 0 else texture_width - slice_x
+            dest_y = 0 if src_y != 0 else texture_height - slice_y
+            slice_texture.blit(texture, (dest_x, dest_y), slice_rect)
+
+    return slice_texture
