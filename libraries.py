@@ -38,6 +38,17 @@ selectedt = 0
 muted = 1
 pygame.mixer.init()
 cmap = gmap(tiles)
+for update_x in range(cmap.structuremap.size[0]):
+    for update_y in range(cmap.structuremap.size[1]):
+        tilex= cmap.read(cmap.structuremap,update_x,update_y,True)
+        try:
+            if hasattr(tilex,'needs_upd_after_init'):
+                cmap = tilex.updtmp(cmap)
+                cmap.structuremap = cmap.sett(cmap.structuremap,update_x,update_y,tilex)
+        except Exception as iex :
+            print("upd_after_init failed with reason:\n\n" + str(iex))
+        
+        
 outsoundtrack = pygame.mixer.Sound('audio/peasant kingdom.ogg')
 insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
 #outsoundtrack.play(-1)

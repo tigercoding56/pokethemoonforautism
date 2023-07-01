@@ -5,6 +5,13 @@ from inventory import cplayer  , irender
 import time
 import pygame
 from pygamebutton import PygButton
+#WTF is wrong with my family
+#
+#they are legitly arguing about ;
+# not opening a bag of food fast enough 
+# my mom told my sister to cook some fish sandwhich thingies
+#and some bag was not opened soon enough (so dad thought food was not being made )
+#
 ccredits = {
     "Curt":" \"Characters Zombies and Weapons Oh my \"- resource pack",
     "GrafxKid":"\Gum Bot sprites\"-used for various robot sprites ",

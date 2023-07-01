@@ -47,6 +47,8 @@ quests = {"intro":0,"HOFF":0}
 class tile():
     def init(self):
         pass
+    def updtmp(self,cmap):
+        return cmap
     def initmp(self):
         pass
     def interact(self,cplayer,cmap,message="found \n nothing"):
@@ -301,6 +303,7 @@ class NOTGATE(tile):
         self.animated = 1
         self.ft = 1
         self.rxo = 0
+        self.needs_upd_after_init = 1
         self.texture = ptexture('mesecons/jeija_gate_not.png')
         self.tst = [ptexture('mesecons/S0O.png'),ptexture('mesecons/S3O.png'),ptexture('mesecons/OO.png'),ptexture('mesecons/S1O.png')]
     def gt(self):
@@ -313,6 +316,9 @@ class NOTGATE(tile):
            # if x == 1:
                 #it.blit(self.tst[i].gt(),(0,0))
         return fptexture(it)
+    def updtmp(self,cmap):
+        cmap = self.powerevent(cmap)
+        return cmap
     def powerevent(self,cmap):
         print(self.rstate)
         self.rxo = int(not(self.rstate[0]))
