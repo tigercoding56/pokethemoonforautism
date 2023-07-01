@@ -3,6 +3,7 @@ import UIdialogdef
 #import noise
 #import numpy as np
 #import numpy
+import ast
 import standartUIdialogref
 import waterFX
 import gc
@@ -96,9 +97,13 @@ if __import__("sys").platform == "emscripten":
     onweb = 1
     muted = 0
     window.fs_loaded = False
+    if not window.localStorage.getItem("settings") == None:#future feature?
+        window.localStorage.setItem("settings",'{"performance":1,"mobile_controlls":0,"showsplash":1}')
+    settings = window.localStorage.getItem("settings")
 else:
     import os
-    
+    settings = '{"performance":1,"mobile_controlls":0,"showsplash":1}'
+settings = ast.literal_eval(settings)
 
 
 
