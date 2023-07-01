@@ -5,7 +5,13 @@ import npcdia
 import npcnames as npcproperties
 import UIdialogdef
 import waterFX
-disptm = 1
+disptm = 0
+printatall = 0
+def zprint(x,**kwargs):
+    global printatall
+    if printatall == 1:
+        xprint(x,**kwargs)
+print = zprint
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
 class sttobj():

@@ -128,16 +128,19 @@ class PygButton(object):
         buttonDown is always True when mouseDown() is called, and always False
         when mouseUp() or mouseClick() is called. lastMouseDownOverButton is
         always False when mouseUp() or mouseClick() is called."""
-
+        retVal = []
+        if self.buttonDown:
+            retVal.append('down')
         if eventObj.type not in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN) or not self._visible:
             # The button only cares bout mouse-related events (or no events, if it is invisible)
-            return []
+            return retVal
         if self.enabled == 0:
-            return []
+            return retVal
 
-        retVal = []
+        
 
         hasExited = False
+        #if self._rect.collidepoint(eventObj.pos) and
         if not self.mouseOverButton and self._rect.collidepoint(eventObj.pos):
             # if mouse has entered the button:
             self.mouseOverButton = True
@@ -147,7 +150,6 @@ class PygButton(object):
             # if mouse has exited the button:
             self.mouseOverButton = False
             hasExited = True # call mouseExit() later, since we want mouseMove() to be handled before mouseExit()
-
         if self._rect.collidepoint(eventObj.pos):
             # if mouse event happened over the button:
             if eventObj.type == MOUSEMOTION:

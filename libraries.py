@@ -3,7 +3,6 @@ import UIdialogdef
 #import noise
 #import numpy as np
 #import numpy
-import ast
 import standartUIdialogref
 import waterFX
 import gc
@@ -34,6 +33,27 @@ pos2 = [0,0]
 markp=0
 sound_intr = -1
 selectedt = 0
+xprint = print
+printatall = 0
+def zprint(x,**kwargs):
+    global printatall
+    if printatall == 1:
+        xprint(x,**kwargs)
+print = zprint
+
+mobilebuttons = pygame.image.load('Resources/MISC_ASSETS/buttonmp.png')
+mobilebuttonsd = pygame.image.load('Resources/MISC_ASSETS/buttonmpdown.png')
+upkey_txt = [waterFX.get_texture_slice(mobilebuttons,32,0,slice_size=32),waterFX.get_texture_slice(mobilebuttonsd,32,0,slice_size=32)]
+downkey_txt = [waterFX.get_texture_slice(mobilebuttons,32,64,slice_size=32),waterFX.get_texture_slice(mobilebuttonsd,32,64,slice_size=32)]
+leftkey_txt = [waterFX.get_texture_slice(mobilebuttons,64,32,slice_size=32),waterFX.get_texture_slice(mobilebuttonsd,64,32,slice_size=32)]
+rightkey_txt = [waterFX.get_texture_slice(mobilebuttons,0,32,slice_size=32),waterFX.get_texture_slice(mobilebuttonsd,0,32,slice_size=32)]
+intkey_txt = [waterFX.get_texture_slice(mobilebuttons,32,32,slice_size=32),waterFX.get_texture_slice(mobilebuttonsd,32,32,slice_size=32)]
+del(mobilebuttons)
+del(mobilebuttonsd)
+#
+#wow even turning the music up , does not fully drown out whatever argument my sisters have 
+#<sarcasm> FANTASTIC OwO</sarcasm>
+
 
             
 muted = 1
@@ -97,13 +117,13 @@ if __import__("sys").platform == "emscripten":
     onweb = 1
     muted = 0
     window.fs_loaded = False
-    if not window.localStorage.getItem("settings") == None:#future feature?
-        window.localStorage.setItem("settings",'{"performance":1,"mobile_controlls":0,"showsplash":1}')
-    settings = window.localStorage.getItem("settings")
+    #if not window.localStorage.getItem("settings") == None:#future feature?
+        #window.localStorage.setItem("settings",'{"performance":1,"mobile_controlls":0,"showsplash":1}')
+   # settings = window.localStorage.getItem("settings")
 else:
     import os
-    settings = '{"performance":1,"mobile_controlls":0,"showsplash":1}'
-settings = ast.literal_eval(settings)
+   # settings = '{"performance":1,"mobile_controlls":0,"showsplash":1}'
+#settings = eval(settings)
 
 
 
@@ -169,6 +189,13 @@ svbtn = PygButton(caption="save game",rect=scale(320,260,100,20))
 lvbtn = PygButton(caption="load game",rect=scale(320,240,100,20))
 intbtn = PygButton(caption="interact ",rect=scale(320,300,100,20))
 dbbtn = PygButton(caption="costumise tile",rect=scale(320,220,100,20))
+def gtqx(x,y):
+    return (650+x,254+y,32,32) 
+upbtn = PygButton(rect=gtqx(32,0),normal=upkey_txt[0],highlight=upkey_txt[0],down=upkey_txt[1])
+downbtn = PygButton(rect=gtqx(32,64),normal=downkey_txt[0],highlight=downkey_txt[0],down=downkey_txt[1])
+leftbtn = PygButton(rect=gtqx(64,32),normal=leftkey_txt[0],highlight=leftkey_txt[0],down=leftkey_txt[1])
+rightbtn = PygButton(rect=gtqx(0,32),normal=rightkey_txt[0],highlight=rightkey_txt[0],down=rightkey_txt[1])
+intxbtn = PygButton(rect=gtqx(32,32),normal=intkey_txt[0],highlight=intkey_txt[0],down=intkey_txt[1])
 #intbtn = PygButton(caption="scavenge",rect=(320,260,100,20))
 
 
@@ -657,8 +684,11 @@ if onweb :
 #
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()
+CUSTOM_EVENT = pygame.USEREVENT + 1
+pygame.time.set_timer(CUSTOM_EVENT, 1000)
+itimeout = 0
 def main():
-    global rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global itimeout,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
     dt = clock.tick(30)
     #time.sleep(1/31)
@@ -698,11 +728,13 @@ def main():
     pokeinteraction = 0
     pokelevel = 0
    # print(dt)
+    if  itimeout>0:
+       itimeout = itimeout -1
     if not (isinvo or  dlgtree.cnpcdial.active)  : 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            if 'click' in intbtn.handleEvent(event):
+            if 'click' in intbtn.handleEvent(event) or 'click' in intxbtn.handleEvent(event):
                     interact()
             if 'click' in invbtn.handleEvent(event):
                 isinvo = True
@@ -716,22 +748,42 @@ def main():
                 if hasattr(seltile,'PBA'):
                     if seltile.PBA ==1 :
                         dlgtree.cnpcdial = UIdialogdef.invdia(s[0],s[1])
-                
-            if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
-                
-                keyeventlist = [0,0,0,0]
-                cplayer.pos[0] = cplayer.pos[0]
-                cplayer.pos[1] = cplayer.pos[1]
-                if event.key == pygame.K_RIGHT:
+            keyeventlist = [0,0,0,0]
+            if  'down' in leftbtn.handleEvent(event):
+                if not itimeout>0:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
-                elif event.key == pygame.K_LEFT:
+                    itimeout = 5
+            elif  'down' in rightbtn.handleEvent(event):
+                if not itimeout>0:
                     keyeventlist[0] = 1
                     mousepos = [-1,0]
-                elif event.key == pygame.K_UP:
+                    itimeout = 5
+            elif  'down' in upbtn.handleEvent(event):
+                if not itimeout>0:
                     keyeventlist[2] = 1
                     mousepos = [0,-1]
-                elif event.key == pygame.K_DOWN:
+                    itimeout = 5
+            elif  'down' in downbtn.handleEvent(event):
+                 if not itimeout>0: 
+                    keyeventlist[3] = 1
+                    mousepos = [0,1]
+                    itimeout = 5
+            if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
+                
+                
+                cplayer.pos[0] = cplayer.pos[0]
+                cplayer.pos[1] = cplayer.pos[1]
+                if event.key == pygame.K_RIGHT :
+                    keyeventlist[1] = 1
+                    mousepos = [1,0]
+                elif event.key == pygame.K_LEFT :
+                    keyeventlist[0] = 1
+                    mousepos = [-1,0]
+                elif event.key == pygame.K_UP :
+                    keyeventlist[2] = 1
+                    mousepos = [0,-1]
+                elif event.key == pygame.K_DOWN :
                     keyeventlist[3] = 1
                     mousepos = [0,1]
                 elif event.key == pygame.K_SPACE:
@@ -773,36 +825,36 @@ def main():
                     pos2 = gtcpos(True)
 
                 nexttile = 0
-                if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
+            if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
                     #for i in range(int((1+(1000/max(1,dt))*2))):
                         if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:
                             nexttile = cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],1)
                             cplayer.pos[0] = cplayer.pos[0] - 1
                         
-                elif keyeventlist == [0,0,1,0]:
+            elif keyeventlist == [0,0,1,0]:
                     #for i in range(int(((1000/max(1,dt))*1))):
                         if cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,4) == 1:
                             nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,1)
                             cplayer.pos[1] = cplayer.pos[1] - 1
                         
-                elif keyeventlist == [0,0,0,1]:
+            elif keyeventlist == [0,0,0,1]:
                    # for i in range(int((1000/max(1,dt))*1)):
                         if cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,4) == 1:
                             nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,1)
                             cplayer.pos[1] = cplayer.pos[1] + 1
                         
-                elif keyeventlist == [0,1,0,0]:
+            elif keyeventlist == [0,1,0,0]:
                     #for i in range(int((1000/max(1,dt))*1)):
                         if cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],4) == 1:
                             nexttile =  cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],1)
                             cplayer.pos[0] = cplayer.pos[0] + 1
-                if  nexttile != 0 and len(nexttile.attributes) > 1:
+           # if  nexttile != 0 and len(nexttile.attributes) > 1:
                     #print(nexttile)
-                    if nexttile.attributes[1] > 0:
-                        pokeinteraction = nexttile.attributes[1]
-                        pokelevel = nexttile.attributes[2]
-                cplayer.pos[0] = cplayer.pos[0]
-                cplayer.pos[1] = cplayer.pos[1]
+               # if nexttile.attributes[1] > 0:
+                        #pokeinteraction = nexttile.attributes[1]
+                       # pokelevel = nexttile.attributes[2]
+                #cplayer.pos[0] = cplayer.pos[0]
+                #cplayer.pos[1] = cplayer.pos[1]
             
     if transition[0] < 0.5:
             transition[0] = transition[0] + 0.01
@@ -861,6 +913,11 @@ def main():
             svbtn.draw(drawsys.screen)
             lvbtn.draw(drawsys.screen)
             dbbtn.draw(drawsys.screen)
+            rightbtn.draw(drawsys.screen)
+            leftbtn.draw(drawsys.screen)
+            upbtn.draw(drawsys.screen)
+            downbtn.draw(drawsys.screen)
+            intxbtn.draw(drawsys.screen)
             if onweb == 0:
                 drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,200))
             ####other world related GUI is to be drawn here###
