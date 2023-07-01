@@ -14,6 +14,7 @@ ccredits = {
     "Spring Spring":"\"Peasant kingdom\"-used as music in the wild (under cc-by 3.0)",
     "Yubatake":" \"JRPG collection \"-- JRPG_town_loop used for towns ",
     "isaiah658":"\" isaiah658's Pixel Pack #2 \"-some tiles of it are used",
+    "Fleurman":"\"Laser Gate\"-used for laser gates",
     "BizmasterStudios":"\" Gold Coin/Token \" -base for coin texture ",
     "Proxy Games":"\" Wooden Crate Texture\"-texture for sound markers ( basically the game switches sound track \n if you see one of these tiles)",
     "chatgtp":"somewhat helping me optimise my code \n(although it is a pain to get it to do what you want)",

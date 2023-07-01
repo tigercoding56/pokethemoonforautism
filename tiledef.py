@@ -4,6 +4,7 @@ import asyncio
 import npcdia
 import npcnames as npcproperties
 import UIdialogdef
+import waterFX
 disptm = 1
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
@@ -76,6 +77,8 @@ class tile():
         self.texture = ptexture('img/' +self.name+'.png',a)
     def catchtxt(self,name):
         return ptexture('img/' +name+'.png')
+    def wirephandle(self):
+        pass
     def __init__(self):
         self.color = [0,0,0,0]
         self.walkable = 1
@@ -107,6 +110,7 @@ class tile():
         self.x = self.pos[0]
         self.y = self.pos[1]
         self.on = state
+        self.wirephandle()
         if not s=="":
             dntupd = lt[s]
         else:
@@ -179,6 +183,48 @@ class conductor(tile):
             return self.txton
         else:
             return self.txtoff
+side1txt = []
+side2txt = []
+class gate(tile):
+    def intr(self):
+        if self.on:
+            self.closed = self.closed - 0.5
+        else:
+            self.closed = self.closed + 0.5
+        if self.closed < 0:
+            self.closed = 0
+        if self.closed > 7.9:
+            self.closed = 7.9
+    def upd(self): #gets run after init to set defaults to water
+        global side1txt,side2txt
+        self.lgco(["ground",0,0,[]],'wire0',(0,0,999,255))
+        self.txtoff = self.catchtxt('wire0')
+        self.txton = self.catchtxt('wire1')
+        self.side1txt = []
+        self.side2txt = []
+        gatetext = ptexture('img/LaserGate1.png',rescale=0)
+        for i in range(0,4):
+            side1txt.append( waterFX.get_texture_slice(gatetext.gt(),0,((4-i)*40)))
+            side2txt.append( waterFX.get_texture_slice(gatetext.gt(),40,(4-i)*40))
+        self.on =0
+        self.walkable = 0
+        self.conductor = 1
+        self.animated = 1
+        self.closed = 8
+
+    def gt(self):
+        global side1txt,side2txt
+        self.intr()
+        index = max(min(int((self.closed * 2 )/4),3),0)
+        if self.pos[0] % 2 == 1:
+            return fptexture(side1txt[index])
+        else:
+            return fptexture(side2txt[index])
+    def wirephandle(self):
+        if self.on == 1:
+            self.walkable = 1
+        else:
+            self.walkable = 0
 # class conductor(tile):
 #     def upd(self):
 #         self.txtoff = self.catchtxt('wire0')
@@ -516,6 +562,7 @@ class a_10tailb(tile):
 
 
 ####end of a-10 tiles
+#SPINKITTY 
 
 class gemstone(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -534,6 +581,7 @@ class goldstone(tile):
         self.message = "(interact to mine gold)"
         self.interactable = True
         self.height = 1
+        self.walkable = 0
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("gold",1)
         return [cplayer,cmap,message]
@@ -543,6 +591,7 @@ class silverstone(tile):
         self.message = "(interact to mine silver)"
         self.interactable = True
         self.height = 1
+        self.walkable = 0
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("silver",1)
         return [cplayer,cmap,message]
@@ -552,6 +601,7 @@ class coalore(tile):
         self.message = "(interact to mine coal)"
         self.interactable = True
         self.height = 1
+        self.walkable = 0
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("coal",1)
         return [cplayer,cmap,message]
@@ -574,6 +624,7 @@ class copperore(tile):
         self.message = "(interact to mine copper)"
         self.interactable = True
         self.height = 1
+        self.walkable = 0
     def interact(self,cplayer,cmap,message="found \n nothing"):
         cplayer.inventory = cplayer.inventory.invadds("copper",1)
         return [cplayer,cmap,message]
@@ -1287,7 +1338,7 @@ tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     if not "tile" in  npcproperties.npc_inf[i][2]:
         xtiles.append(character().ssc(i))
-xtiles = xtiles + [housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),TESTGATE()]
+xtiles = xtiles + [housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),TESTGATE(),gate()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     if  "tile" in  npcproperties.npc_inf[i][2]:
