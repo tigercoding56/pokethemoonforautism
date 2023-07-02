@@ -34,7 +34,7 @@ markp=0
 sound_intr = -1
 selectedt = 0
 xprint = print
-printatall = 0
+printatall = 1
 def zprint(x,**kwargs):
     global printatall
     if printatall == 1:
@@ -98,6 +98,9 @@ def intsound(x):
         sound_intr = x
         outsoundtrack.set_volume(1-sound_intr)
         insoundtrack.set_volume(sound_intr)
+    else:
+        outsoundtrack.stop()
+        insoundtrack.stop()
 ptextures = {}#optimisation to not need a rtx 4090 XYT
 class xtexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
@@ -135,6 +138,46 @@ AREAS = ["WMP","ARENA","INV"]## these will be implemented later
 ACTIVEAREA = "WMP"# WMP = world map , so the default playing area is handled while WMP is active 
 X = 840
 Y = 640
+default_data ={"settings":[1,1,1,1,0]}
+def save_data(slot,data):
+    global onweb,default_data
+    if onweb :
+        default_data[slot] = data
+        sd = ["0.2-D",default_data]
+        window.localStorage.setItem("DATA",str(base64.b64encode(pickle.dumps(sd)).decode('ascii')))
+    else:
+        sd = deepcopy(default_data)
+        sd[slot] = data
+        default_data = deepcopy(sd)
+        #os.path.exists() ## if this gives error , make sure you only use ptexture classes in tiledef py as opposed to pygame.textures
+        #print(str(base64.b64encode(pickle.dumps(sd)).decode('ascii')))
+        with open("DATA.dat","wb") as svg:
+            pickle.dump(["0.2-D",sd], svg)
+
+def load_data(slot,default):
+    global  onweb,default_data
+    if onweb :
+        if not window.localStorage.getItem("DATA") == None:
+            temp = window.localStorage.getItem("DATA")
+            sd = pickle.loads(base64.b64decode(temp))
+            if sd[0] == "0.2-D":##current save version
+                if slot in sd[1]:
+                    default_data = sd[1]
+                    return sd[1][slot]
+                    
+                    
+    else:
+        if os.path.exists("DATA.dat"):
+            with open("DATA.dat","rb") as svg:
+                sd = pickle.load(svg)
+                if sd[0] == "0.2-D":##current save version
+                    if slot in sd[1]:
+                        default_data = sd[1]
+                        return sd[1][slot]
+                    else:
+                        return default
+    return default
+                    
 def save(slot):
     global cmap,onweb,xmap,cplayer
     if onweb :
@@ -189,6 +232,7 @@ svbtn = PygButton(caption="save game",rect=scale(320,260,100,20))
 lvbtn = PygButton(caption="load game",rect=scale(320,240,100,20))
 intbtn = PygButton(caption="interact ",rect=scale(320,300,100,20))
 dbbtn = PygButton(caption="costumise tile",rect=scale(320,220,100,20))
+settingsbtn = PygButton(caption="settings ",rect=scale(320,200,100,20))
 def gtqx(x,y):
     return (650+x,254+y,32,32) 
 upbtn = PygButton(rect=gtqx(32,0),normal=upkey_txt[0],highlight=upkey_txt[0],down=upkey_txt[1])
@@ -356,7 +400,7 @@ class render():
         else:
             return str(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos,message,onweb,selectedt,rlcam,fcw
+        global mousepos,message,onweb,selectedt,rlcam,fcw,settings
         performance = 0
         tileupd = self.TUPD
         self.TUPD = 0
@@ -410,27 +454,27 @@ class render():
                 else:
                     self.optbuffer[xtu] = t
                 xs = stile
-                performance = 1
+                performance = settings[2]
                 if not ( tile.animated == 0 and txa ==0):
                     stile = 0
                     self.optbuffer[xtu] = t
                 
                     #if get_tile_value(xtt, ytt, frametime,1.2) == 0 and not xs == 0:
                        # stile = 1
-               # if  "grass" in tile.name  and tile2 == "none":
+                if  "grass" in tile.name  and tile2 == "none":
                    # stile = 0
-                   # if performance ==0:
+                    if performance ==0:
                        # if ((xtt % 5) +(frametime%5 ))%10 == 0 and not xs == 0:             LEVEL OF DETAIL AND OR_GATE :D
-                            #stile = 1
+                            stile = 1
                 
                     #if frametime % 2 == 1:
                     stile = 0
                 #if tile.name == "water":
                   #  stile = 0
                 #based on how many animated tiles where on screen last frame --this should improve performance at the cost of some visual fidelity (especially if there is a lot of water)
-                if tile.name == "water" and tileupd < 105:
+                if tile.name == "water" and tileupd < 105 :
                     stile = 0
-                if stile == 0 and not xs == 0:
+                if settings[1] == 1 and stile == 0 and not xs == 0:
                    if tileupd > 105 and ((xtt % 5) +(frametime%5 ))%(int(tileupd/30)) != 1  :
                         stile = 1
                 
@@ -474,9 +518,13 @@ class render():
                                    
                         xti = ""
                         wimgx = wimg.copy()
+                        if settings[1] == 0:
+                            fcw = 1
                         if fcw > 0:
                             xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
-                        #xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
+                        
+                            if performance == 0:
+                                xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
                             xti.set_alpha((fcw*50))
                             vbr.append([xti,((xtt*40),(ytt*40))])
                         #wimgx.blit(xti,(0,0))
@@ -575,7 +623,8 @@ class render():
             blitpos = ((160*2) ,(140*2) +self.gets(camera.cty)) 
         t=self.vbuffer
         #t = waterFX.apply_color_curves(t, 1, 1.0, 1.0)
-        #t = waterFX.apply_bloom(t,3,245,2)
+        if performance == 0 :
+            t = waterFX.apply_bloom(t,3,245,2)
         #t=self.vbuffer
         #t = waterFX.apply_color_curves(t, 0.8, 0.9, 0.7)
         
@@ -678,17 +727,30 @@ endtime = 0
 #for i in range(1,100):
     #cplayer.inventory.invadds("coin")
     #cplayer.inventory.invadds("tile_tree")
-if onweb :
-    dlgtree.cnpcdial = dlgtree.UIdialogbase()
-#dlgtree.cnpcdial = UIdialogdef.vendingmachinedia(xmap.tiledef.testlist,1)
+
+settings = load_data("settings",default_data["settings"])
+def initsettings():
+    global settings 
+    settings = load_data("settings",default_data["settings"])
+    dlgtree.cnpcdial = UIdialogdef.settingsdia(settings)
+    #dlgtree.cnpcdial.settings = settings
+def savesettings(x):
+    global settings
+    print(x)
+    settings = x
+    save_data('settings',x)
+    
 #
+#initsettings()
+if onweb and settings[4] == 0 :
+    dlgtree.cnpcdial = dlgtree.UIdialogbase()
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()
 CUSTOM_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(CUSTOM_EVENT, 1000)
 itimeout = 0
 def main():
-    global itimeout,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global muted,itimeout,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
     dt = clock.tick(30)
     #time.sleep(1/31)
@@ -696,6 +758,11 @@ def main():
     #rlcam.move(cplayer.pos[0],cplayer.pos[1])
     #rlcam.run()
     mycam.run()
+    if onweb :
+        if settings[3] == 0:
+            muted =1
+        else:
+            muted = 0
     #mycam.ctx = rlcam.ctx
     #mycam.cty = rlcam.cty
     frametime = frametime + 1 % 120
@@ -742,6 +809,8 @@ def main():
                 save("default")
             if 'click' in lvbtn.handleEvent(event):
                 load("default")
+            if 'click' in settingsbtn.handleEvent(event):
+                initsettings()
             if 'click' in dbbtn.handleEvent(event):
                 s = gtcpos(True)
                 seltile = cmap.heightmap.rmmap(s)
@@ -780,6 +849,9 @@ def main():
                 elif event.key == pygame.K_LEFT :
                     keyeventlist[0] = 1
                     mousepos = [-1,0]
+                #elif event.key == pygame.K_y:
+                    #initsettings()
+                    
                 elif event.key == pygame.K_UP :
                     keyeventlist[2] = 1
                     mousepos = [0,-1]
@@ -894,6 +966,10 @@ def main():
                         dlgtree.cnpcdial = standartUIdialogref.SR[dlgtree.cnpcdial.returndialog]
                     except:
                         io = 0
+                if dlgtree.cnpcdial.active == 0 and hasattr(dlgtree.cnpcdial,'settings'):
+                    savesettings(dlgtree.cnpcdial.settings)
+                    print("saving data")
+                    dlgtree.cnpcdial = dlgtree.ddialog()
                     
                 
    # except Exception as ex23:
@@ -913,11 +989,13 @@ def main():
             svbtn.draw(drawsys.screen)
             lvbtn.draw(drawsys.screen)
             dbbtn.draw(drawsys.screen)
-            rightbtn.draw(drawsys.screen)
-            leftbtn.draw(drawsys.screen)
-            upbtn.draw(drawsys.screen)
-            downbtn.draw(drawsys.screen)
-            intxbtn.draw(drawsys.screen)
+            settingsbtn.draw(drawsys.screen)
+            if settings[0] == 1:
+                rightbtn.draw(drawsys.screen)
+                leftbtn.draw(drawsys.screen)
+                upbtn.draw(drawsys.screen)
+                downbtn.draw(drawsys.screen)
+                intxbtn.draw(drawsys.screen)
             if onweb == 0:
                 drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,200))
             ####other world related GUI is to be drawn here###

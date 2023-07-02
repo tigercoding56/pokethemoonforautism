@@ -5,6 +5,7 @@ from inventory import cplayer  , irender
 import time
 import pygame
 from pygamebutton import PygButton
+from slider import SliderSwitch
 #WTF is wrong with my family
 #
 #they are legitly arguing about ;
@@ -36,14 +37,20 @@ class ddialog():
 class UIdialogbase():
     def __init__(self):
         self.active = 1
+        self.val = 0
         self.res = [840,640]
         self.buttons = {}
+        self.sliders = []
+        self.t=pygame.image.load('Resources/MISC_ASSETS/exitbtn.png')
+        self.add_btn("exit","exitbtn",(0.05,0.05),text1=self.t,text2=self.t)
         self.initialised = 0
         self.frametime = 0 
     def scale(self,x,y):
         return [int(x*self.res[0]),int(y*self.res[1])]
     def initialise(self):
         self.add_btn("start game","exitbtn",(0,0.9),(1,0.1))
+    def add_slider(self,name,pos,items=["ON","OFF"],size=[80,20],default=0):
+        self.sliders.append([name,SliderSwitch(pos,size[0],size[1],items,default),(pos[0]-(len(name)*12)-int(size[0]*0.1)),pos[1]-(int(size[1]*0.4))])
     def add_btn(self,text,name,pos,size=(0.1,0.1),text1=None,text2=None,enabled=1):
         pos = self.scale(pos[0],pos[1])
         size=self.scale(size[0],size[1])
@@ -77,6 +84,8 @@ class UIdialogbase():
         pass
     def keydown(self,key):
         pass
+    def slider(self,name,value):
+        pass
     def fill(self,x,y,w,h,bg,screen=None):
         if  screen ==  None:
              pygame.draw.rect(self.drawsys.screen, bg, (x, y, w, h))
@@ -90,6 +99,11 @@ class UIdialogbase():
             if event.type == pygame.QUIT:
                 pygame.quit()
             else:
+                for i in range(0,len(self.sliders)):
+                    slider = self.sliders[i][1]
+                    self.slider(self.sliders[i][0],slider.handle_event(event))
+                    self.sliders[i][1] = slider
+                    
                 for key,value in self.buttons.items():
                     t= value.handleEvent(event)
                     #print(t)
@@ -103,6 +117,9 @@ class UIdialogbase():
                     self.keydown(event.key)
         for key , value in self.buttons.items():
             value.draw(self.drawsys.screen)
+        for i in range(0,len(self.sliders)):
+            self.sliders[i][1].draw(self.drawsys.screen)
+            ptext.draw(str(self.sliders[i][0]),pos=(self.sliders[i][2],self.sliders[i][3]),color="blue" )
         time.sleep(0.05)
                 
                         

@@ -189,7 +189,7 @@ class gameSwitcher(UIdialogbase):
         flappy = pygame.image.load("img/flappybox.png")
         self.add_btn("Pong", "pongBtn", (0.5, 0.3), (0.1, 0.1),text1=pong,text2=pong)
         self.add_btn("Flappy Bird", "flappyBtn", (0.5, 0.6), (0.1, 0.1),text1=flappy,text2=flappy)
-
+        self.initialised =1
     def renderframe(self):
         self.drawsys.screen.fill((0, 0, 0))
         self.string("Choose a game:", 0.5, 0.1, width=400, color="white")
@@ -201,6 +201,59 @@ class gameSwitcher(UIdialogbase):
         elif name == "flappyBtn":
             self.returndialog = "CFLAPPY"
             self.active = 0
+            
+class settingsdia(UIdialogbase):
+    def __init__(self,settings):
+        UIdialogbase.__init__(self)
+        self.settings = settings
+        print(settings)
+        self.initialised = 0
+    def initialise(self):
+        self.initialised =1
+        #pong = pygame.image.load("img/pong.png")
+        #flappy = pygame.image.load("img/flappybox.png")
+        self.add_slider("       touch controls ",(300,160),["ON","OFF"],default=(1-self.settings[0]))
+        self.add_slider("water Level of detail ",(300,190),["ON","OFF"],default=(1-self.settings[1]))
+        self.add_slider("    performance       ",(300,220),["ON","OFF"],default=(1-self.settings[2]))
+        self.add_slider("      enable  audio   ",(300,250),["ON","OFF"],default=(1-self.settings[3]))
+        self.add_slider("skip credits",(300,280),["ON","OFF"],default=(1-self.settings[4]))
+        #self.add_btn("Pong", "pongBtn", (0.5, 0.3), (0.1, 0.1),text1=pong,text2=pong)
+        #self.add_btn("Flappy Bird", "flappyBtn", (0.5, 0.6), (0.1, 0.1),text1=flappy,text2=flappy)
+
+    def renderframe(self):
+        self.drawsys.screen.fill((200, 180, 187))
+        self.string("settings", 300, 10, width=15, color="white")
+    def slider(self,name,value):
+        if name == "       touch controls ":
+            if value == "ON":
+                self.settings[0] = 1
+            else:
+                self.settings[0] = 0
+            #print(value)
+            #print(value)
+        if name == "water Level of detail ":
+            if value == "ON":
+                self.settings[1] = 1
+            else:
+                self.settings[1] = 0
+        if name == "    performance       ":
+            if value == "ON":
+                self.settings[2] = 1
+            else:
+                self.settings[2] = 0
+        if name == "      enable  audio   ":
+            if value == "ON":
+                self.settings[3] = 1
+            else:
+                self.settings[3] = 0
+        if name == "skip credits":
+            if value == "ON":
+                self.settings[4] = 1
+            else:
+                self.settings[4] = 0
+        self.val = self.settings
+        
+
        
 
 class vendingmachinedia(UIdialogbase):
