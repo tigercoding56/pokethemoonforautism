@@ -25,7 +25,7 @@ class ptexture(): # a texture pointer class
         return dia_textures[self.location]
 X = 420
 Y = 320
-diaoverides = [["$TIME","time.asctime(time.localtime())"],["$SendContentID","\" \""],["$CAT",'placetxt(20,20,"cat2")']]
+diaoverides = [["$TIME","time.asctime(time.localtime())"],["$SendContentID","\" \""],["$CAT",'placetxt(20,20,"cat2")'],["$WENDY",'placetxt(500,20,"wendy")'],["$FEI",'placetxt(500,20,"fei")']]
 color = (200,220,255)
 wcolor = (255,200,150)
 def scale(x,y,x1,y1):

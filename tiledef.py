@@ -906,6 +906,94 @@ class teleporter(tile):
                     cplayer.pos[1] = 41-8
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
+
+class fei(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'fei2',(78,94,134886,255),1)
+        self.message = "(interact to travel)"
+        self.interactable = True
+
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        if cplayer.pos[1] >150 :
+            dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.FIDLdialog)
+        else:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.FRTTdialog)
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "idl":
+                    if cplayer.pos[1] >150:
+                        cplayer.pos[0] = 464 -8
+                        cplayer.pos[1] = 127 -8
+                    else:
+                        cplayer.pos = [445-8,180-8]
+                #if  dialogtree.cnpcdial.val == "sm":
+                    #cplayer.pos[0] = 35 - 8
+                    #cplayer.pos[1] = 196 - 8
+               # if  dialogtree.cnpcdial.val == "md":
+                   # cplayer.pos[0] = 27 - 8
+                    #cplayer.pos[1] = 47 - 8
+                #if  dialogtree.cnpcdial.val == "lg":
+                   # cplayer.pos[0] = 200-8
+                    #cplayer.pos[1] = 160-8
+                #if  dialogtree.cnpcdial.val == "or":
+                   # cplayer.pos[0] = 412-8
+                    #cplayer.pos[1] = 41-8
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
+
+class wendy(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'wendy2',(78,94,13486,255),1)
+        self.message = "(interact to travel)"
+        self.interactable = True
+
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        if cplayer.pos[0] < 300:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.WIDLdialog)
+        else:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.WRTTdialog)
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "idl":
+                    if cplayer.pos[0] < 300:
+                        cplayer.pos[0] = 427 -8
+                        cplayer.pos[1] = 218 -8
+                    else:
+                        cplayer.pos = [179-8,234-8]
+                #if  dialogtree.cnpcdial.val == "sm":
+                    #cplayer.pos[0] = 35 - 8
+                    #cplayer.pos[1] = 196 - 8
+               # if  dialogtree.cnpcdial.val == "md":
+                   # cplayer.pos[0] = 27 - 8
+                    #cplayer.pos[1] = 47 - 8
+                #if  dialogtree.cnpcdial.val == "lg":
+                   # cplayer.pos[0] = 200-8
+                    #cplayer.pos[1] = 160-8
+                #if  dialogtree.cnpcdial.val == "or":
+                   # cplayer.pos[0] = 412-8
+                    #cplayer.pos[1] = 41-8
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
+
+####
 class test(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",1,20,["unpassable"]],'scriptkiddie2',(245,159,159,255),1)
@@ -1442,7 +1530,7 @@ tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     if not "tile" in  npcproperties.npc_inf[i][2]:
         xtiles.append(character().ssc(i))
-xtiles = xtiles + [housetile(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
+xtiles = xtiles + [housetile(),wendy(),fei(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     if  "tile" in  npcproperties.npc_inf[i][2]:

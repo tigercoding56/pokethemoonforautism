@@ -472,11 +472,12 @@ class render():
                 #if tile.name == "water":
                   #  stile = 0
                 #based on how many animated tiles where on screen last frame --this should improve performance at the cost of some visual fidelity (especially if there is a lot of water)
-                if tile.name == "water" and tileupd < 105 :
-                    stile = 0
+                
                 if settings[1] == 1 and stile == 0 and not xs == 0:
                    if tileupd > 105 and ((xtt % 5) +(frametime%5 ))%(int(tileupd/30)) != 1  :
                         stile = 1
+                if tile.name == "water" and (tileupd < 105 or performance == 0) :
+                    stile = 0
                 
                 if tile.name == "water":
                     #stile = 0

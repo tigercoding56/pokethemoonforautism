@@ -1,3 +1,3 @@
 from terrainmask import mask
-from terrainmask0 import mask3,mask4
-mask1 = mask + mask3 + mask4
+from terrainmask0 import mask3,mask4,mask5,mask6,mask7
+mask1 = mask + mask3 + mask4 + mask5 +mask6 +mask7  +[[[427, 219], 'woodplatformoilrigplatformwood', 1],[[427, 220], 'woodplatformoilrigplatformwood', 1],[[425, 221], 'wendy2wendy', 1],[[423, 220], 'wire0conductor', 1],[[423, 220], 'steppingstonessteppingstones', 1],[[422, 220], 'steppingstonessteppingstones', 1],[[422, 219], 'steppingstonessteppingstones', 1],[[422, 218], 'steppingstonessteppingstones', 1],[[423, 218], 'steppingstonessteppingstones', 1],[[423, 217], 'steppingstonessteppingstones', 1],[[423, 216], 'steppingstonessteppingstones', 1]]

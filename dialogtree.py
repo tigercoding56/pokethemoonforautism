@@ -246,6 +246,18 @@ info2dialoga = {
 info2dialogb = {
 "1":[" follow the stepping stones , and then interact with the copper ore ",{"i'll be on my way then":0,"maybe later ":0}]
 }
+WIDLdialog = {
+"1":[" do you want \n to travel to \n dolphin island $WENDY ",{"yes":"idl","maybe later ":0}]    
+}
+FIDLdialog = {
+"1":[" do you want \n to travel to \n Wahu island $FEI ",{"yes":"idl","maybe later ":0}]    
+}
+WRTTdialog = {
+"1":[" do you want \n to return to \n Uwofei island $WENDY ",{"yes":"idl","maybe later ":0}]    
+}
+FRTTdialog = {
+"1":[" do you want \n to return to \n dolphin island $FEI ",{"yes":"idl","maybe later ":0}]    
+}
 info3dialog = {
 "1":["hi what do you want ",{"tell me a story of a land far away":2,"how are you ":6,"can you give me a summary of why i am here":3,"have a good day :D":4,"nice to see you again":5," bye":0}],
 "2":["sure \n"]
