@@ -233,7 +233,7 @@ class gmap():
         except:
             return 0
     def readraw(self,imgmp,x,y):
-        size = imgmp.size
+        #size = imgmp.get_size()
         output = "none"
         if x > 0 and x < 480:
             if y > 0 and y < 240:

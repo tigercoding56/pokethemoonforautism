@@ -7,12 +7,12 @@ def svimg(xgmap):
                 x = x 
                 y = y
                 threed = True
-                tile = xgmap.read(xgmap.heightmap,x ,y )
-                tile2= xgmap.read(xgmap.structuremap,x ,y ,True)
+                tile = xgmap.heightmap.rmmap((x ,y))
+                tile2= xgmap.structuremap.rmmap((x ,y) ,True)
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x ,y )
-                tile4= xgmap.readraw(xgmap.threedfx,x ,y )
-                tile5= xgmap.readraw(xgmap.threedfx,x ,y +1)
-                tile6 = xgmap.readraw(xgmap.threedfx,x ,y -1)
+                tile4= xgmap.getheight(x ,y)
+                tile5= xgmap.getheight(x ,y+1)
+                tile6 = xgmap.getheight(x ,y-1)
                 img = tile.gtx(frametime).gt()
                 tx.blit(img,(x*20,y*20))
                 if not tile2 == "none":
@@ -23,10 +23,10 @@ def svimg(xgmap):
                 if threed == True:
                   if not (tile5 == (0,255,255,255) or tile5 == "none" or tile5 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
-                           if (tile4[0]) > (tile5[0]):
+                           if (tile4) > (tile5):
                                tx.blit(xgmap.threedoverlay,(x*20,y*20))
                   if not (tile6 == (0,255,255,255) or tile6 == "none" or tile6 == (255,0,0,255) ):
                       if not (tile4 == (0,255,255,255) or tile4 == "none" or tile4 == (255,0,0,255)):
-                           if (tile4[0]) > (tile6[0]):
+                           if (tile4) > (tile6):
                                tx.blit(xgmap.threedoverlay2,(x*20,y*20))
     pygame.image.save(tx, "fmap.png")
