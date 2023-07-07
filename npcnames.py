@@ -29,7 +29,6 @@ npc_inf = [
     ,["Xavier", "Greetings, fellow humans! It brings me great satisfaction to shed light on my interests and aspirations. I am Xavier, a tech-savvy individual captivated by the realm of artificial intelligence. With a foundation in programming and robotics, I explore the potential of AI in revolutionizing various industries. From automated processes to intelligent algorithms, I envision a future where humans and machines collaborate harmoniously.", "human_m"]
     ,["Amelia", "Hello there!, I find immense pleasure in sharing aspects of my compassionate nature. I am Amelia, a human dedicated to the welfare of animals. I devote my time to rescuing and rehabilitating abandoned or injured creatures. Through my efforts, I offer them a second chance at life and advocate for their well-being. Each animal I save brings immeasurable joy to my heart.", "human_f"]
     
-    
 ]
 npc_inf = [
     [
@@ -208,13 +207,27 @@ npc_inf = [
     "ancient artifact",
     "upon closer inspection you notice  a mysterious \n script written on the old stone  ",
     "tile_artifact"
+    ],
+    [
+    ""    
+    
     ]
     
     
     
     
+    
     ]
-
+FNTM = [
+    "Agnes Thanh-De Thi le",
+    "Emmanuel Phung Van le",
+    "Paul Tinh Bao Le",
+    "Joseph Thi Dang Le"
+    
+    
+    
+    
+]
 speciesdia = {
 "cat":["Meow! What brings you here today" , "hi , anything i can help you with?", "Greetings, \n what brings you here", "Meow! How may I bring joy to your day, "]
 ,"human_f":["Greetings, dear traveler. what brings you to me today ?", " What brings you here today?", "Welcome, kind soul. ", "Good day,  How may I help you"]
