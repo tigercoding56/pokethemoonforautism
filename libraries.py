@@ -75,6 +75,7 @@ insoundtrack = pygame.mixer.Sound('audio/JRPG_town_loop.ogg')
 #outsoundtrack.play(-1)
 #insoundtrack.play(-1)
 fcw = 0
+cplayer.speed = 0.5
 def fancywatertrans(x):
     global fcw
     fcw = fcw + (int(x)*0.1)
@@ -900,27 +901,27 @@ def main():
                 nexttile = 0
             if keyeventlist == [1,0,0,0] and ACTIVEAREA == "WMP":
                     #for i in range(int((1+(1000/max(1,dt))*2))):
-                        if cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],4) == 1:
-                            nexttile = cmap.gettile(cplayer.pos[0] -1,cplayer.pos[1],1)
-                            cplayer.pos[0] = cplayer.pos[0] - 1
+                        if cmap.gettile(cplayer.pos[0] -cplayer.speed,cplayer.pos[1],4) == 1:
+                            nexttile = cmap.gettile(cplayer.pos[0] -cplayer.speed,cplayer.pos[1],1)
+                            cplayer.pos[0] = cplayer.pos[0] - cplayer.speed
                         
             elif keyeventlist == [0,0,1,0]:
                     #for i in range(int(((1000/max(1,dt))*1))):
-                        if cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,4) == 1:
-                            nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]-1,1)
-                            cplayer.pos[1] = cplayer.pos[1] - 1
+                        if cmap.gettile(cplayer.pos[0],cplayer.pos[1]-cplayer.speed,4) == 1:
+                            nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]-cplayer.speed,1)
+                            cplayer.pos[1] = cplayer.pos[1] - cplayer.speed
                         
             elif keyeventlist == [0,0,0,1]:
                    # for i in range(int((1000/max(1,dt))*1)):
                         if cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,4) == 1:
-                            nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]+1,1)
-                            cplayer.pos[1] = cplayer.pos[1] + 1
+                            nexttile = cmap.gettile(cplayer.pos[0],cplayer.pos[1]+cplayer.speed,1)
+                            cplayer.pos[1] = cplayer.pos[1] + cplayer.speed
                         
             elif keyeventlist == [0,1,0,0]:
                     #for i in range(int((1000/max(1,dt))*1)):
                         if cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],4) == 1:
-                            nexttile =  cmap.gettile(cplayer.pos[0] +1,cplayer.pos[1],1)
-                            cplayer.pos[0] = cplayer.pos[0] + 1
+                            nexttile =  cmap.gettile(cplayer.pos[0] +cplayer.speed,cplayer.pos[1],1)
+                            cplayer.pos[0] = cplayer.pos[0] + cplayer.speed
            # if  nexttile != 0 and len(nexttile.attributes) > 1:
                     #print(nexttile)
                # if nexttile.attributes[1] > 0:

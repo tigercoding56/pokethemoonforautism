@@ -209,9 +209,10 @@ npc_inf = [
     "tile_artifact"
     ],
     [
-    ""    
-    
-    ]
+        "Agnes Thanh-De Thi",
+        "TEST"
+        ,"human_f"
+     ]
     
     
     
@@ -223,7 +224,11 @@ FNTM = [
     "Emmanuel Phung Van le",
     "Paul Tinh Bao Le",
     "Joseph Thi Dang Le"
-    
+    # i need  2 further additions
+    #but i am never going to be a saint so 
+    #
+    #
+    #
     
     
     
