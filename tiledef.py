@@ -271,7 +271,7 @@ class water(tile):
         self.txt2 = self.catchtxt('water3')
         self.ft =0
         self.height = 0
-        self.animated = 0
+        #self.animated = 0
     def gt(self):
         return self.gtx(1)
     def gtx(self,fn):
@@ -1543,7 +1543,7 @@ class iceblock(tile):
         self.lgco(['ground', 4, 3],"iceblock",(33, 233, 222, 255))
         self.height = 0
         self.reflectivity = 25
-        self.animated = 1
+        #self.animated = 1
 class sand(tile):
     def upd(self):
         self.lgco(['ground', 2, 15],"sand",(128, 128, 128, 255))

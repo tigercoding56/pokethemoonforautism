@@ -371,9 +371,10 @@ class render():
         self.TUPD = 0
         self.tilebuffer = {} ##this serves as a buffer for
         self.skytexture = xtexture("img/sky.png").gt()
+        self.skytexture = pygame.transform.scale(self.skytexture,(X, Y))
         self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
         self.screen  = pygame.display.set_mode((X, Y))
-        self.vbuffer  = pygame.surface.Surface((840, 840)).convert()
+        self.vbuffer  = pygame.surface.Surface((840, 840)).convert_alpha()
         self.wrfb = pygame.surface.Surface((40,4)).convert()
         self.wrfb2 = pygame.surface.Surface((40,8)).convert()
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
@@ -403,6 +404,7 @@ class render():
     def renderwmp(self,camera,xgmap,frametime):
         global mousepos,message,onweb,selectedt,rlcam,fcw,settings
         performance = 0
+        self.screen.blit(self.skytexture,(0,0))
         tileupd = self.TUPD
         self.TUPD = 0
         #watertxt = waterFX.apply_ripple(self.wateroffsetext,self.wateroffsetext,3,2)
@@ -417,10 +419,10 @@ class render():
         csound=0
         wimg = ""
         wimgb = ""
-        if tileupd < 100:
-            fancywatertrans(1)
-        else:
-            fancywatertrans(-1)
+        #if tileupd < 100:
+           # fancywatertrans(1)
+        #else:
+            #fancywatertrans(-1)
         for xtt in range(-1,17):
             for ytt in range(0,18):
                 x = xtt 
@@ -432,7 +434,8 @@ class render():
                 tile4= xgmap.getheight(int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True)))
                 tile5=xgmap.getheight(int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True)+1))
                 tile6 = xgmap.getheight(int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True)-1))
-                img = tile.gtx(frametime).gt()
+                if not tile.name == 'water':
+                    img = tile.gtx(frametime).gt()
                 if tile2 == "none":
                     txa = 0
                 else:
@@ -477,28 +480,32 @@ class render():
                 if settings[1] == 1 and stile == 0 and not xs == 0:
                    if tileupd > 105 and ((xtt % 5) +(frametime%5 ))%(int(tileupd/30)) != 1  :
                         stile = 1
-                if tile.name == "water" and (tileupd < 105 or performance == 0) :
-                    stile = 0
+                #if tile.name == "water" and (tileupd < 105 or performance == 0) :
+                   # stile = 0
                 
                 if tile.name == "water":
                     #stile = 0
                     fn = frametime % 30
-                    if fn ==0 :
+                    img = tile.gtx(fn).gt()
+                    #print(fn)
+                    if fn ==1 :
                         stile = 0
-                    elif fn==11:
+                        
+                    elif fn==12:
                         stile = 0
-                    elif fn == 22:
+                    elif fn == 23:
                         stile = 0
                 if stile == 0  :
                     self.TUPD = self.TUPD + 1
                     if not (tile.name == "water"):
                         ximg = img.copy()
-                        if hasattr(tile,"reflectivity") and not performance == 1:
-                                xti = ""
-                                xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
-                                xti.set_alpha(tile.reflectivity)
+                        if hasattr(tile,"reflectivity") :
+                                #xti = ""
+                                #xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
+                                ximg.set_alpha(255-tile.reflectivity)
+                                self.vbuffer.fill((0, 0, 0, 0), (x*40, y*40, 40, 40))
                                 
-                                ximg.blit(xti,(0,0))
+                                #ximg.blit(xti,(0,0))
                         if performance ==3:
                             if  "grass" in tile.name and tile2 == "none":
                                 point = (((40*xtt)+ floor(self.gets(camera.cty,True))*40),(ytt + floor(self.gets(camera.cty,True)) * 40))
@@ -522,13 +529,10 @@ class render():
                         wimgx = wimg.copy()
                         if settings[1] == 0:
                             fcw = 1
-                        if fcw > 0:
-                            xti = waterFX.get_texture_slice(self.skytexture,(xtt*40)+self.gets(camera.ctx),(ytt*40)+self.gets(camera.cty))
-                        
-                            if performance == 0:
-                                xti = waterFX.apply_ripple(xti,self.wateroffsetext,3,2)
-                            xti.set_alpha((fcw*50))
-                            vbr.append([xti,((xtt*40),(ytt*40))])
+                        #if fcw > 0:
+                        #if tile2 == "none":
+                        wimgx.set_alpha(200)
+                        self.vbuffer.fill((0, 0, 0, 0), ((x)*40, (y)*40, 40, 40))
                         #wimgx.blit(xti,(0,0))
                         
                             #wimg = img
@@ -781,7 +785,7 @@ def main():
             del(ActionQueue[0])
         if ACTIVEAREA == "WMP":
             if frametime % 2 == 1:
-                dt = clock.tick(30)
+                dt = clock.tick(60)
                 start_time = time.time()
                 blitpos = drawsys.renderwmp(mycam,cmap,frametime)
                 ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
