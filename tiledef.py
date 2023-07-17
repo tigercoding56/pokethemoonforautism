@@ -6,9 +6,10 @@ import npcnames as npcproperties
 import UIdialogdef
 import waterFX
 disptm = 0
-printatall = 0
+printatall = 1
+xprint = print
 def zprint(x,**kwargs):
-    global printatall
+    global printatall,xprint
     if printatall == 1:
         xprint(x,**kwargs)
 print = zprint
@@ -1258,7 +1259,89 @@ class OVXcharacter(tile):
 
 
 
+class frnm(tile):
+    def initmp(self):
+        if not npcproperties.npc_pos.__class__.__name__ == "dict":
+          npcproperties.npc_pos = {}  
+        npcproperties.npc_pos[self.cname] = self.pos
+    def ssc(self,charnum):
+        charnum = charnum % len(npcproperties.npc_inf) 
+        character = npcproperties.npc_inf[charnum]
+        self.species = character[2]
+        
+        self.about = character[1][0]
+        self.about2 = character[1][1]
+        self.cname = character[0]
+        self.name = character[0]
+        self.istile = 0
+        if "tile_" in self.species:
+            self.istile = 1
+        self.name = self.cname
+        self.assignquest = ""
+        self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
+        self.message = "( " + self.cname + " )"
+        return self
+    def upd(self): #gets run after init to set defaults to water
+        #self.lgco(["ground",1,20,[]],'cat',(52,96,1111,255),1)
+        #self.message = "(interact to speak )"
+        self.interactable = True
+        self.message = "( " + self.cname + " )"
+    
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        x = 1
+        if not self.cname in quests:
+            if "hx1" in quests:
+                if quests["hx1"] < 4:
+                    quests[self.cname] = 1
+                    quests["hx1"] = quests["hx1"] + 1
+                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["you tell " + self.cname + "the news of \n the fire nation reassembling  \n  ",{"exit dialog":0}]})
+                    return [cplayer,cmap,message]
+        if self.cname in quests:
+            about = self.about2
+        else:
+            about = self.about
+        if self.istile == 0:
+            if not npcproperties.activequest == None :
+                x = npcproperties.activequest.check(cplayer,self.cname)
+                if not x[1] == "":
+                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
+                else:
+                     dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=about,dialog=[" sorry it seems you already have a active quest\n (" +npcproperties.activequest.desc + ")",{"exit":0},{"cancel quest":"questrm"}],npcn=self.cname))
+                if npcproperties.activequest.done == 1:
+                    npcproperties.activequest = None
+            else:
+                self.assignquest = npcproperties.quest(npcproperties.genquest(cplayer,self.cname))
+                dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gtqdia(do=about,dialog=["do you want to  " + self.assignquest.desc + " ?" ,{"no , thank you for the offer though":0,"yes":"questac"}],npcn=self.cname))
+        else:
+            if not npcproperties.activequest == None :
+                x = npcproperties.activequest.check(cplayer,self.cname)
+                if not x[1] == "":
+                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[x[1],{"exit dialog":0}]})
+                else:
+                     dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[about,{"exit dialog":0}]})
+                if npcproperties.activequest.done == 1:
+                    npcproperties.activequest = None
+            else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog({"1":[about,{"exit dialog":0}]})
 
+
+
+
+
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        if test == 1:
+            return 1
+        else:
+            if not dialogtree.cnpcdial == None:
+                if  dialogtree.cnpcdial.val == "questac":
+                    npcproperties.activequest = self.assignquest
+                if  dialogtree.cnpcdial.val == "questrm":
+                    npcproperties.activequest = None
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
 
 class hacker(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -1268,8 +1351,20 @@ class hacker(tile):
     
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
-        dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia)
         
+        if not "hx1" in quests:
+            quests["hx1"] = 0
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia)
+        else:
+            if quests["hx1"] < 4:
+                dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia2s)
+            else:
+                if not "hx2" in quests:
+                    dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia3)
+                    quests["hx2"] = 1
+                else:
+                    dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia4)
+            
         ####
         
         return [cplayer,cmap,message]
@@ -1605,17 +1700,23 @@ tiles = []
 for i in range(0,len(npcproperties.npc_inf)):
     try:
         if not "tile" in  npcproperties.npc_inf[i][2]:
-            xtiles.append(character().ssc(i))
-    except:
-        print(npcproperties.npc_inf[i])
+            if npcproperties.npc_inf[i][1].__class__.__name__ =='list':
+                xtiles.append(frnm().ssc(i))
+                print(npc_inf[i][1])
+            else:
+                xtiles.append(character().ssc(i))
+    except Exception as EX:
+        print(npcproperties.npc_inf[i][0])
+        print(EX)
 xtiles = xtiles + [housetile(),wendy(),fei(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     try:
         if  "tile" in  npcproperties.npc_inf[i][2]:
             xtiles.append(character().ssc(i))
-    except:
-        print(npcproperties.npc_inf[i])
+    except Exception as EX:
+        print(npcproperties.npc_inf[i][0])
+        print(EX)
 for itile in xtiles:
     itile.upd()
     if itile.price > 0:

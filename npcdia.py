@@ -98,10 +98,22 @@ def gnpcdia():
      return gtqdia()
 
 hackerdia = {
-"1":["thank you for comming here \n i'll gather the robots \n and together we will \n make a more perfect  union , \n now to clear all this corruption\n ",{"you are welcome :D":2," at least this is not darksouls ...":3,"even undertale is better than this D:":4}]
-,"2":[". sorry i have not implemented the ending yet \n i need feedback ",{"(exit dialog)":0}]
-,"3":[". i guess so , i am just a single person \n so until next time\n (or when i find a way to end this ,feedback needed)\n please Stay Safe (also Save the game bevore you exit it)  ",{"(exit dialog)":0}]
-,"4":[" well undertale is better than most games , (i am not at all \n forced to say this by a character of undertale \n ) ",{"exit dialog":0}]
+"1":["thank you , this island \n should be helpfull in the quest \n to create a more perfect union  \n there is still one thing left \n todo bevore this shitty game ends \n and that would be to \n gather the 4 former members of \n the \"fire nation\" , \n they should all be on some islands , just \n of the coast of the main island \n , captain wendy  down south on the main island , should \n be able to take you there  ",{" thank you , i'll go now":0,"whats in it for me":2}]
+,"2":[" well , i'll reward you with a coule of coins \n for each member you find ",{"ok , i'll accept the quest":0}]
+}
+hackerdia2s = {
+"1":["there are still some members remaining ",{"ok ":0}]   
+}
+hackerdia4 = {
+"1":["the game is finished \n but if you want you \n can still play around with \n it some  ",{"ok ":0}]   
+}
+hackerdia3 = {
+"1":["thank you , \n the rest is under our control \n but you can practise on the flight simulator if you want  \n or go help around the island  \n the game is done im just to lazy to make a credit screen",{"ok i'll explore around":0,"Yay the game is finally done":2,"at least it is not Runescape":3,"the game is better than fallout 76  at least":4,"this game is worse than cyberpunk 2077":5}]
+,"2":["as a reward for finishing the game have this picture of spinkitty $SPIN",{"exit dialog":0}]
+,"3":[" well , \n i suppose it is then  ",{"exit dialog":0}]
+,"4":[" that is \n i assume \n because it is  not P2W! :D  ",{"exit dialog":0}]
+,"5":["as a reward for leaving a honest review \n have this picture of spinkitty $SPIN",{"exit dialog":0}]
+
 }
 confuseddia = {
 "1":["error 408 , TPU timeout",{" (back away)":0}]   

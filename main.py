@@ -17,6 +17,7 @@ async def main():
         # Usually 1/60 or more times per seconds on desktop, maybe less on some mobile devices
         #time.sleep(1/60)
         libraries.main()
+        libraries.main()
         pygame.display.update()
         #gc.collect(2)
 

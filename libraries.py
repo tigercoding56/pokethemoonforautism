@@ -749,12 +749,13 @@ if onweb and settings[4] == 0 :
 dlgtree.cnpcdial.active = 1
 clock = pygame.time.Clock()
 CUSTOM_EVENT = pygame.USEREVENT + 1
-pygame.time.set_timer(CUSTOM_EVENT, 1000)
+pygame.time.set_timer(CUSTOM_EVENT, 200)
 itimeout = 0
+cplayer.speed = 1
 def main():
     global muted,itimeout,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
-    dt = clock.tick(30)
+    
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
     #rlcam.move(cplayer.pos[0],cplayer.pos[1])
@@ -779,11 +780,13 @@ def main():
             interact(ActionQueue[0])
             del(ActionQueue[0])
         if ACTIVEAREA == "WMP":
-            start_time = time.time()
-            blitpos = drawsys.renderwmp(mycam,cmap,frametime)
-            ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
-            ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((1000/dt)), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
-
+            if frametime % 2 == 1:
+                dt = clock.tick(30)
+                start_time = time.time()
+                blitpos = drawsys.renderwmp(mycam,cmap,frametime)
+                ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+                ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str((1000/dt)), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+    
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
     if isinvo :
@@ -824,22 +827,22 @@ def main():
                 if not itimeout>0:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
-                    itimeout = 5
+                    itimeout = 2
             elif  'down' in rightbtn.handleEvent(event):
                 if not itimeout>0:
                     keyeventlist[0] = 1
                     mousepos = [-1,0]
-                    itimeout = 5
+                    itimeout = 2
             elif  'down' in upbtn.handleEvent(event):
                 if not itimeout>0:
                     keyeventlist[2] = 1
                     mousepos = [0,-1]
-                    itimeout = 5
+                    itimeout = 2
             elif  'down' in downbtn.handleEvent(event):
                  if not itimeout>0: 
                     keyeventlist[3] = 1
                     mousepos = [0,1]
-                    itimeout = 5
+                    itimeout = 2
             if event.type == pygame.KEYDOWN and ACTIVEAREA == "WMP" and not isinvo:
                 
                 
@@ -972,6 +975,8 @@ def main():
                     savesettings(dlgtree.cnpcdial.settings)
                     print("saving data")
                     dlgtree.cnpcdial = dlgtree.ddialog()
+    if     dlgtree.cnpcdial.active == 0:
+        dlgtree.cnpcdial.active == dlgtree.ddialog()
                     
                 
    # except Exception as ex23:

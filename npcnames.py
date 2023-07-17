@@ -1,4 +1,4 @@
-import random ,time
+import random ,time,agnes_desc,emanuel,paul,joseph
 def generate_20_digit_seed():
     timestamp = str(time.time()).replace(".", "")  # Get timestamp and remove decimal point
     seed = int(timestamp[:20])  # Convert the first 20 digits to an integer
@@ -210,15 +210,38 @@ npc_inf = [
     ],
     [
         "Agnes Thanh-De Thi",
-        "TEST"
-        ,"human_f"
+        [agnes_desc.desc,agnes_desc.adesc]
+        ,"Agnes Thanh-De Thi le"
+     ],
+     [
+        "Emmanuel Phung Van",
+        [emanuel.desc,emanuel.adesc]
+        ,"Emmanuel Phung Van le"
+     ],
+     [
+        "Paul Tinh Bao",
+        [paul.desc,paul.adesc]
+        ,"Paul Tinh Bao le"
+     ],
+     [
+        "Joseph Thi Dang",
+        [joseph.desc,joseph.adesc]
+        ,"Joseph Thi Dang le"
      ]
     
     
     
     
     
+    
     ]
+npcproperties = {
+"Agnes Thanh-De Thi":{"groups":["Former_fire_nation_member"]},
+"Emmanuel Phung Van":{"groups":["Former_fire_nation_member"]},
+"Paul Tinh Bao":{"groups":["Former_fire_nation_member"]},
+"Joseph Thi Dang":{"groups":["Former_fire_nation_member"]}
+    
+}
 FNTM = [
     "Agnes Thanh-De Thi le",
     "Emmanuel Phung Van le",
@@ -255,7 +278,8 @@ alt_phrases = {
 "at":[",then ","after your done "],
 "f":["find some $ITEM  "," find  a bit of $ITEM "],
 "is":["inspect $ITEM , it seems to not be working "],#same as speak to but used for blocks
-"r":["you inspect $ITEM , and determine the cause"]
+"r":["you inspect $ITEM , and determine the cause"],
+"ch":["information about this npc has been changed , \n this is a debug message and should never \n actually appear in game \n if it does blame benedikt ","information about this npc has been changed , \n this is a 2nd  debug message related to this event and should never \n actually appear in game \n if it does blame benedikt "]
 
 }
 pmessages = [
@@ -387,8 +411,17 @@ class quest():
             self.desc = self.desc + nxita
      def check(self,cplayer,name,t=0):
          global activequest
+         global npc_inf
          try:
              t = self.code[self.queststage]
+             if t[0] == "ch":
+                 self.queststafe = self.queststage + 1
+                 for i in range(0,len(npc_inf)):
+                     if npc_inf[i][0] == name:
+                         try:
+                             npc_inf[i][t[1]] = i[t[2]]
+                         except Exception as x:
+                             print("benedikt  , has used the \"ch\" quest command incorrectly \n i would fire you if i i was \n not past-self and could not \n do anything in the future \n here is the exception \n" + str(x))
          except:
             activequest == None
             self.done = 1
