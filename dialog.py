@@ -1,6 +1,7 @@
 import pygame
 import time
 import math
+from waterFX import get_texture_slice
 import ptext
 from listbox import ListBox
 from pygamebutton import PygButton
@@ -8,6 +9,7 @@ from pygamebutton import PygButton
 #import diagui as agui
 import random
 dia_textures = {}
+
 class ptexture(): # a texture pointer class
     def __init__(self,location,a=1,rescale=1):
         global dia_textures
@@ -23,9 +25,20 @@ class ptexture(): # a texture pointer class
         self.location = str(location)
     def gt(self):
         return dia_textures[self.location]
+
+ft = 0
+def gact():
+    global  ft
+    cat_txt = ptexture('cat_sprites',rescale=0).gt()
+    xw = 227
+    tc = 9
+    ft = ft + 0.01
+    xc = 601
+    s = ft //1
+    return get_texture_slice(cat_txt,(s%tc)*601,0,227)
 X = 420
 Y = 320
-diaoverides = [["$TIME","time.asctime(time.localtime())"],["$SendContentID","\" \""],["$CAT",'placetxt(20,20,"cat2")'],["$WENDY",'placetxt(500,20,"wendy")'],["$FEI",'placetxt(500,20,"fei")']]
+diaoverides = [["$TIME","time.asctime(time.localtime())"],["$SendContentID","\" \""],["$CAT",'placetxt(20,20,"cat2")'],["$WENDY",'placetxt(500,20,"wendy")'],["$FEI",'placetxt(500,20,"fei")'],["$SPIN",'placecat(400,20)']]
 color = (200,220,255)
 wcolor = (255,200,150)
 def scale(x,y,x1,y1):
@@ -74,6 +87,10 @@ list_box = ListBox(0, 500, 740, 140, ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'I
 def placetxt(x,y,nm):
     global surface
     surface.blit(ptexture(nm,rescale=0).gt(),(x,y))
+    return ""
+def placecat(x,y):
+    global surface
+    surface.blit(gact(),(x,y))
     return ""
 def insert_newlines(text):
     words = text.split()

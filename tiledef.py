@@ -1295,7 +1295,7 @@ class frnm(tile):
                 if quests["hx1"] < 4:
                     quests[self.cname] = 1
                     quests["hx1"] = quests["hx1"] + 1
-                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["you tell " + self.cname + "the news of \n the fire nation reassembling  \n  ",{"exit dialog":0}]})
+                    dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["you tell " + self.cname + " the news of \n the fire nation reassembling  \n  ",{"exit dialog":0}]})
                     return [cplayer,cmap,message]
         if self.cname in quests:
             about = self.about2
