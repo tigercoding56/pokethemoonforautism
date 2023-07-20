@@ -1,10 +1,12 @@
 import pygame
 import dialogtree
+import UIDIA
 import asyncio
 import npcdia
 import npcnames as npcproperties
 import UIdialogdef
 import waterFX
+import UIDIA
 disptm = 0
 printatall = 1
 xprint = print
@@ -439,6 +441,7 @@ class ANDGATE(tile):
                     except Exception as e:
                         print(e)
         return cmap
+
     
 class NANDGATE(tile):
     def upd(self): 
@@ -1647,6 +1650,19 @@ class console(tile):
         #dialogtree.cnpcdial =  dialogtree.ddialog()
         #return [cplayer,cmap]
         return []
+class flightsim(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0, []],"flightsim",(0, 96, 121, 32255))
+        self.interactable = 1
+        self.price = 1
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        dialogtree.cnpcdial = UIDIA.flightsim()
+        #return [,cmap,message]
+        return []
+    def callback(self,cmap=0,cplayer=0,test=0):
+        #dialogtree.cnpcdial =  dialogtree.ddialog()
+        #return [cplayer,cmap]
+        return []
 class telescope(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, []],"telescope",(0, 96, 121, 32255))
@@ -1708,7 +1724,7 @@ for i in range(0,len(npcproperties.npc_inf)):
     except Exception as EX:
         print(npcproperties.npc_inf[i][0])
         print(EX)
-xtiles = xtiles + [housetile(),wendy(),fei(),chair(),table1(),table2(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
+xtiles = xtiles + [housetile(),wendy(),fei(),chair(),table1(),table2(),flightsim(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     try:

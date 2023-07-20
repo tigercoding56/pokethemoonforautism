@@ -3,4 +3,4 @@ mask3 = [[[102, 139], 'DEBUG_GATE_ANDANDGATE', 1],[[102, 140], 'wire0conductor',
 mask6 = [[[427, 218], 'woodplatformoilrigplatformwood', 1],[[446, 178], 'woodplatformoilrigplatformwood', 1],[[446, 177], 'woodplatformoilrigplatformwood', 1]]
 mask7 = [[[444, 179], 'fei2fei', 1],[[463, 126], 'fei2fei', 1],[[462, 127], 'woodplatformoilrigplatformwood', 1],[[461, 127], 'woodplatformoilrigplatformwood', 1]]
 mask8 = [[[447.0, 191.0], 'Joseph Thi Dang lefrnm', 1],[[455.0, 192.0], 'Agnes Thanh-De Thi lefrnm', 1],[[426.0, 118.0], 'Emmanuel Phung Van lefrnm', 1],[[426, 122], 'Paul Tinh Bao lefrnm', 1]]
-mask5 = mask8 + [[[178, 236], 'woodplatformoilrigplatformwood', 1],[[178, 237], 'woodplatformoilrigplatformwood', 1],[[177, 235], 'wendy2wendy', 1],[[177, 234], 'wendy2wendy', 1],[[177, 235], 'grass1grass1', 1],[[179, 231], 'tile_supplycratecharacter', 1]]
+mask5 = mask8 + [[[410.3, 36.8], 'flightsimflightsim', 1],[[178, 236], 'woodplatformoilrigplatformwood', 1],[[178, 237], 'woodplatformoilrigplatformwood', 1],[[177, 235], 'wendy2wendy', 1],[[177, 234], 'wendy2wendy', 1],[[177, 235], 'grass1grass1', 1],[[179, 231], 'tile_supplycratecharacter', 1]]
