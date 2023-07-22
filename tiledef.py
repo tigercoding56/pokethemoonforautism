@@ -10,6 +10,7 @@ import UIDIA
 disptm = 0
 printatall = 1
 xprint = print
+helpmsg = ""
 def zprint(x,**kwargs):
     global printatall,xprint
     if printatall == 1:
@@ -52,7 +53,7 @@ class fptexture():
         return self.surf
         
 tiles = []
-quests = {"intro":0,"HOFF":0,"gather_members":0}
+quests = {"intro":0,"HOFF":0,"gather_members":0,"helpmessage":"interact (interact button) with the robot \n at the front door \n WASD / arrows to move \n i do not assume that you are stupid olivia \n and i know you probably do not need \n this help message \n but  some playtesters cannot understand  \n what the game wants them todo "}
 class tile():
     def init(self):
         pass
@@ -266,6 +267,7 @@ class gate(tile):
 
 
 #############
+watertxturessides = [ptexture('img/waterw'+str(i)+'.png') for i in range(1,5)]
 class water(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",0,0,["unpassable"]],'water',(0,0,0,255))
@@ -273,17 +275,34 @@ class water(tile):
         self.txt2 = self.catchtxt('water3')
         self.ft =0
         self.height = 0
+       # self.states = [0,0,0,0]
+        #self.needs_upd_after_init = 1
         #self.animated = 0
     def gt(self):
-        return self.gtx(1)
+        return fptexture(self.gtx(1).gt())
+    #def initmp(self,cmap):
+        #self.states = [1,1,1,1]
+       # nxt = [(-1,0),(0,1),(1,0),(0,-1)]
+       # for i in nxt:
+          #  tilex= cmap.read(cmap.heightmap,self.x+i[0],self.y+i[1],True)
+          #  if not tilex == "none":
+             #   if tilex.name == "water":
+                  #  self.states[nxt.index(i)] = 0
+                
+        
+        return cmap
     def gtx(self,fn):
         fn = fn % 30
         if fn < 11:
-            return self.texture
+            bt =  self.texture
         elif fn < 21:
-            return self.txt1
+            bt= self.txt1
         else:
-            return self.txt2
+            bt= self.txt2
+        #for i in range(0,4):
+           # if self.states[i]:
+              #  bt.blit(watertxturessides[i].gt(),(0,0))
+        return bt #fptexture(bt)
 class TESTGATE(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,2505,255))
@@ -817,8 +836,12 @@ class npc(tile):
                         self.walkable = 1
                         return [cmap,cplayer,"",tiles[1]]
             return [cmap,cplayer]
-  
-        
+#### 
+# reading through 
+#r/awfulleverything
+# makes me realise just how messed up things have become 
+#and all i can do is sit here and complain 
+#
 ######
 class scriptkiddie1(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -830,13 +853,16 @@ class scriptkiddie1(tile):
         global quests
         if quests["intro"] == 0:
             dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.introdialog)
+            quests["helpmessage"] =  "go to the center of the small village you started at \n and speak to the green robot "
         elif quests["intro"] == 1:
             dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info1dialog)
+            quests["helpmessage"] = "get some copper , should be near 170,42 ,\n then go back to the green robot \n in the village at the start of the game  "
         elif quests["intro"] ==2:
            t =  cplayer.inventory.invcheck("copper",2)
            if t == 1:
                dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info2dialoga)
                quests["intro"] = 3
+               quests["helpmessage"] = "go talk to the robot near 210,16"
            else:
                 dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info2dialogb)
         ####
@@ -1458,6 +1484,7 @@ class milvet(tile):
             if not "seldone" in quests:
                 #if ( not "getradio1" in quests)  : 
                     dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia1)
+                    quests["helpmessage"] = "go to either radio near plane wreck (129,50) , or \n terminal in large village (188,154) \n depending on your choice"
                     
             else:
                 if "getradio1" in quests:
@@ -1465,8 +1492,10 @@ class milvet(tile):
                         del(quests["radion"])
                     if not "reportbackrd" in quests:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_a)
+                        quests["helpmessage"] = "back to radio "
                     elif not "rbf2" in quests:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_f)
+                        quests["helpmessage"] = "back to radio "
                     elif quests["rbf2"] ==1:    
                         dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["just tell the hacker that all the robots \n agree to join him \n over the radio",{"ok":0,"i'll think about it ":0}]})
                     else:
@@ -1478,6 +1507,7 @@ class milvet(tile):
                         quests["ART"] = 1
                     elif quests["hob=1"]:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_b)
+                        quests["helpmessage"] = "game is now done "
                     else:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gnpcdia())
                     

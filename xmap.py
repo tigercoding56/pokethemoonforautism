@@ -258,7 +258,11 @@ class gmap():
                 t = tile_lookup.get(i[1])
 
                 if t is not None:
-                    t.initmp()
+                    try:
+                        t.initmp(self)
+                    except Exception as EX:
+                        #print(EX)
+                        t.initmp()
                     layer = i[2] if len(i) > 2 else 1
 
                     if layer == 1:
