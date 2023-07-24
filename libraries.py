@@ -371,7 +371,7 @@ def get_tile_value(x, y, frametime, skip_percentage=2):
     else:
         return 0
 
-
+previouspos = [0,0]
 
 class render():
     def __init__(self):
@@ -411,7 +411,7 @@ class render():
         else:
             return str(type(tile1).__name__ + type(tile2).__name__+str(tile4)+str(tile5)+str(tile6))
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos,message,onweb,selectedt,rlcam,fcw,settings
+        global mousepos,message,onweb,selectedt,rlcam,fcw,settings,previouspos
         performance = 0
         self.screen.blit(self.skytexture,(0,0))
         tileupd = self.TUPD
@@ -432,6 +432,10 @@ class render():
            # fancywatertrans(1)
         #else:
             #fancywatertrans(-1)
+        xteeed=0
+        if (floor(previouspos[0]) != floor(cplayer.pos[0])) or (floor(previouspos[1]) != floor(cplayer.pos[1])):
+            previouspos = cplayer.pos
+            xteeed=1
         for xtt in range(-1,17):
             for ytt in range(0,18):
                 x = xtt 
@@ -456,7 +460,7 @@ class render():
                          tile2.animated = 0
                          txa = 0
                 stile = 0        
-                
+                #if hasattr
                 t = self.hash_tile(tile,tile2,tile4,tile5,tile6)
                 xtu =str(x) +","+str( y)
                 if xtu in self.optbuffer:
@@ -491,7 +495,9 @@ class render():
                         stile = 1
                 #if tile.name == "water" and (tileupd < 105 or performance == 0) :
                    # stile = 0
-                
+                #if tile.name ==
+                if hasattr(tile,'UAM') and xteeed :
+                    stile = 0
                 if tile.name == "water":
                     #stile = 0
                     fn = frametime % 30

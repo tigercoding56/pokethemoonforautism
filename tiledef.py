@@ -511,7 +511,21 @@ class NANDGATE(tile):
 
 
 
-
+class vegetationcover(tile):
+    def upd(self): 
+        self.lgco(["ground",1,20],'grass1',(2,4,8,255))
+        #self.height = 1
+        #self.animated = 1
+        self.UAM = 1
+        self.name =  "vge" 
+        #self.st = -1
+       # self.needpos = 1
+    #def initmp(self):
+        #self.st = hash(str(self.pos)) % 23
+    def gt(self):
+        #if self.st == -1:
+        self.st = hash(str(self.pos)) % 23
+        return ptexture("img/sc_obj" + str(self.st)+".png")
 class grass1(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
@@ -1754,7 +1768,7 @@ for i in range(0,len(npcproperties.npc_inf)):
     except Exception as EX:
         print(npcproperties.npc_inf[i][0])
         print(EX)
-xtiles = xtiles + [housetile(),wendy(),fei(),chair(),table1(),table2(),flightsim(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
+xtiles = xtiles + [housetile(),wendy(),fei(),chair(),vegetationcover(),table1(),table2(),flightsim(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
     try:

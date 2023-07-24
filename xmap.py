@@ -259,7 +259,10 @@ class gmap():
 
                 if t is not None:
                     try:
+                        if hasattr(t,"needpos"):
+                            t.pos = i[0]
                         t.initmp(self)
+                        t = copy.deepcopy(t)
                     except Exception as EX:
                         #print(EX)
                         t.initmp()
