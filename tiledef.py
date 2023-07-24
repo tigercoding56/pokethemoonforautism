@@ -530,6 +530,7 @@ class grass1(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,255,255))
         self.height = 1
+        self.reflectivity = 2
 class housetile(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'place',(255,255,2585,255))
