@@ -46,12 +46,33 @@ class ptexture(): # a texture pointer class
         self.location = str(location)
     def gt(self):
         return tile_textures[self.location]
+
 class fptexture():
     def __init__(self,surface):
         self.surf = surface
     def gt(self):
         return self.surf
-        
+class entity():
+    def __init__(self,x,y):
+        self.pos = [x,y]
+        self.delme = 0
+        self.dt = 20
+        self.swm =0 #save  with map
+        self.texture = ptexture('img/o.le.png')
+    def draw(self,x,y,screen):
+        try:
+            screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
+        except:
+            self.delme = 1
+        return screen
+    def run(self):
+        self.dt = self.dt - 1
+        if self.dt < 2:
+            self.delme = 1
+        return self
+    def rm(self):
+        self.delme = 1
+entities = [entity(0,0)]        
 tiles = []
 quests = {"intro":0,"HOFF":0,"gather_members":0,"helpmessage":"interact (interact button) with the robot \n at the front door \n WASD / arrows to move \n i do not assume that you are stupid olivia \n and i know you probably do not need \n this help message \n but  some playtesters cannot understand  \n what the game wants them todo "}
 class tile():

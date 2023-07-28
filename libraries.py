@@ -416,6 +416,8 @@ class render():
         self.screen.blit(self.skytexture,(0,0))
         tileupd = self.TUPD
         self.TUPD = 0
+        cmap.entitymap.run()
+        #print(cmap.entitymap.mmap)
         #watertxt = waterFX.apply_ripple(self.wateroffsetext,self.wateroffsetext,3,2)
         getmessage()
         wvb = []
@@ -436,11 +438,13 @@ class render():
         if (floor(previouspos[0]) != floor(cplayer.pos[0])) or (floor(previouspos[1]) != floor(cplayer.pos[1])):
             previouspos = cplayer.pos
             xteeed=1
+        ptdraw = []
         for xtt in range(-1,17):
             for ytt in range(0,18):
                 x = xtt 
                 y = ytt
                 threed = True
+                ptdraw = ptdraw + [[[x,y],cmap.read_ent( (int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True))))]]
                 tile = xgmap.heightmap.rmmap((int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True))))
                 tile2= xgmap.structuremap.rmmap((int(x + self.gets(camera.cx,True)),int(y + self.gets(camera.cy,True))),True)
                 #tile3= xgmap.readraw(xgmap.threedeffecthax,x + self.gets(camera.cx,True),y + self.gets(camera.cy,True))
@@ -654,6 +658,12 @@ class render():
         #blitpos[1] = blitpos[1]*2
         intsound(csound) 
         self.screen.blit(t,(self.gets(camera.ctx),self.gets(camera.cty)))
+        for i in ptdraw:
+            x = i[0][0]*40 + (self.gets(camera.ctx))
+            y = i[0][1]*40 + (self.gets(camera.cty))
+            ent_list = i[1]
+            for current_ent in ent_list:
+                self.screen = current_ent.draw(x+int(40*(current_ent.pos[0]%1)),y+int(40*(current_ent.pos[1]%1)),self.screen)
         self.screen.blit(self.playerpreimg,(159*2,159*2))
         self.screen.blit(self.highlight,blitpos)
         return blitpos
@@ -825,7 +835,8 @@ def main():
    # print(dt)
     if  itimeout>0:
        itimeout = itimeout -1
-    if not (isinvo or  dlgtree.cnpcdial.active)  : 
+    if not (isinvo or  dlgtree.cnpcdial.active)  :
+        cmap.add_entity(cmap.entities[0],[cplayer.pos[0]+8,cplayer.pos[1]+8])
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -899,6 +910,7 @@ def main():
                 elif event.key == pygame.K_s:
                     keyeventlist[3] = 1
                     mousepos = [0,1]
+                    
                 elif event.key == pygame.K_d:
                     keyeventlist[1] = 1
                     mousepos = [1,0]

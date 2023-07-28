@@ -7,6 +7,7 @@ import time
 import ptext
 import tiledef
 from tiledef import tiles
+from tiledef import entities
 from tiledef import sttobj,pygame
 from tiledef import dialogtree as dlgtree
 from dialogtree import cplayer ,irender 
@@ -146,19 +147,71 @@ class memorymap():
             u = eval("temp." + str(function))
             self.smmap(t,temp)
             return u
-class entity():
-    def __init__(self,x,y):
-        self.pos = [x,y]
-        self.delme = 0
-        self.swm =0 #save  with map
-    def run(self):
-        return self
-    def rm(self):
-        self.delme = 1
+
+CELL_SIZE = 1
 class EntityMap():
     def __init__(self):
         self.mmap = {}
     
+    def snap(self, p1, p2):
+        for i in range(len(p1)):
+            if int(p1[i]) != int(p2[i]):
+                return False
+        return True
+    def read(self,pos):
+        key=tuple([int(x/CELL_SIZE) for x in pos])
+        if key in self.mmap:
+            return self.mmap[key]
+        else:
+            return []
+        
+    def write(self, entity, pos, cp=1):
+        entity.pos = pos
+        if cp:
+            entity = copy.deepcopy(entity)
+        key = tuple([int(x/CELL_SIZE) for x in pos])  # round down to nearest cell
+        if key in self.mmap:
+            self.mmap[key].append(entity)
+        else:
+            self.mmap[key] = [entity]
+    
+    def run(self):
+        keys_to_remove = []
+        kwtw = []
+        for key, value in self.mmap.items():
+            if not value:
+                keys_to_remove.append(key)
+            else:
+                value = [i.run() for i in value]
+                rmi = []  # indices of entities to be removed
+                delthis = []  # entities to be deleted
+                for i in range(len(value)-1, -1, -1):
+                    if self.snap(value[i].pos, [x*CELL_SIZE for x in key]):
+                        rmi.append(i)
+                    if value[i].delme:
+                        delthis.append(i)
+                for i in rmi:
+                    kwtw.append(value.pop(i))
+                for i in delthis:
+                    if len(value) > 0:
+                        value.pop(i)
+                self.mmap[key] = value
+        
+        for i in keys_to_remove:
+            del(self.mmap[i])
+        for i in kwtw:
+            self.write(i, i.pos, cp=0)
+        del(kwtw)
+        del(keys_to_remove)
+class EntityMap():
+    def __init__(self):
+        self.mmap = {}
+    def read(self,pos):
+        key=tuple([int(x/CELL_SIZE) for x in pos])
+        if key in self.mmap:
+            return self.mmap[key]
+        else:
+            return []    
     def snap(self, p1, p2):
         if [math.floor(i) for i in p1] == [math.floor(i) for i in p2]:
             return 0
@@ -169,7 +222,7 @@ class EntityMap():
         entity.pos = pos
         if cp:
             entity = copy.deepcopy(entity)
-        key = tuple([math.floor(x/CELL_SIZE) for x in pos])#round down to nearest cell
+        key = tuple([math.floor(x/CELL_SIZE) for x in pos])
         if key in self.mmap:
             self.mmap[key].append(entity)
         else:
@@ -194,8 +247,7 @@ class EntityMap():
         for i in kwtw:
             self.write(i,i.pos,cp=0)
         del(kwtw)
-        del(keys_to_remove)
-                
+        del(keys_to_remove)                
             
 
 
@@ -208,7 +260,8 @@ class gmap():
         particle["color"] = color
         particle["size"] = size
         self.particles.append(particle)
-        
+    def read_ent(self,pos):
+        return self.entitymap.read(pos)
     def run_pt():
         for i in range(0,len(self.particles)-1):
             particle = self.particles[i]
@@ -282,6 +335,11 @@ class gmap():
                 return x.height + t.height
         except:
             return 0
+    def add_entity(self,ent,pos=""):
+        if pos == "":
+            self.entitymap.write(ent,ent.pos)
+        else:
+            self.entitymap.write(ent,pos)
     def readraw(self,imgmp,x,y):
         #size = imgmp.get_size()
         output = "none"
@@ -294,6 +352,8 @@ class gmap():
         global terrainlist
         self.tiles = tiles
         x = 1
+        self.entitymap = EntityMap()
+        self.entities = entities
         self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
         self.structuremap =  memorymap(self.loadtxt('img/structures.png'),topt=1)
         self.threedeffecthax =  self.loadtxt('img/3doutlinehack.png')

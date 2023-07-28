@@ -3,7 +3,7 @@ import random
 import math
 from pygame.locals import *
 import copy
-import numpy as np
+#import numpy as np
 SCREEN_SIZE = (640, 480)
 CELL_SIZE = 2
 NUM_ENTITIES = 20
