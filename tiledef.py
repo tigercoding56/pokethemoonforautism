@@ -880,6 +880,7 @@ class scriptkiddie1(tile):
                quests["helpmessage"] = "go talk to the robot near 210,16"
            else:
                 dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.info2dialogb)
+                quests["helpmessage"] ="copper is at 170,42"
         ####
         
         return [cplayer,cmap,message]
@@ -1461,14 +1462,17 @@ class radio1(tile):
         elif not "rbf2" in quests:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.rdia)
             quests["reportbackrd"] = 1
+            
             quests["radiodone"] = 1
             quests["radion"] = 1
             quests["ART"] = 1
+            quests["helpmessage"] = "back to robot"
         elif quests["rbf2"] == 1:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia2)
             quests["rbf2"] = 2
             quests["GTH"] = 1
             quests["ART"] = 1
+            quests["helpmessage"] = "nearest city --> white \n teleporter machine --> oil rig \n speak to person on it"
         else:
             dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.urdia)
             
@@ -1507,12 +1511,13 @@ class milvet(tile):
                         del(quests["radion"])
                     if not "reportbackrd" in quests:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_a)
-                        quests["helpmessage"] = "back to radio "
+                        quests["helpmessage"] = "back to radio(129,50) "
                     elif not "rbf2" in quests:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_f)
-                        quests["helpmessage"] = "back to radio "
+                        quests["helpmessage"] = "back to radio(129,50) "
                     elif quests["rbf2"] ==1:    
                         dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["just tell the hacker that all the robots \n agree to join him \n over the radio",{"ok":0,"i'll think about it ":0}]})
+                        quests["helpmessage"] = "back to radio(129,50) "
                     else:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gnpcdia())
                 elif "hob" in quests :

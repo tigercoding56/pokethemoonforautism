@@ -146,7 +146,57 @@ class memorymap():
             u = eval("temp." + str(function))
             self.smmap(t,temp)
             return u
-
+class entity():
+    def __init__(self,x,y):
+        self.pos = [x,y]
+        self.delme = 0
+        self.swm =0 #save  with map
+    def run(self):
+        return self
+    def rm(self):
+        self.delme = 1
+class EntityMap():
+    def __init__(self):
+        self.mmap = {}
+    
+    def snap(self, p1, p2):
+        if [math.floor(i) for i in p1] == [math.floor(i) for i in p2]:
+            return 0
+        else:
+            return 1
+        
+    def write(self, entity, pos,cp=1):
+        entity.pos = pos
+        if cp:
+            entity = copy.deepcopy(entity)
+        key = tuple([math.floor(x/CELL_SIZE) for x in pos])#round down to nearest cell
+        if key in self.mmap:
+            self.mmap[key].append(entity)
+        else:
+            self.mmap[key] = [entity]
+    
+    def run(self):
+        keys_to_remove = []
+        kwtw = []
+        for key ,value in self.mmap.items():
+            if len(value) <1:
+                keys_to_remove.append(key)
+            else:
+                self.mmap[key] = [i.run() for i in self.mmap[key]]
+                rmi = [self.mmap[key].pop(i) for i in range(len(self.mmap[key])-1, -1, -1) if self.snap(self.mmap[key][i].pos,list(key))]
+                delthis = [self.mmap[key].pop(i) for i in range(len(self.mmap[key])-1, -1, -1) if self.mmap[key][i].delme]
+                for i in rmi:
+                    kwtw.append(i)
+                    
+                
+        for i in keys_to_remove:
+            del(self.mmap[i])
+        for i in kwtw:
+            self.write(i,i.pos,cp=0)
+        del(kwtw)
+        del(keys_to_remove)
+                
+            
 
 
 class gmap():

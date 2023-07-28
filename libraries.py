@@ -774,6 +774,10 @@ cplayer.speed = 1
 def main():
     global muted,itimeout,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
+    #try:
+      #  print(xmap.tiledef.quests["helpmessage"])
+    #except:
+        #io = 0
     
     #time.sleep(1/31)
     mycam.move(cplayer.pos[0],cplayer.pos[1])
@@ -1004,6 +1008,7 @@ def main():
         #dlgtree.cnpcdial = dlgtree.ddialog()
         
     if not (isinvo or  dlgtree.cnpcdial.active)  :
+        #print()
         pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
         teal = 0.8
         tealx = 0.7
