@@ -252,6 +252,36 @@ class EntityMap():
 
 
 class gmap():
+    def run_ent(self):
+        keys_to_remove = []
+        kwtw = []
+        for key ,value in self.entitymap.mmap.items():
+            if len(value) <1:
+                keys_to_remove.append(key)
+            else:
+                tiles = ["none","none","none","none","none"]
+                nxt = [(-1,0),(0,1),(1,0),(0,-1),(0,0)]
+                opnxt = [2,3,0,1,4]
+                for x in range(0,5):
+                    i = nxt[x]
+                    tile2= self.read(self.structuremap,key[0],key[1],True)
+                    tiles[opnxt[x]] = tile2
+                #print(tiles)
+                self.entitymap.mmap[key] = [i.run(tiles) for i in self.entitymap.mmap[key]]
+                rmi = [self.entitymap.mmap[key].pop(i) for i in range(len(self.entitymap.mmap[key])-1, -1, -1) if self.entitymap.snap(self.entitymap.mmap[key][i].pos,list(key))]
+                delthis = [self.entitymap.mmap[key].pop(i) for i in range(len(self.entitymap.mmap[key])-1, -1, -1) if self.entitymap.mmap[key][i].delme]
+                for i in rmi:
+                    kwtw.append(i)
+                    
+                
+        for i in keys_to_remove:
+            del(self.entitymap.mmap[i])
+        for i in kwtw:
+            self.entitymap.write(i,i.pos,cp=0)
+        del(kwtw)
+        del(keys_to_remove)  
+    
+    
     def add_pt(color=[255,255,255],size=2,lifetime=30,position=[0,0],velocity=[0,0]):
         particle = {}
         particle["lifetime"] =lifetime

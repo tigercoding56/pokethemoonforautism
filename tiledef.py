@@ -2,11 +2,14 @@ import pygame
 import dialogtree
 import UIDIA
 import asyncio
+import random
 import npcdia
+import math
 import npcnames as npcproperties
 import UIdialogdef
 import waterFX
 import UIDIA
+companion = "none"
 disptm = 0
 printatall = 1
 xprint = print
@@ -58,21 +61,173 @@ class entity():
         self.delme = 0
         self.dt = 20
         self.swm =0 #save  with map
-        self.texture = ptexture('img/o.le.png')
+        self.texture = ptexture('img/footstep.png')
     def draw(self,x,y,screen):
         try:
             screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
         except:
             self.delme = 1
         return screen
-    def run(self):
+    def run(self,tiles):
         self.dt = self.dt - 1
         if self.dt < 2:
             self.delme = 1
         return self
     def rm(self):
         self.delme = 1
-entities = [entity(0,0)]        
+        
+
+class RandomWalkEntity:
+    def __init__(self, x, y):
+        self.start_pos = [x, y]
+        self.tout= 0
+        self.pos = None
+        self.itl = 0
+        self.delme = 0
+        self.lvp = [0,0]
+        self.dt = 20
+        self.swm = 0 #save with map
+        self.texture = ptexture('img/cat.png')
+        self.direction = random.choice([(0, 1), (0, -1), (1, 0), (-1, 0)])
+        self.walkable = True
+        
+    def run(self, tiles):
+        if tiles[4].__class__.__name__ == 'str' or tiles[4].walkable :
+            self.lvp = [math.floor(x)+0.5 for x in self.pos]
+        else:
+            self.pos = self.lvp
+        #if self.itl == 0:
+            #self.itl=1
+            #self.pos = [round(self.pos[0])+0.5, round(self.pos[1])+0.5]
+        if self.walkable:
+            dx, dy = self.direction
+            if self.tout > 0:
+                self.tout = self.tout -1
+            if self._is_on_center_of_tile() or self.itl==0:
+                    self.itl == 1
+                    
+                    self.direction = self._get_new_direction(tiles)
+                    #print(dx)
+                    #print(dy)
+                    new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
+                    self.pos[0], self.pos[1] = new_x, new_y
+                    #print(new_x)
+            new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
+            if  tiles[self._get_tile_index(new_x, new_y)].__class__.__name__ == "str" or tiles[self._get_tile_index(new_x, new_y)].walkable:
+                
+                #if self._is_valid_position(new_x, new_y):
+                    self.pos[0], self.pos[1] = new_x, new_y
+                #else:
+                    #self.direction = list(self.direction)
+                    #self.direction[0] = 0 - self.direction[0]
+                    #self.direction[1] = 0 - self.direction[1]
+                    #self.direction = self._get_new_direction(tiles)
+                    #self.pos[0] = math.floor(self.pos[0])+0.5
+                    #self.pos[1] = math.floor(self.pos[1])+0.5
+            else:
+                #if self.tout == 0:
+                    #dirlist = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+                    self.direction = list(self.direction)
+                    if not self.direction[0] == 0:
+                        self.direction[0] = 0 - self.direction[0]
+                    if not self.direction[1] == 0:
+                        self.direction[1] = 0 - self.direction[1]
+                    #else:
+                        #pdir = [(0)]
+                        #for i in range(0,4):
+                            #tiles[self._get_tile_index(pnew_x, pnew_y)].__class__.__name__ == "str" or tiles[self._get_tile_index(pnew_x, pnew_y)].walkable:
+                        
+                    #self.tout = 10
+                
+                #self.direction = tuple(x + random.uniform(-0.1, 0.1) for x in self.direction)
+
+                #self.pos[0] = math.floor(self.pos[0])
+               # self.pos[1] = math.floor(self.pos[1])
+                #self.pos = self.lvp
+                    #self.direction = self._get_new_direction(tiles,xt=0)
+
+        return self
+    def _get_tile_index(self, x, y):
+        # Calculate the index of the tile that the entity would move into based on its position and direction of movement
+        #print(self.direction)
+        dx, dy = self.direction
+        if dx > 0:
+            return 2 if y >= self.pos[1] else 1
+        elif dx < 0:
+            return 0 if y >= self.pos[1] else 1
+        elif dy > 0:
+            return 3 if x >= self.pos[0] else 1
+        else:
+            return 1 if x >= self.pos[0] else 0
+
+    def draw(self, x, y, screen):
+       # try:
+        screen.blit(pygame.transform.scale(self.texture.gt(), (self.dt, self.dt)), (int(x - (self.dt * 0.5)), int(y - int(self.dt * 0.5))))
+        #except:
+           # self.delme = 1
+        return screen
+
+#     def run(self, tiles):
+#         if self.walkable:
+#             dx, dy = self.direction
+#             new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
+#             if self._is_valid_position(new_x, new_y):
+#                 self.pos[0], self.pos[1] = new_x, new_y
+#             else:
+#                 if self._is_on_center_of_tile():
+#                     self.direction = self._get_new_direction(tiles)
+#                     dx, dy = self.direction
+#                     new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
+#                     self.pos[0], self.pos[1] = new_x, new_y
+#         return self
+
+    def rm(self):
+        self.delme = 1
+
+    def _is_valid_position(self, x, y, dx=0.1):
+        if x % 1 > (0.5 - dx) or x % 1 < (0.5 + dx):
+            if y % 1 > (0.5 - dx) or y % 1 < (0.5 + dx):
+                return True
+        return False
+
+    def _get_new_direction(self, tiles,xt=0):
+        possible_directions = []
+        dirlist = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        t = enumerate([(0, 1), (0, -1), (1, 0), (-1, 0)])
+        for i, direction in t:
+            dx, dy = direction
+            #if xt == 0:
+            new_x, new_y = math.floor(self.pos[0]) + dx , math.floor(self.pos[1]) + dy 
+            #else:
+               # new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
+            #if self._is_valid_position(new_x, new_y):
+            tile = tiles[i]
+                #print(tile)
+            tiles[self._get_tile_index(new_x, new_y)].__class__.__name__ == "str" or tiles[self._get_tile_index(new_x, new_y)].walkable
+                    #print("xD")
+            if direction != (0-self.direction[0], 0-self.direction[1]):
+                        possible_directions.append(direction)
+            else:
+                tl = [0-x for x in direction ]
+                ix = dirlist.index(tuple(tl))
+                new_x3 = tl[0]
+                new_y3 = tl[1]
+                if tiles[self._get_tile_index(new_x3, new_y3)].__class__.__name__ == "str" or tiles[self._get_tile_index(new_x3, new_y3)].walkable:
+                    possible_directions.append(tuple(tl))
+                    possible_directions.append(tuple(tl))
+                
+        if not possible_directions:
+            return self.direction
+        return random.choice(possible_directions)
+
+    def _is_on_center_of_tile(self):
+        if self.pos[0] % 1 == 0.5 and self.pos[1] % 1 == 0.5:
+            return True
+
+        return False       
+        
+
+entities = [RandomWalkEntity(0,0),entity(0,0)]        
 tiles = []
 quests = {"intro":0,"HOFF":0,"gather_members":0,"helpmessage":"interact (interact button) with the robot \n at the front door \n WASD / arrows to move \n i do not assume that you are stupid olivia \n and i know you probably do not need \n this help message \n but  some playtesters cannot understand  \n what the game wants them todo "}
 class tile():
@@ -1417,10 +1572,18 @@ class hacker(tile):
     
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
+        if "end_game" in quests:
+            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia4)
+            return [cplayer,cmap,message]
+            
         
         if not "hx1" in quests:
-            quests["hx1"] = 0
-            dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia)
+            
+            if not "hob" in quests:
+                quests["hx1"] = 0
+                dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia)
+            else:
+                dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia_a)
         else:
             if quests["hx1"] < 4:
                 dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.hackerdia2s)
@@ -1439,6 +1602,13 @@ class hacker(tile):
         if test == 1:
             return 1
         else:
+            if not "hx1" in quests:
+                if "hob" in quests:
+                    if dialogtree.cnpcdial.val == "gt":
+                        quests["hx1"] = 0
+                    else:
+                        quests["end_game"] = 1
+                    
                 
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
@@ -1546,9 +1716,11 @@ class milvet(tile):
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_fh)
                         quests["hob"] = 2
                         quests["ART"] = 1
-                    elif quests["hob=1"]:
+                        quests["helpmessage"] = "take teleporter to oil-rig "
+                        quests["GTH"] = 1
+                    elif quests["hob"] ==1:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.milvetdia_un_b)
-                        quests["helpmessage"] = "game is now done "
+                        
                     else:
                         dialogtree.cnpcdial = dialogtree.nbcdialog(npcdia.gnpcdia())
                     

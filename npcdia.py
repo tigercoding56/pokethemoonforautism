@@ -98,8 +98,12 @@ def gnpcdia():
      return gtqdia()
 
 hackerdia = {
-"1":["thank you , this island \n should be helpfull in the quest \n to create a more perfect union  \n there is still one thing left \n todo bevore this shitty game ends \n and that would be to \n gather the 4 former members of \n the \"fire nation\" , \n they should all be on some islands , just \n of the coast of the main island \n , captain wendy  down south on the main island , should \n be able to take you there  ",{" thank you , i'll go now":0,"whats in it for me":2}]
+"1":["thank you , this island \n should be helpfull in the quest \n to create a more perfect union  \n there is still one thing left \n todo bevore this  game ends \n and that would be to \n gather the 4 former members of \n the \"fire nation\" , \n they should all be on some islands , just \n of the coast of the main island \n , captain wendy  down south on the main island , should \n be able to take you there  ",{" thank you , i'll go now":0,"whats in it for me":2}]
 ,"2":[" well , i'll reward you with a coule of coins \n for each member you find ",{"ok , i'll accept the quest":0}]
+}
+hackerdia_alt = {
+"1":[" if i had a cent for everytime a robot managed to reverse-engineer my \n antirobot software i would have 2 cents \n which is not a lot but weird that it happened 2 times \n anyway from the looks of it i got the wrong island \n sorry  , if you want you can help me gather the former \n members of the fire-nation \n or just end this game here   ",{"i'll gather them ":"gt","just end the game already":2}]
+,"2":["ok , i hope it was fun \n anyways bye  have a nice day :D \n thank you for playing  ",{"bye ":"ET"}]
 }
 hackerdia2s = {
 "1":["there are still some members remaining ",{"ok ":0}]   

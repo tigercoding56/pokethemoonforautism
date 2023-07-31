@@ -416,7 +416,7 @@ class render():
         self.screen.blit(self.skytexture,(0,0))
         tileupd = self.TUPD
         self.TUPD = 0
-        cmap.entitymap.run()
+        cmap.run_ent()
         #print(cmap.entitymap.mmap)
         #watertxt = waterFX.apply_ripple(self.wateroffsetext,self.wateroffsetext,3,2)
         getmessage()
@@ -836,7 +836,7 @@ def main():
     if  itimeout>0:
        itimeout = itimeout -1
     if not (isinvo or  dlgtree.cnpcdial.active)  :
-        cmap.add_entity(cmap.entities[0],[cplayer.pos[0]+8,cplayer.pos[1]+8])
+        cmap.add_entity(cmap.entities[0],[mycam.ctx+8.5,mycam.cty+8.5])
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
