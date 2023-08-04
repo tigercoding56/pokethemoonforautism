@@ -68,33 +68,117 @@ class entity():
         except:
             self.delme = 1
         return screen
-    def run(self,tiles):
+    def run(self,tiles,cmap):
         self.dt = self.dt - 1
         if self.dt < 2:
             self.delme = 1
         return self
     def rm(self):
         self.delme = 1
-
+def extract_sprite_from_32x_cat_spritesheet(spritesheet, orientation, frame):
+    sprite_width = 32
+    sprite_height = 32
+    num_columns = 4
+    
+    row_offset = 0
+    if orientation == 'left':
+        row_offset = 1
+    elif orientation == 'right':
+        row_offset = 2
+    elif orientation == 'up':
+        row_offset = 3
+    elif orientation == 'down':
+        row_offset = 0
+        
+    # Calculate the position in the spritesheet
+    column = (frame ) % num_columns
+    row = row_offset
+    
+    # Calculate the position in pixels
+    x = column * sprite_width
+    y = row * sprite_height
+    
+    # Extract the sprite from the spritesheet
+    #print(pygame.Rect(x, y, sprite_width, sprite_height))
+    #print((spritesheet.get_width(),spritesheet.get_height()))
+    sprite = spritesheet.subsurface(pygame.Rect(x, y, sprite_width, sprite_height))
+    
+    return sprite
+def determine_direction(start, end):
+    start_x, start_y = start
+    end_x, end_y = end
+    
+    if start_x < end_x:
+        return 'right'
+    elif start_x > end_x:
+        return 'left'
+    elif start_y < end_y:
+        return 'down'
+    elif start_y > end_y:
+        return 'up'
+    else:
+        return 'right'  # Default direction if the coordinates are the same
 class entit2y():
     def __init__(self,x,y):
         self.pos = [x,y]
         self.delme = 0
         self.dt = 10
+        self.stage = 1
+        self.progress = 10
+        self.previouspos = self.pos
+        self.nextpos = self.pos
         self.swm =0 #save  with map
-        self.texture = ptexture('img/o.le.png')
+        self.texture = ptexture('img/followcat.png',rescale=0)
+        self.path = []
     def draw(self,x,y,screen):
+        texture =  self.texture.gt()
+        if self.previouspos.__class__.__name__ == 'int' or self.nextpos.__class__.__name__ == 'int':
+            return screen
+        self.dt = 40
+        texture = extract_sprite_from_32x_cat_spritesheet(texture,determine_direction(self.previouspos,self.nextpos),int(self.progress )% 4)
         try:
-            screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
+            screen.blit(pygame.transform.scale(texture,(self.dt,self.dt)),(int((x+20)-(self.dt*0.5)),int((y+20)-int(self.dt*0.5))))
         except Exception as iex:
             self.delme = 1
             print(iex)
             
         return screen
-    def run(self,tiles):
-        self.dt = self.dt - 1
-        if self.dt < 2:
-            self.delme = 1
+    def int(self,x,y,i):
+        return ((y-x)*i)+x
+    def run(self,tiles,cmap):
+        try:
+            if self.stage > (len(self.path)-2):
+                prepath = cmap.path(self.pos,cmap.playerpos)
+                if not (prepath == None or prepath == []):
+                    self.path = prepath
+                    self.previouspos = [math.floor(xu) for xu in self.pos]
+                    #if len(prepatb)
+                    self.nextpos = self.path[0]
+                    self.stage = 0
+                    #print(prepath)
+            else:
+                if not self.path == []:
+                    if self.progress < 10:
+                        self.pos = list(self.pos)
+                        self.progress = self.progress +1
+                        self.pos[0] = self.int(self.previouspos[0],self.nextpos[0],self.progress*0.1)
+                        self.pos[1] = self.int(self.previouspos[1],self.nextpos[1],self.progress*0.1)
+                    else:
+                        self.progress = 0
+                        self.previouspos = self.path[self.stage]
+                        self.stage = self.stage + 1
+                        self.nextpos = self.path[self.stage]
+                else:
+                    self.stage = 2
+        except:
+            self.pos = cmap.playerpos
+            self.progress = 9999999
+                
+            
+        #self.dt = self.dt - 1
+         
+        #if self.dt < 2:
+            #self.delme = 1
         return self
     def rm(self):
         self.delme = 1
@@ -114,7 +198,7 @@ class RandomWalkEntity:
         self.direction = random.choice([(0, 1), (0, -1), (1, 0), (-1, 0)])
         self.walkable = True
         
-    def run(self, tiles):
+    def run(self, tiles,cmap):
         if (tiles[4].__class__.__name__ == 'str' or tiles[4].walkable) and (tiles[5].__class__.__name__ == 'str' or tiles[5].walkable) :
             self.lvp = [math.floor(x)+0.5 for x in self.pos]
         else:

@@ -26,8 +26,9 @@ ccredits = {
     "BizmasterStudios":"\" Gold Coin/Token \" -base for coin texture ",
     "Proxy Games":"\" Wooden Crate Texture\"-texture for sound markers ( basically the game switches sound track \n if you see one of these tiles)",
     "chatgtp":"somewhat helping me optimise my code \n(although it is a pain to get it to do what you want)",
-    "attribution notice for cc-by 3.0":"https://creativecommons.org/licenses/by/3.0/"
-    
+    "claude AI models":"functions for pathfinding , possibly other functions too , thanks to poe.com \n  for providing premium claude AI models free of charge ",
+    "attribution notice for cc-by 3.0":"https://creativecommons.org/licenses/by/3.0/",
+    "rajaat99":" sprites for cat that follows you around \n   sourced from an old forum post on Game Dev Unlimited Forums. Original sprites created by rajaat99."
     
 }
 class ddialog():

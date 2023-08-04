@@ -13,5 +13,8 @@ def gprt(n1,n2):
     dist = n2-n1
     abdist = abs(dist) + 0.0000001
     it = int(dist/abdist)
-    return  range(int(n1),int(n2)+it,it)
+    try:
+        return  range(int(n1),int(n2)+it,it)
+    except:
+        return []
 

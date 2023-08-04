@@ -273,7 +273,7 @@ class gmap():
                 tile2= self.read(self.heightmap,key[0],key[1],True)
                 tiles[5] = tile2
                 #print(tiles)
-                self.entitymap.mmap[key] = [i.run(tiles) for i in self.entitymap.mmap[key]]
+                self.entitymap.mmap[key] = [i.run(tiles,self) for i in self.entitymap.mmap[key]]
                 rmi = [self.entitymap.mmap[key].pop(i) for i in range(len(self.entitymap.mmap[key])-1, -1, -1) if self.entitymap.snap(self.entitymap.mmap[key][i].pos,list(key))]
                 delthis = [self.entitymap.mmap[key].pop(i) for i in range(len(self.entitymap.mmap[key])-1, -1, -1) if self.entitymap.mmap[key][i].delme]
                 for i in rmi:
@@ -471,6 +471,7 @@ class gmap():
         global terrainlist
         self.tiles = tiles
         x = 1
+        self.playerpos = [0,0]
         self.entitymap = EntityMap()
         self.entities = entities
         self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
