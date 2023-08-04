@@ -781,9 +781,26 @@ CUSTOM_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(CUSTOM_EVENT, 200)
 itimeout = 0
 cplayer.speed = 1
+startt = time.time()
+startpos = (211,25)
+endpos = (201,150)
+path = cmap.path(startpos,endpos)
+print(path)
+endt = time.time()
+print(endt-startt)
 def main():
     global muted,itimeout,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
+    path = cmap.path((217+8,20+8),[pos +8 for pos in cplayer.pos])
+    #print(path)
+    t = cmap.entities[2]
+    if not path == None:
+        for i in path:
+                #t.pos =
+                xe = i
+                #xe = [u+8.5 for u in i ]
+                cmap.add_entity(t,xe)
+                #print("ae")
     #try:
       #  print(xmap.tiledef.quests["helpmessage"])
     #except:

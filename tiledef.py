@@ -75,6 +75,29 @@ class entity():
         return self
     def rm(self):
         self.delme = 1
+
+class entit2y():
+    def __init__(self,x,y):
+        self.pos = [x,y]
+        self.delme = 0
+        self.dt = 10
+        self.swm =0 #save  with map
+        self.texture = ptexture('img/o.le.png')
+    def draw(self,x,y,screen):
+        try:
+            screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
+        except Exception as iex:
+            self.delme = 1
+            print(iex)
+            
+        return screen
+    def run(self,tiles):
+        self.dt = self.dt - 1
+        if self.dt < 2:
+            self.delme = 1
+        return self
+    def rm(self):
+        self.delme = 1
         
 
 class RandomWalkEntity:
@@ -92,7 +115,7 @@ class RandomWalkEntity:
         self.walkable = True
         
     def run(self, tiles):
-        if tiles[4].__class__.__name__ == 'str' or tiles[4].walkable :
+        if (tiles[4].__class__.__name__ == 'str' or tiles[4].walkable) and (tiles[5].__class__.__name__ == 'str' or tiles[5].walkable) :
             self.lvp = [math.floor(x)+0.5 for x in self.pos]
         else:
             self.pos = self.lvp
@@ -167,19 +190,7 @@ class RandomWalkEntity:
            # self.delme = 1
         return screen
 
-#     def run(self, tiles):
-#         if self.walkable:
-#             dx, dy = self.direction
-#             new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
-#             if self._is_valid_position(new_x, new_y):
-#                 self.pos[0], self.pos[1] = new_x, new_y
-#             else:
-#                 if self._is_on_center_of_tile():
-#                     self.direction = self._get_new_direction(tiles)
-#                     dx, dy = self.direction
-#                     new_x, new_y = self.pos[0] + dx * 0.1, self.pos[1] + dy * 0.1
-#                     self.pos[0], self.pos[1] = new_x, new_y
-#         return self
+
 
     def rm(self):
         self.delme = 1
@@ -227,7 +238,7 @@ class RandomWalkEntity:
         return False       
         
 
-entities = [RandomWalkEntity(0,0),entity(0,0)]        
+entities = [entity(0,0),RandomWalkEntity(0,0),entit2y(0,0)]        
 tiles = []
 quests = {"intro":0,"HOFF":0,"gather_members":0,"helpmessage":"interact (interact button) with the robot \n at the front door \n WASD / arrows to move \n i do not assume that you are stupid olivia \n and i know you probably do not need \n this help message \n but  some playtesters cannot understand  \n what the game wants them todo "}
 class tile():
@@ -1085,6 +1096,7 @@ class teleporter(tile):
         self.lgco(["ground",1,20,["unpassable"]],'teleportationdev',(78,94,186,255),1)
         self.message = "(interact to travel)"
         self.interactable = True
+        self.teleport_pos = [(412,41),(200,160),(27 ,47 ),(35 ,196 ),(218 ,36 )]
     
     def gt(self):
         global quests
@@ -1114,18 +1126,22 @@ class teleporter(tile):
                 if  dialogtree.cnpcdial.val == "st":
                     cplayer.pos[0] = 218 - 8
                     cplayer.pos[1] = 36 -8
+                    
                 if  dialogtree.cnpcdial.val == "sm":
                     cplayer.pos[0] = 35 - 8
                     cplayer.pos[1] = 196 - 8
+                    
                 if  dialogtree.cnpcdial.val == "md":
                     cplayer.pos[0] = 27 - 8
                     cplayer.pos[1] = 47 - 8
                 if  dialogtree.cnpcdial.val == "lg":
                     cplayer.pos[0] = 200-8
                     cplayer.pos[1] = 160-8
+                    
                 if  dialogtree.cnpcdial.val == "or":
                     cplayer.pos[0] = 412-8
                     cplayer.pos[1] = 41-8
+                    
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
 
@@ -1134,6 +1150,7 @@ class fei(tile):
         self.lgco(["ground",1,20,["unpassable"]],'fei2',(78,94,134886,255),1)
         self.message = "(interact to travel)"
         self.interactable = True
+        self.teleport_pos = [(464 ,127),[445,180]]
 
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
@@ -1177,6 +1194,7 @@ class wendy(tile):
         self.lgco(["ground",1,20,["unpassable"]],'wendy2',(78,94,13486,255),1)
         self.message = "(interact to travel)"
         self.interactable = True
+        self.teleport_pos = [[179,234],[427 ,218 ]]
 
     def interact(self,cplayer,cmap,message="found \n nothing"):
         global quests
@@ -1851,6 +1869,7 @@ class oilrigdrill4(tile):
 class path(tile):
     def upd(self):
         self.lgco(['ground', 0, 0],"path",(0, 255, 255, 255))
+        self.wcost = 0
 class cobblestone(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"cobblestone",(0, 20, 20, 255))

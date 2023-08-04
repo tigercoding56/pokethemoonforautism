@@ -1,6 +1,7 @@
 #import pygame
 import copy
 #import PIL
+import numpy as np
 import base64
 #from PIL import Image
 import time
@@ -222,7 +223,10 @@ class EntityMap():
         entity.pos = pos
         if cp:
             entity = copy.deepcopy(entity)
-        key = tuple([math.floor(x/CELL_SIZE) for x in pos])
+        try:
+            key = tuple([math.floor(x/CELL_SIZE) for x in pos])
+        except:
+            return 
         if key in self.mmap:
             self.mmap[key].append(entity)
         else:
@@ -259,13 +263,15 @@ class gmap():
             if len(value) <1:
                 keys_to_remove.append(key)
             else:
-                tiles = ["none","none","none","none","none"]
+                tiles = ["none","none","none","none","none","none"]
                 nxt = [(-1,0),(0,1),(1,0),(0,-1),(0,0)]
                 opnxt = [2,3,0,1,4]
                 for x in range(0,5):
                     i = nxt[x]
                     tile2= self.read(self.structuremap,key[0],key[1],True)
                     tiles[opnxt[x]] = tile2
+                tile2= self.read(self.heightmap,key[0],key[1],True)
+                tiles[5] = tile2
                 #print(tiles)
                 self.entitymap.mmap[key] = [i.run(tiles) for i in self.entitymap.mmap[key]]
                 rmi = [self.entitymap.mmap[key].pop(i) for i in range(len(self.entitymap.mmap[key])-1, -1, -1) if self.entitymap.snap(self.entitymap.mmap[key][i].pos,list(key))]
@@ -365,6 +371,89 @@ class gmap():
                 return x.height + t.height
         except:
             return 0
+        
+    ###pf start
+    def is_valid_pos(self, pos):
+        # Check if position is in bounds
+        return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
+        
+    def neighbors(self, pos):
+        # Get neighbor positions
+        nbrs = [(0,1), (1,0), (0,-1), (-1,0)] 
+        return [ (pos[0]+x, pos[1]+y) for x,y in nbrs]
+        
+    def heuristic(self, a, b):
+        # Manhattan distance heuristic
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+        
+  
+    def get_tile(self, pos):
+        # Get tile from structure map or height map
+        tile = self.structuremap.rmmap(pos)   
+        if tile != "none":
+            return tile
+        else:
+            #print(tile)
+            return self.heightmap.rmmap(pos)
+    def cost(self, pos):    
+        tile = self.get_tile(pos)
+        if tile.walkable:
+            
+            if hasattr(tile, 'wcost'):        
+                return tile.wcost
+            else:
+                return 5
+        else:
+            return 999999
+        
+    def path(self, start, end):
+        start = (math.floor(start[0]), math.floor(start[1]))
+        end = (math.floor(end[0]), math.floor(end[1]))
+        
+        open_set = [start]   
+        came_from = {}     
+        g_score = {start: 0}  
+        f_score = {start: self.heuristic(start, end)}
+        if self.heuristic(start, end) > 100:
+            return end
+            
+        while open_set:   
+            current = min(open_set, key = f_score.get)   
+            open_set.remove(current)  
+            
+            if current == end:
+                path = []   
+                while current in came_from:               
+                   path.append((
+                       math.floor(current[0]),  
+                       math.floor(current[1])  
+                   ))     
+                   current = came_from[current]    
+                path.reverse()    
+                return path           
+            
+            for neighbor in self.neighbors(current):
+                tile = self.get_tile(neighbor)
+                if hasattr(tile,'teleport_pos'):
+                    for ixt in tile.teleport_pos:
+                        if not ixt ==  None:
+                            open_set.append(tuple(ixt))
+                            g_score[tuple(ixt)] = g_score[tuple(current)]+1
+                            f_score[tuple(ixt)] = f_score[tuple(current)]+1
+                t= self.cost(neighbor)
+                if t > 100000000:
+                    continue
+                new_g_score = g_score[current] +t 
+                if neighbor not in g_score or new_g_score < g_score[neighbor]:
+                    
+                        came_from[neighbor] = current  
+                        g_score[neighbor] = new_g_score
+                        f_score[neighbor] = new_g_score + self.heuristic(neighbor, end)
+                        if neighbor not in open_set:   
+                            open_set.append(neighbor) 
+        return None
+    ###pfend
+
     def add_entity(self,ent,pos=""):
         if pos == "":
             self.entitymap.write(ent,ent.pos)
