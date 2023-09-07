@@ -89,67 +89,67 @@ allattacks = appendattacks(allattacks,alienattacks,"alien")
 allattacks = appendattacks(allattacks,stoneattacks,"stone")
 allattacks = appendattacks(allattacks,iceattacks,"ice")
             
-class pokemon():
-    def pclone(self):
-        return self
-    def __init__(self,name,ptype,autogen=True,attacks=[]):
-        self.name = name
-        self.attacks = attacks
-        self.type = ptype
-        self.bns = []
-        for i in range(1,9):
-            self.bns.append(random.randint(0,2)*0.1)
-        if not autogen == True:
-            self.img =  pygame.image.load('img/creatures/'+str(img) + str(i)+'.png')
-    def calcdamage(enemy,attack):
-        global powers      
-        try:
-            tp = powers[self.type]
-            idx = ["plant","water","air","fire","ice","stone","technology"].index(enemy.type)
-            pp = tp[idx] + self.bns[idx]
-        except:
-            pp = 0.9
-        damage = 0
-        damage = attack.calc(enemy) * pp
-        return damage
-    def draw(self,surface,arena,side):
-            if side == 1:
-                img = pygame.transform.flip(self.img.copy(),True,False)
-                screen.blit(img, (50 + arena.ani1, 120))
-            else:
-                screen.blit(self.img, (190 + arena.ani2, 120))
-            
-def loadp():
-    global pokemonnames, pokemons, allattacks
-    for i in pokemonnames:
-        ptype = "plant"
-        if i.endswith("t"):
-            ptype = "technology"
-        if i.endswith("i"):
-            ptype = "ice"
-        if i.endswith("s"):
-            ptype = "stone"
-        if i.endswith("f"):
-            ptype = "fire"
-        if i.endswith("a"):
-            ptype = "alien"
-        if i.endswith("w"):
-            ptype = "water"
-        handledpokemon = pokemon(i,ptype,True)
-        handledpokemon.name = i[:-2]
-        handledpokemon.img =  pygame.image.load('img/ct/'+str(i) +'.png')
-        handledpokemon.bns = []
-        handledpokemon.attacks = []
-        t = False
-        while t == False:
-            for i in allattacks:
-                if i.type == ptype:
-                    if i.levelr < 2 and random.randint(0,1) == 1:
-                        handledpokemon.attacks.append(i)
-                        if len(handledpokemon.attacks) > 2:
-                            t = True
-                        
-        pokemons.append(handledpokemon)
+# class pokemon():
+#     def pclone(self):
+#         return self
+#     def __init__(self,name,ptype,autogen=True,attacks=[]):
+#         self.name = name
+#         self.attacks = attacks
+#         self.type = ptype
+#         self.bns = []
+#         for i in range(1,9):
+#             self.bns.append(random.randint(0,2)*0.1)
+#         if not autogen == True:
+#             #self.img =  pygame.image.load('img/creatures/'+str(img) + str(i)+'.png')
+#     def calcdamage(enemy,attack):
+#         global powers      
+#         try:
+#             tp = powers[self.type]
+#             idx = ["plant","water","air","fire","ice","stone","technology"].index(enemy.type)
+#             pp = tp[idx] + self.bns[idx]
+#         except:
+#             pp = 0.9
+#         damage = 0
+#         damage = attack.calc(enemy) * pp
+#         return damage
+#     def draw(self,surface,arena,side):
+#             if side == 1:
+#                 img = pygame.transform.flip(self.img.copy(),True,False)
+#                 screen.blit(img, (50 + arena.ani1, 120))
+#             else:
+#                 screen.blit(self.img, (190 + arena.ani2, 120))
+#             
+# def loadp():
+#     global pokemonnames, pokemons, allattacks
+#     for i in pokemonnames:
+#         ptype = "plant"
+#         if i.endswith("t"):
+#             ptype = "technology"
+#         if i.endswith("i"):
+#             ptype = "ice"
+#         if i.endswith("s"):
+#             ptype = "stone"
+#         if i.endswith("f"):
+#             ptype = "fire"
+#         if i.endswith("a"):
+#             ptype = "alien"
+#         if i.endswith("w"):
+#             ptype = "water"
+#         handledpokemon = pokemon(i,ptype,True)
+#         handledpokemon.name = i[:-2]
+#         handledpokemon.img =  pygame.image.load('img/ct/'+str(i) +'.png')
+#         handledpokemon.bns = []
+#         handledpokemon.attacks = []
+#         t = False
+#         while t == False:
+#             for i in allattacks:
+#                 if i.type == ptype:
+#                     if i.levelr < 2 and random.randint(0,1) == 1:
+#                         handledpokemon.attacks.append(i)
+#                         if len(handledpokemon.attacks) > 2:
+#                             t = True
+#                         
+#         pokemons.append(handledpokemon)
 def display(surface):
         i = 130
         pygame.draw.polygon(surface,(0,0,0),[(0,0),(i,0),(i + (overlap * 0.5) + 51,Y-height),(0,Y-height)],0)
@@ -164,4 +164,3 @@ def transition(surface,tme):
         #pygame.display.flip()
         
         
-loadp()

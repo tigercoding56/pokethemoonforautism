@@ -218,7 +218,10 @@ def setinv(inventory,XI=0):
     list_box.draw(surface)
     if list_box.selected_item ==None:
         return  item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True)
-    return clist[math.floor((list_box.selected_item % len(u)))]
+    try:
+        return clist[math.floor((list_box.selected_item % len(u)))]
+    except:
+        return  item("infochip"," this entry is here to prevent crashing if all inventory items are deleted ",uda=True)
 def setinv2(inventory,IRX=0):
     global list_box2,surface
     u = []

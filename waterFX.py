@@ -345,8 +345,38 @@ def apply_outline(surface, color, thickness):
     processed_surface.blit(outline_surface, (0, 0))
 
     return processed_surface
+def create_color_change_surface(surface1, surface2):
+    # Check if the surfaces have the same dimensions
+    if surface1.get_size() != surface2.get_size():
+        raise ValueError("Surfaces must have the same dimensions")
 
-def apply_normal_map(texture, normal_map, lighting_angle):
+    # Create a new surface with the same dimensions as the input surfaces
+    new_surface = pygame.Surface(surface1.get_size()).convert_alpha()
+
+    # Iterate over each pixel in the surfaces
+    for x in range(surface1.get_width()):
+        for y in range(surface1.get_height()):
+            # Get the color values of the pixels in surface1 and surface2
+            color1 = surface1.get_at((x, y))
+            color2 = surface2.get_at((x, y))
+
+            # Calculate the color change between the pixels
+            red_change = color2.r - color1.r
+            green_change = color2.g - color1.g
+            blue_change = color2.b - color1.b
+            avgc = int((red_change + green_change + blue_change )/4)
+            if avgc > 60:
+                avgc = avgc +60
+            # Set negative color changes to 0
+
+            # Create a new color with the color change values
+            new_color = (255, 255, 255,max(min(avgc, 255),60)-60)
+
+            # Set the color of the corresponding pixel in the new surface
+            new_surface.set_at((x, y), new_color)
+
+    return new_surface
+def apply_normal_map2(texture, normal_map, lighting_angle):
     # Convert the lighting angle to radians
     lighting_angle = math.radians(lighting_angle)
 
@@ -383,7 +413,8 @@ def apply_normal_map(texture, normal_map, lighting_angle):
 
     return result_surface
 
-
+def specularhigh(texture,normalmap,direction):
+    color_change_surface = create_color_change_surface(apply_normal_map2(texture,normalmap,direction), texture)
 
 # def get_texture_slice(texture, x, y,slice_size=40):
 #     x = int(x)
@@ -521,7 +552,7 @@ def apply_normal_map(texture, normal_map, lighting_angle, section):
     cached_sin_angle = np.sin(lighting_angle_rad)
     cached_cos_angle = np.cos(lighting_angle_rad)
     previous_angle = lighting_angle_rad
-
+    
     # Determine the section coordinates with wraparound
     height, width = texture.shape[:2]
     y_start = section[0] % height
@@ -598,3 +629,213 @@ def get_texture_slice(texture, x, y, slice_size=40):
             slice_texture.blit(texture, (dest_x, dest_y), slice_rect)
 
     return slice_texture
+def get_lowest_nontransparent_pixel(image):
+    height = image.get_height()
+    for y in range(height-1, -1, -1):
+        for x in range(image.get_width()):
+            alpha = image.get_at((x, y))[3]
+            if alpha > 0:
+                return y
+    return height
+
+
+def blur_surface(surface, blur_factor):
+    width, height = surface.get_size()
+    blurred_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+    
+    for x in range(width):
+        for y in range(height):
+            total_r, total_g, total_b, total_a = 0, 0, 0, 0
+            count = 0
+            
+            for dx in range(-blur_factor, blur_factor + 1):
+                for dy in range(-blur_factor, blur_factor + 1):
+                    nx, ny = x + dx, y + dy
+
+                    if 0 <= nx < width and 0 <= ny < height:
+                        r, g, b, a = surface.get_at((nx, ny))
+                        total_r += r
+                        total_g += g
+                        total_b += b
+                        total_a += a
+                        count += 1
+
+            blurred_surface.set_at((x, y), (
+                total_r // count,
+                total_g // count,
+                total_b // count,
+                total_a // count
+            ))
+    
+    return blurred_surface
+
+def add_shadow(image, shadow_type):
+    shadow_surface = pygame.Surface(image.get_size()).convert_alpha()
+    shadow_color = pygame.Color(0, 0, 0, 128)
+
+    if shadow_type == "reflected":
+        shadow_scale = (1, 0.3)
+        sz = image.get_size()
+        shadow_position = (0, int(get_lowest_nontransparent_pixel(image)-(image.get_height()/10)))
+        shadow_surface = pygame.transform.flip(shadow_surface, False, True)  # Flip the shadow vertically
+        #
+
+    elif shadow_type == "below":
+        shadow_scale = (1, 1)
+        shadow_position = (0, image.get_height()/20)
+
+    shadow_surface.fill((0, 0, 0, 0))
+    preimg = image
+    if shadow_type == "reflected":
+        preimg = pygame.transform.flip(image, False, True)
+    shadow_surface.blit(pygame.transform.scale(preimg, (
+        int(image.get_width() * shadow_scale[0]),
+        int(image.get_height() * shadow_scale[1]))), (0, 0))
+    shadow_surface.fill(shadow_color, special_flags=pygame.BLEND_RGBA_MULT)
+    shadow_surface = blur_surface(shadow_surface,1)
+    new_image = pygame.Surface((shadow_surface.get_width(), shadow_surface.get_height() + image.get_height())).convert_alpha()
+    new_image.fill((0, 0, 0, 0))
+    new_image.blit(shadow_surface, shadow_position)
+    new_image.blit(image, (0, 0))
+    
+
+    return new_image
+
+def highlight_outline(surface, angle, angle_range=45):
+    temp_surface = 0
+    temp_surface = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+    
+    angle_range = angle_range 
+    center_x = surface.get_width() // 2
+    center_y = surface.get_height() // 2
+
+    width = surface.get_width()
+    height = surface.get_height()
+    
+    #temp_surface.fill((0,0,0,1))
+    
+    
+    # Top and bottom edges
+    for x in range(width):
+        for y in [0, height - 1]:
+            dx = x - center_x
+            dy = y - center_y
+            pixel_angle = math.degrees(math.atan2(dy, dx))
+            angle_diff = abs(angle - (pixel_angle % 360))
+            angle_diff = min(angle_diff, 360 - angle_diff)
+            angle_diff = max(0, angle_diff)
+            
+            if angle_diff <= angle_range:
+                xadd = (hash(str(pixel_angle)+"x")%4)-4
+                yadd = (hash(str(pixel_angle)+"x")%4)-4
+                #pygame.draw.circle(temp_surface, (255,255,255,int((angle_range-min(abs(angle_diff), 255))*0.04)), (x, y), int((angle_range-min(abs(angle_diff), 255))*0.06))  # Highlight the pixel with red color
+                pygame.draw.circle(temp_surface, (255,255,255,int((angle_range-min(abs(angle_diff), angle_range)))), (x+xadd, y+yadd), int((angle_range-min(abs(angle_diff), angle_range))*0.09))
+           #else:
+                #temp_surface.set_at((x, y), (0, 255, 0))  # Highlight the pixel with green color
+
+    # Left and right edges (excluding corners)
+    for y in range(1, height - 1):
+        for x in [0, width - 1]:
+            dx = x - center_x
+            dy = y - center_y
+            pixel_angle = math.degrees(math.atan2(dy, dx))
+            angle_diff = abs(angle - (pixel_angle % 360))
+            angle_diff = min(angle_diff, 360 - angle_diff)
+            angle_diff = max(0, angle_diff)
+
+            if angle_diff <= angle_range:
+                xadd = (hash(str(pixel_angle)+"x")%4)-2
+                yadd = (hash(str(pixel_angle)+"x")%4)-2
+                #temp_surface.set_at((x, y), (min(angle_diff, 255), 0, 0))  # Highlight the pixel with red color
+                pygame.draw.circle(temp_surface, (255,255,255,int((angle_range-min(abs(angle_diff), angle_range)))), (x+xadd, y+yadd), int((angle_range-min(abs(angle_diff), angle_range))*0.09))  # Highlight the pixel with red color
+
+            #else:
+                #temp_surface.set_at((x, y), (0, 255, 0))  # Highlight the pixel with green color
+
+    return temp_surface
+
+def create_color_change_surface(surface1, surface2):
+    # Check if the surfaces have the same dimensions
+    if surface1.get_size() != surface2.get_size():
+        raise ValueError("Surfaces must have the same dimensions")
+
+    # Create a new surface with the same dimensions as the input surfaces
+    new_surface = pygame.Surface(surface1.get_size()).convert_alpha()
+
+    # Iterate over each pixel in the surfaces
+    for x in range(surface1.get_width()):
+        for y in range(surface1.get_height()):
+            # Get the color values of the pixels in surface1 and surface2
+            color1 = surface1.get_at((x, y))
+            color2 = surface2.get_at((x, y))
+
+            # Calculate the color change between the pixels
+            red_change = color2.r - color1.r
+            green_change = color2.g - color1.g
+            blue_change = color2.b - color1.b
+            avgc = int((red_change + green_change + blue_change )/4)
+            if avgc > 60:
+                avgc = avgc +60
+            # Set negative color changes to 0
+
+            # Create a new color with the color change values
+            #new_color = (255, 255, 255,max(min(avgc, 255),60)-60)
+            new_color = (255, 255, 255, max(min(int(195 / (1 + math.exp(-0.1 * (avgc - 127)))) + 60, 255), 50))
+
+            # Set the color of the corresponding pixel in the new surface
+            new_surface.set_at((x, y), new_color)
+
+    return new_surface
+def create_color_change_surface2(surface1, surface2):
+    # Check if the surfaces have the same dimensions
+    if surface1.get_size() != surface2.get_size():
+        raise ValueError("Surfaces must have the same dimensions")
+
+    # Convert the surfaces to NumPy arrays
+    array1 = pygame.surfarray.pixels3d(surface1)
+    array2 = pygame.surfarray.pixels3d(surface2)
+
+    # Calculate the color change between the arrays
+    color_change = array2 - array1
+
+    # Adjust the color change values
+    color_change = np.clip(color_change, -60, 195) + 60
+
+    # Create a new surface with the adjusted color change values
+    new_surface = pygame.surfarray.make_surface(color_change)
+
+    return new_surface
+def create_color_change_surface(surface1, surface2):
+    new_surface = create_color_change_surface2(surface1, surface2)
+    new_surface = copy_alpha(surface2,new_surface)
+    return new_surface
+
+
+
+texturecache = None
+normalcache = None
+tnhash = "ewq"
+
+def copy_alpha(src_surface, dest_surface):
+    if not src_surface.get_masks()[3]:  # Check if source surface lacks an alpha channel
+        src_surface = src_surface.convert_alpha()  # Convert source to a surface with alpha channel
+
+    if not dest_surface.get_masks()[3]:  # Check if destination surface lacks an alpha channel
+        dest_surface = dest_surface.convert_alpha()  # Convert destination to a surface with alpha channel
+
+    dest_pixels = pygame.surfarray.pixels_alpha(dest_surface)
+    src_pixels = pygame.surfarray.pixels_alpha(src_surface)
+    dest_pixels[:] = src_pixels[:]
+
+    del src_pixels
+    del dest_pixels
+
+    return dest_surface
+def specular(texture,normalmap,angle):
+    global texturecache , normalcache , tnhash
+    pxf = 20
+    txhash = str(texture) + str(normalmap)
+    if not  (txhash == tnhash):
+        texturecache = pygame.transform.smoothscale(texture,(20,20))
+        normalcache = pygame.transform.smoothscale(normalmap,(20,20))
+    return pygame.transform.smoothscale(create_color_change_surface(apply_normal_map2(texture,normalmap,angle), texture),(40,40))

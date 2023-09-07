@@ -3,7 +3,7 @@ from dialogtree import UIdialogbase
 from dialogtree import pygame
 import time
 import ptext
-from inventory import imxrender
+from inventory import imxrender ,imvrender
 import random
 import waterFX
 
@@ -217,6 +217,7 @@ class settingsdia(UIdialogbase):
         self.add_slider("    performance       ",(300,220),["ON","OFF"],default=(1-self.settings[2]))
         self.add_slider("      enable  audio   ",(300,250),["ON","OFF"],default=(1-self.settings[3]))
         self.add_slider("skip credits",(300,280),["ON","OFF"],default=(1-self.settings[4]))
+        #self.add_slider("developer mode ",(300,300),["ON","OFF"],default=(1-self.settings[5]))
         #self.add_btn("Pong", "pongBtn", (0.5, 0.3), (0.1, 0.1),text1=pong,text2=pong)
         #self.add_btn("Flappy Bird", "flappyBtn", (0.5, 0.6), (0.1, 0.1),text1=flappy,text2=flappy)
 
@@ -386,9 +387,71 @@ class invdia(UIdialogbase):#i have not tested this , at least it has a chance of
         pass  # do nothing on button press
 
     def runUI(self):
-        while self.active:
+        #while self.active:
             self.renderframe()
             #self.handleinputs()
             pygame.display.flip()
 
+class inv2dia(UIdialogbase):#i have not tested this , at least it has a chance of working until tested 
+    def __init__(self,tileinv):
+        UIdialogbase.__init__(self)
+        #self.cx = x
+        #self.cy = y
+        self.inv = tileinv
+        self.FTIO = 0
+    def initialise(self):
+        self.active = 1
+        self.initialised = 1
+        #self.inv = {}  # initialize inventory
+        self.xi = 0  # initialize xi variable
+
+    def renderframe(self):#####YYYYYYYYYYYYYAAAAAAAAAAAAAAAAYYYYYYYYYYYYYYY it works , i think i know how but just in case leave this alone   
+        #if self.FTIO == 0:
+            #self.FTIO == 1
+            #tl = self.cmap.structuremap.rmmap((self.cx,self.cy),1)
+            #if not tl == "none":
+                #if tl.price > 0:
+                    #self.inv = {}
+                    #self.inv[tl.mp_item] = 1
+                    #self.cmap.structuremap.smmap((self.cx,self.cy),"none")
+                #selse:
+                    #self.cmap.structuremap.smmap((self.cx,self.cy),"none")
+                
+        self.drawsys.screen.fill((0, 0, 0))
+        # render inventory using imvrender function
+        xo = imvrender(self.cplayer.inventory.inv, self.inv)
+        #print(xo)
+        self.cplayer.inv = xo[1]
+        self.inv = xo[2]
+        time.sleep(0.05)
+        if xo[0] ==  1:
+            self.active = 0
+            self.inv = xo[2]
+            #print(self.inv)
+            #if self.inv == {}:
+                #self.cmap.structuremap.smmap((self.cx,self.cy),"none")
+            #else:
+               # nx = next(iter(self.inv.items()))
+                #tlc = nx[0]
+                #print(tlc.blockID)
+                #xi = "none"
+                #for i in self.cmap.tiles:
+                    #if i.__class__.__name__ == tlc.blockID:
+                        #xi = i
+                        #print("match found ")
+                #self.cmap.structuremap.smmap((self.cx,self.cy),xi)
+                #print(str(self.cx) +"+"+str(self.cy))
+                
+            ##add code that replaces tile just above x/y coords
+            #just do it, if it does not work ,you can fix it later
+
+
+    def btnp(self, name):
+        pass  # do nothing on button press
+
+    def runUI(self):
+        while self.active:
+            self.renderframe()
+            #self.handleinputs()
+            pygame.display.flip()
     

@@ -5,20 +5,22 @@ import asyncio
 import random
 import npcdia
 import math
+import copy
 import npcnames as npcproperties
 import UIdialogdef
 import waterFX
 import UIDIA
+import psprite
 companion = "none"
 disptm = 0
 printatall = 1
-xprint = print
-helpmsg = ""
-def zprint(x,**kwargs):
-    global printatall,xprint
-    if printatall == 1:
-        xprint(x,**kwargs)
-print = zprint
+# xprint = print
+# helpmsg = ""
+# def zprint(x,**kwargs):
+#     global printatall,xprint
+#     if printatall == 1:
+#         xprint(x,**kwargs)
+# print = zprint
 def IO():
     pass # to get around asyncio.stop() make it so that interact() looks at if tile has a dialog property and handles it in main event loop  (in main.py  just switch off the main function of libraries.py altogether)
 class sttobj():
@@ -49,22 +51,89 @@ class ptexture(): # a texture pointer class
         self.location = str(location)
     def gt(self):
         return tile_textures[self.location]
+    
+class fptexture(): # a texture pointer class
+    def __init__(self,image):
+        global tile_textures
+        imgstr = hash(pygame.image.tostring(image, 'RGBA'))
+        if not str(imgstr) in tile_textures:
+            #print("intitialising_ptexture")
+                tile_textures[str(imgstr)] = image
 
-class fptexture():
-    def __init__(self,surface):
-        self.surf = surface
+        self.location = str(imgstr)
     def gt(self):
-        return self.surf
+        return tile_textures[self.location]
+
+
+quests = {"CHEST_INV":{},"bgtrailcolor":'black',"intro":0,"HOFF":0,"gather_members":0,"helpmessage":"interact (interact button) with the robot \n at the front door \n WASD / arrows to move \n i do not assume that you are stupid olivia \n and i know you probably do not need \n this help message \n but  some playtesters cannot understand  \n what the game wants them todo "}
+
+def color_name_to_rgb(color_name, frametime=None):
+    color_map = {
+        'black': (0, 0, 0,14),
+        'white': (255, 255, 255,14),
+        'red': (255, 0, 0,14),
+        'green': (0, 128, 0,14),
+        'blue': (0, 0, 255,14),
+        'purple': (128, 0, 128,14),
+        'pink': (255, 192, 203,14),
+        'yellow':(255,255,0,14),
+        'orange':(255,165,0,14)
+        ,'ethereal': (255, 192, 203,14)
+        #'None':
+    }
+
+    if color_name == 'rainbow':
+        if frametime is None:
+            raise ValueError("Rainbow color requires a 'frametime' argument.")
+
+        period = 100  # Adjust the period to change the speed of the rainbow cycle
+        frequency = 2 * math.pi / period
+        r = int(127 * math.sin(frequency * frametime + 0) + 128)
+        g = int(127 * math.sin(frequency * frametime + 2 * math.pi / 3) + 128)
+        b = int(127 * math.sin(frequency * frametime + 4 * math.pi / 3) + 128)
+        return (r, g, b,14)
+
+    if color_name == 'ethereal':
+        if frametime is None:
+            raise ValueError("Ethereal color requires a 'frametime' argument.")
+
+        period = 250  # Adjust the period to change the speed of the ethereal color cycle
+        frequency = 2 * math.pi / period
+        r = int(127 * math.sin(frequency * frametime + 0) + 128)
+        g = int(127 * math.sin(frequency * frametime + math.pi / 2) + 128)
+        b = int(127 * math.sin(frequency * frametime + math.pi) + 128)
+        return (r, g, b,14)
+
+    return color_map.get(color_name, None)
+def draw_circle(surface, color, center, radius):
+    circle_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+    pygame.draw.circle(circle_surface, color[:3], (radius, radius), radius)
+    alpha = color[3] if len(color) >= 4 else 255
+    circle_surface.set_alpha(alpha)
+    surface.blit(circle_surface, (center[0] - radius, center[1] - radius))
+    return surface
+
 class entity():
     def __init__(self,x,y):
         self.pos = [x,y]
         self.delme = 0
         self.dt = 20
+        self.frametime = 0
         self.swm =0 #save  with map
         self.texture = ptexture('img/footstep.png')
     def draw(self,x,y,screen):
+        global quests
+        if "bgtrailcolor" in quests:
+            color = list(color_name_to_rgb(quests["bgtrailcolor"],self.frametime))
+        else:
+            quests["bgtrailcolor"] = "black"
+            color = list(color_name_to_rgb(quests["bgtrailcolor"],self.frametime))
+        color[3] =  100
+        self.frametime += 10
+        self.frametime = self.frametime % 100
         try:
-            screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
+            #screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
+            screen = draw_circle(screen, color, (x, y), int(self.dt*0.5))
         except:
             self.delme = 1
         return screen
@@ -72,6 +141,29 @@ class entity():
         self.dt = self.dt - 1
         if self.dt < 2:
             self.delme = 1
+        return self
+    def rm(self):
+        self.delme = 1
+class shadowentframeent():
+    def __init__(self,x,y):
+        self.pos = [x,y]
+        self.delme = 0
+        #self.dt = 3
+        self.frametime = 2
+        self.swm =0 #save  with map
+        self.texture = ptexture('img/footstep.png')
+    def draw(self,x,y,screen):
+        #print((x,y))
+        screen.blit(self.texture.gt(),(int(x),int(y)))
+        #self.delme = 1
+        #self.delme=1
+            #screen = draw_circle(screen, color, (x, y), int(self.dt*0.5))
+
+        return screen
+    def run(self,tiles,cmap):
+        #if self.dt < 2:
+            #self.delme = 1
+        #self.dt = self.dt - 1
         return self
     def rm(self):
         self.delme = 1
@@ -89,6 +181,10 @@ def extract_sprite_from_32x_cat_spritesheet(spritesheet, orientation, frame):
         row_offset = 3
     elif orientation == 'down':
         row_offset = 0
+    elif orientation == 'standright':
+        row_offset = 4
+    elif orientation == 'standleft':
+        row_offset = 5
         
     # Calculate the position in the spritesheet
     column = (frame ) % num_columns
@@ -118,11 +214,26 @@ def determine_direction(start, end):
         return 'up'
     else:
         return 'right'  # Default direction if the coordinates are the same
+def determine_dir2(start, end):
+    start_x, start_y = start
+    end_x, end_y = end
+    
+    if start_x < end_x:
+        return 'standleft'
+    elif start_x > end_x:
+        return 'standright'
+    elif start_y < end_y:
+        return 'standright'
+    elif start_y > end_y:
+        return 'standleft'
+    else:
+        return 'right'  # Default direction if the coordinates are the same
 class entit2y():
     def __init__(self,x,y):
         self.pos = [x,y]
         self.delme = 0
         self.dt = 10
+        self.animation = 0
         self.stage = 1
         self.progress = 10
         self.previouspos = self.pos
@@ -135,7 +246,11 @@ class entit2y():
         if self.previouspos.__class__.__name__ == 'int' or self.nextpos.__class__.__name__ == 'int':
             return screen
         self.dt = 40
-        texture = extract_sprite_from_32x_cat_spritesheet(texture,determine_direction(self.previouspos,self.nextpos),int(self.progress )% 4)
+        if len(self.path) == 1:
+            self.animation = (self.animation + 0.2) % 4
+            texture = extract_sprite_from_32x_cat_spritesheet(texture,determine_dir2(self.previouspos,self.nextpos),int(self.animation )% 4)
+        else:
+            texture = extract_sprite_from_32x_cat_spritesheet(texture,determine_direction(self.previouspos,self.nextpos),int(self.progress )% 4)
         try:
             screen.blit(pygame.transform.scale(texture,(self.dt,self.dt)),(int((x+20)-(self.dt*0.5)),int((y+20)-int(self.dt*0.5))))
         except Exception as iex:
@@ -170,6 +285,7 @@ class entit2y():
                         self.nextpos = self.path[self.stage]
                 else:
                     self.stage = 2
+                    
         except:
             self.pos = cmap.playerpos
             self.progress = 9999999
@@ -322,9 +438,8 @@ class RandomWalkEntity:
         return False       
         
 
-entities = [entity(0,0),RandomWalkEntity(0,0),entit2y(0,0)]        
+entities = [entity(0,0),RandomWalkEntity(0,0),entit2y(0,0),shadowentframeent(0,0)]        
 tiles = []
-quests = {"intro":0,"HOFF":0,"gather_members":0,"helpmessage":"interact (interact button) with the robot \n at the front door \n WASD / arrows to move \n i do not assume that you are stupid olivia \n and i know you probably do not need \n this help message \n but  some playtesters cannot understand  \n what the game wants them todo "}
 class tile():
     def init(self):
         pass
@@ -574,6 +689,65 @@ class water(tile):
            # if self.states[i]:
               #  bt.blit(watertxturessides[i].gt(),(0,0))
         return bt #fptexture(bt)
+class infpedestal(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",0,0,["unpassable"]],'pedestal',(0,0,430,255))
+        self.txt1 = self.catchtxt('pedestal')
+        self.orb = [self.catchtxt("orb"+str(i)) for i in range(0,4)]
+        self.ft =0
+        self.message = "(interact to view helpmessage)"
+        self.animated = 1
+        self.height = 0
+        self.interactable = 1
+       # self.states = [0,0,0,0]
+        #self.needs_upd_after_init = 1
+        #self.animated = 0
+    def gt(self):
+        return fptexture(self.gtx(1).gt())
+    #def initmp(self,cmap):
+        #self.states = [1,1,1,1]
+       # nxt = [(-1,0),(0,1),(1,0),(0,-1)]
+       # for i in nxt:
+          #  tilex= cmap.read(cmap.heightmap,self.x+i[0],self.y+i[1],True)
+          #  if not tilex == "none":
+             #   if tilex.name == "water":
+                  #  self.states[nxt.index(i)] = 0
+                
+        
+        return cmap
+    def gtx(self,fn):
+        fn = int((fn*0.1))%4
+        #print(fn)
+        bt = pygame.surface.Surface((40,40)).convert_alpha()
+        bt.fill([0,0,0,0])
+        bt.blit(self.txt1.gt(),(0,0))
+        bt.blit(self.orb[fn].gt(),(0,0))
+        #for i in range(0,4):
+           # if self.states[i]:
+              #  bt.blit(watertxturessides[i].gt(),(0,0))
+        return fptexture(bt)
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+            global quests
+            nspq = "you do not have a quest assigned by a NPC this time"
+            mqh = quests["helpmessage"]
+            if not npcproperties.activequest == None:
+                try:
+                    nspq =npcproperties.activequest.desc
+                except:
+                    nspq = "idk if you have a quest assigned by a NPC this time \n you may have one but the following line of code \n errored out  \n   nspq =npcproperties.activequest.desc  "
+            dialogtree.cnpcdial = dialogtree.nbcdialog({"1":["which helpmessage do you want to see ?",{"the one for main storyline ":"ms","the once for the npc specific quest":"nspq","exit dialog":0}],"ms":[mqh,{"exit ":"0","back":"1"}],"nspq":[nspq,{"exit ":"0","back":"1"}]})
+            
+            
+        ####
+        
+            return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
 class TESTGATE(tile):
     def upd(self): 
         self.lgco(["ground",1,20],'grass1',(255,255,2505,255))
@@ -854,6 +1028,7 @@ class a_10nose(tile):
         self.name = "a10-nose"
         self.animated = 1
         self.texture = ptexture('img/a10-nose.png')
+        self.shineimage = ptexture('img/a10-nose_normal.png')
         self.name = "a-10,126"
 class a_10cabin(tile):
     def upd(self):
@@ -864,6 +1039,7 @@ class a_10cabin(tile):
         self.animated = 1
         self.name = "a-10,125"
         self.texture = ptexture('img/a10-cabin.png')
+        self.shineimage = ptexture('img/a10-cabin_normal.png')
 class a_10cabin2(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(98,98,98,255))
@@ -873,6 +1049,7 @@ class a_10cabin2(tile):
         self.animated = 1
         self.name = "a-10,123"
         self.texture = ptexture('img/a10-cabin2.png')
+        self.shineimage = ptexture('img/a10-cabin2_normal.png')
 class a_10tail(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(167,167,167,255))
@@ -882,6 +1059,7 @@ class a_10tail(tile):
         self.animated = 1
         self.name = "a-10,353"
         self.texture = ptexture('img/a10-tailb.png')
+        self.shineimage = ptexture('img/a10-tailb_normal.png')
 class a_10section(tile):
     def upd(self):
         self.lgco(["ground",1,20],'a10-cabin2',(147,147,147,255))
@@ -892,9 +1070,12 @@ class a_10section(tile):
         self.animated = 1
         self.texture = ptexture('img/a10-section1.png')
         self.texture2 = ptexture('img/a10-section2.png')
+        self.shineimage = ptexture('img/a10-section2_normal.png')
+        
     def gt(self):
         if self.pos[0] % 2 == 1:
             return self.texture
+            
         else:
             return self.texture2
 class a_10wing(tile):
@@ -907,9 +1088,11 @@ class a_10wing(tile):
         self.name = "a-10,43"
         self.texture = ptexture('img/a10-winga.png')
         self.texture2 = ptexture('img/a10-wingb.png')
+        self.shineimage = ptexture('img/a10-wingb_normal.png')
     def gt(self):
         if self.pos[1] % 2 == 1:
             return self.texture
+           
         else:
             return self.texture2
 class a_10wingtipa(tile):
@@ -920,6 +1103,7 @@ class a_10wingtipa(tile):
         self.place_last = 1
         self.animated = 1
         self.texture = ptexture('img/a10-wingtipa.png')
+        self.shineimage = ptexture('img/a10-wingtipa_normal.png')
 
 class a_10wingtipb(tile):
     def upd(self):
@@ -929,6 +1113,7 @@ class a_10wingtipb(tile):
         self.place_last = 1
         self.animated = 1
         self.texture = ptexture('img/a10-wingtipb.png')
+        self.shineimage = ptexture('img/a10-wingtipb_normal.png')
 
 class a_10turbinea(tile):
     def upd(self):
@@ -939,6 +1124,7 @@ class a_10turbinea(tile):
         self.walkable = 0
         self.animated = 1
         self.texture = ptexture('img/a10-rightturbine.png')
+        self.shineimage = ptexture('img/a10-rightturbine_normal.png')
 
 class a_10turbineb(tile):
     def upd(self):
@@ -949,6 +1135,7 @@ class a_10turbineb(tile):
         self.walkable = 0
         self.animated = 1
         self.texture = ptexture('img/a10-leftturbine.png')
+        self.shineimage = ptexture('img/a10-leftturbine_normal.png')
 
 class a_10taila(tile):
     def upd(self):
@@ -959,6 +1146,7 @@ class a_10taila(tile):
         self.walkable = 0
         self.animated = 1
         self.texture = ptexture('img/a-10taila.png')
+        self.shineimage = ptexture('img/a-10taila_normal.png')
         
 class a_10tailb(tile):
     def upd(self):
@@ -969,6 +1157,7 @@ class a_10tailb(tile):
         self.walkable = 1
         self.animated = 1
         self.texture = ptexture('img/a10-tailc.png')
+        self.shineimage = ptexture('img/a10-tailb_normal.png')
 
 
 
@@ -1046,6 +1235,19 @@ class grass2(tile):
     def upd(self): #gets run after init to set defaults to water
         self.lgco(["ground",2,10],'grass2',(230,230,230,255))
         self.height = 2
+class oliviale(tile):
+    def upd(self):
+        self.lgco(["ground",2,10],'o.le',(22349,30,2042,255))
+        self.animated = 1
+class steel(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",2,10],'steel',(29,30,20,255))
+        self.height = 2
+        self.metalshading = 1
+        self.reflectivity = 20
+        self.walkable =0
+        self.animated = 1
+        #self.
         
 class plant1(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -1219,7 +1421,7 @@ class teleporter(tile):
                     cplayer.pos[0] = 27 - 8
                     cplayer.pos[1] = 47 - 8
                 if  dialogtree.cnpcdial.val == "lg":
-                    cplayer.pos[0] = 200-8
+                    cplayer.pos[0] = 199-8
                     cplayer.pos[1] = 160-8
                     
                 if  dialogtree.cnpcdial.val == "or":
@@ -1228,6 +1430,35 @@ class teleporter(tile):
                     
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
+
+class coloriser(tile):
+    def upd(self): #gets run after init to set defaults to water
+        self.lgco(["ground",1,20,["unpassable"]],'coloriser',(78,94,134886,255),1)
+        self.message = "(colorise trail)"
+        self.interactable = True
+        self.price = 1
+        #self.teleport_pos = [(464 ,127),[445,180]]
+
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        dialogtree.cnpcdial = dialogtree.nbcdialog(dialogtree.trailcolordia)
+
+        ####
+        
+        return [cplayer,cmap,message]
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        if test == 1:
+            return 1
+        else:
+            color = (0,0,0)
+            #print()
+            if  dialogtree.cnpcdial.val.__class__.__name__ == 'str':
+                quests["bgtrailcolor"] = dialogtree.cnpcdial.val
+
+            dialogtree.cnpcdial = dialogtree.ddialog()
+            return [cmap,cplayer]
+
 
 class fei(tile):
     def upd(self): #gets run after init to set defaults to water
@@ -1257,18 +1488,6 @@ class fei(tile):
                         cplayer.pos[1] = 127 -8
                     else:
                         cplayer.pos = [445-8,180-8]
-                #if  dialogtree.cnpcdial.val == "sm":
-                    #cplayer.pos[0] = 35 - 8
-                    #cplayer.pos[1] = 196 - 8
-               # if  dialogtree.cnpcdial.val == "md":
-                   # cplayer.pos[0] = 27 - 8
-                    #cplayer.pos[1] = 47 - 8
-                #if  dialogtree.cnpcdial.val == "lg":
-                   # cplayer.pos[0] = 200-8
-                    #cplayer.pos[1] = 160-8
-                #if  dialogtree.cnpcdial.val == "or":
-                   # cplayer.pos[0] = 412-8
-                    #cplayer.pos[1] = 41-8
             dialogtree.cnpcdial = dialogtree.ddialog()
             return [cmap,cplayer]
 
@@ -1373,10 +1592,21 @@ class questobjective(tile):
         charnum = charnum % len(npcproperties.npc_inf) 
         character = npcproperties.npc_inf[charnum]
         self.species = character[2]
+        
+        
         self.assignquest = npcproperties.genquest()
         self.about = character[1]
         self.cname = character[0]
         self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
+        if not "tile_" in self.species:
+            self.ex_shadow = True
+            self.shadowtxt = fptexture(waterFX.add_shadow(self.texture.gt(),"reflected"))
+            self.animated = 1
+        else:
+            if self.species in ["tile_birdfeeder","tile_mailbox"]:
+                self.ex_shadow = True
+                self.shadowtxt = fptexture(waterFX.add_shadow(self.texture.gt(),"reflected"))
+                self.animated = 1
         self.message = "( " + self.cname + " )"
         return self
     def upd(self): #gets run after init to set defaults to water
@@ -1411,14 +1641,36 @@ class questobjective(tile):
 
 
 
+human_characters = []
+for key in range(0,len(npcproperties.npc_inf)):
+    value = npcproperties.npc_inf[key]
+    if "human" in value[2]:
+        human_characters.append(key)
+        
+assigned_characters = []
+xted = random
+def assign_human_character(i):
+    global assigned_characters,xted
+    xted.seed(str(i))
+    available_characters = [character for character in human_characters if character not in assigned_characters]
 
+    if not available_characters:
+        available_characters = human_characters
+        assigned_characters.clear()
 
+    assigned_character = xted.choice(available_characters)
+    assigned_characters.append(assigned_character)
+
+    return assigned_character
 
 class character(tile):
     def initmp(self):
         if not npcproperties.npc_pos.__class__.__name__ == "dict":
           npcproperties.npc_pos = {}  
         npcproperties.npc_pos[self.cname] = self.pos
+        if "human" in self.species:
+            t = assign_human_character(self.pos)
+            self.ssc(t)
     def ssc(self,charnum):
         charnum = charnum % len(npcproperties.npc_inf) 
         character = npcproperties.npc_inf[charnum]
@@ -1433,6 +1685,24 @@ class character(tile):
         self.name = self.cname
         self.assignquest = ""
         self.lgco(["ground",1,20,["unpassable"]],self.species,(52,96,1111,255),1)
+        if not "tile_" in self.species:
+            self.ex_shadow = True
+            try:
+                if self.species == "human_m":
+                    self.shadowtxt = fptexture(waterFX.add_shadow(psprite.Sprite(self.cname,"Guy").sprites[3],"reflected"))
+                    
+                elif self.species == "human_f":
+                    self.shadowtxt = fptexture(waterFX.add_shadow(psprite.Sprite(self.cname,"Girl").sprites[3],"reflected"))
+                else:
+                    self.shadowtxt = fptexture(waterFX.add_shadow(self.texture.gt(),"reflected"))
+            except Exception as issue:
+                print(issue)
+            self.animated = 1
+        else:
+            if self.species in ["tile_birdfeeder","tile_mailbox"]:
+                self.ex_shadow = True
+                self.shadowtxt = fptexture(waterFX.add_shadow(self.texture.gt(),"reflected"))
+                self.animated = 1
         self.message = "( " + self.cname + " )"
         return self
     def upd(self): #gets run after init to set defaults to water
@@ -1982,7 +2252,27 @@ class tree(tile):
 class vendingmachine(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, ['unpassable']],"vendingmachine",(0, 96, 1281, 32255))
-
+class chest(tile):
+    def upd(self):
+        self.lgco(['ground', 0, 0, []],"chest",(0, 96, 121, 32255))
+        self.interactable = 1
+        self.message = "(interact with chest)"
+        self.price = 1
+        self.inventory = {}
+    def interact(self,cplayer,cmap,message="found \n nothing"):
+        global quests
+        #gameSwitcher()
+        self.inventory = copy.deepcopy(quests['CHEST_INV'])
+            #self.inventory = {}
+        dialogtree.cnpcdial = UIdialogdef.inv2dia(self.inventory)
+        #return [,cmap,message]
+        return []
+    def callback(self,cmap=0,cplayer=0,test=0):
+        global quests
+        self.inventory = dialogtree.cnpcdial.inv
+        quests["CHEST_INV"] = self.inventory
+        #return [cplayer,cmap]
+        return []
 class console(tile):
     def upd(self):
         self.lgco(['ground', 0, 0, []],"console",(0, 96, 121, 32255))
@@ -2070,15 +2360,16 @@ for i in range(0,len(npcproperties.npc_inf)):
     except Exception as EX:
         print(npcproperties.npc_inf[i][0])
         print(EX)
-xtiles = xtiles + [housetile(),wendy(),fei(),chair(),vegetationcover(),table1(),table2(),flightsim(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
+xtiles = xtiles + [housetile(),wendy(),fei(),chair(),vegetationcover(),steel(),oliviale(),coloriser(),infpedestal(),table1(),chest(),table2(),flightsim(),table3(),plant1(),console(),vendingmachine(),drawer(),buyhouse(),telescope(),lever(),conductor(),NOTGATE(),ORGATE(),ANDGATE(),NANDGATE(),TESTGATE(),gate()]
 testlist = []
 for i in range(0,len(npcproperties.npc_inf)):
-    try:
         if  "tile" in  npcproperties.npc_inf[i][2]:
-            xtiles.append(character().ssc(i))
-    except Exception as EX:
-        print(npcproperties.npc_inf[i][0])
-        print(EX)
+            tne = character()
+            tne = copy.deepcopy(tne)
+            xtiles.append(tne.ssc(i))
+            print(tne.ssc(i).cname)
+
+
 for itile in xtiles:
     itile.upd()
     if itile.price > 0:

@@ -263,3 +263,6 @@ info3dialog = {
 "1":["hi what do you want ",{"tell me a story of a land far away":2,"how are you ":6,"can you give me a summary of why i am here":3,"have a good day :D":4,"nice to see you again":5," bye":0}],
 "2":["sure \n"]
 }
+trailcolordia = {
+"1":[" the  machine prompts you to \n enter a color  (scroll for more color options) \n ",{"no change":0,"red":"red","green":"green","yellow":"yellow","orange":"orange","purple":"purple","pink":"pink","blue":"blue","rainbow":"rainbow","ethereal":"ethereal"}],
+}

@@ -20,6 +20,11 @@ import numpy as np
 import numpy
 import pickle
 terrainlist  = []
+def instance_hash(obj):
+   if obj.__class__.__name__ == 'str':
+       return obj
+   else:
+       return str(obj.name) + str(obj.message) + str(obj.hidden) + str(obj.__class__.__name__) + str(obj.state)
 def vec_add(y,t):
     r = []
     if len(y) == len(t):
@@ -53,7 +58,7 @@ def nrl(l1,l2):
     t = t + 1
     return y 
 class memorymap():
-    def __init__(self,imgmp,gstate=True,topt=0):
+    def __init__(self,imgmp,gstate=False,topt=0):
         if gstate:
             self.size = imgmp.get_size()
             self.imgmp = imgmp
@@ -83,14 +88,16 @@ class memorymap():
                         except:
                             io = 0
                     self.mmap[str(x) + "o" + str(y)] = output
-            self.dgmap = self.mmap
+            self.dgmap = copy.deepcopy(self.mmap)
     def getdiff(self):
        difftab = [] 
        for y in range(0,self.size[1] - 1):
                 for x in range(0,self.size[0] - 1):
                     original = self.dgmap[str(x) + "o" + str(y)]
-                    checkitem =self.mmap[str(x) + "o" + str(y)]
-                    if not original == checkitem:
+                    checkitem = self.mmap[str(x) + "o" + str(y)]
+                    #if not original.
+                    if not instance_hash(original) == instance_hash(checkitem):
+                        #print([x,y])
                         difftab.append([str(x) + "o" + str(y),checkitem])
        return difftab
     def applydiff(self,difftab):
@@ -126,7 +133,16 @@ class memorymap():
                 #result = tiles[0]
                 #self.mmap[key] = copy.deepcopy(result)
                 return "none"  
-
+    def rmmap(self, l, clear=0):
+        l = list(map(math.floor, l))
+        key = f"{l[0]}o{l[1]}"
+        
+        
+        
+        if clear == 0:
+            return self.mmap.get(key, tiles[0])
+        else:
+            return self.mmap.get(key, "none")
     def smmap(self,l,i,dg=0):
         l = list(l)
         l[0] = math.floor(l[0])
@@ -135,8 +151,11 @@ class memorymap():
         if not i == "none":
             i.pos = [l[0],l[1]]
         self.mmap[key] = copy.deepcopy(i)
-        if dg:
+        if dg==3:
             self.dgmap[key] = copy.deepcopy(i)
+        #else:
+            #self.dgmap[key] = "THISISCLEARLYNOTRIGHT"
+           # raise ValueError("MODIFYERROR")
     def getpixel(self,t,st="l",clear=0):
        # try:
             if st=="l":
@@ -474,13 +493,14 @@ class gmap():
         self.playerpos = [0,0]
         self.entitymap = EntityMap()
         self.entities = entities
-        self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'))
-        self.structuremap =  memorymap(self.loadtxt('img/structures.png'),topt=1)
+        self.heightmap =  memorymap(self.loadtxt('img/heightmap.png'),True)
+        self.structuremap =  memorymap(self.loadtxt('img/structures.png'),True,topt=1)
         self.threedeffecthax =  self.loadtxt('img/3doutlinehack.png')
         self.threedoverlay = pygame.transform.scale(pygame.image.load('img/3deffect.png'),(40,40))
         self.threedoverlay2 = pygame.transform.scale(pygame.image.load('img/3deffect2.png'),(40,40))
         self.threedfx = self.loadtxt('img/3dheight.png')
         self.particles = []
+        self.layer3 = memorymap(self.loadtxt('img/layer3.png'),True,topt=1)
         if x:
             tile_lookup = {xi.name + xi.__class__.__name__: xi for xi in self.tiles}
 
@@ -499,12 +519,15 @@ class gmap():
                     layer = i[2] if len(i) > 2 else 1
 
                     if layer == 1:
-                        self.structuremap.smmap(i[0], t, dg=1)
-                    else:
-                        self.heightmap.smmap(i[0], t, dg=1)
+                        self.structuremap.smmap(i[0], t, dg=3)
+                    elif layer == 0:
+                        self.heightmap.smmap(i[0], t, dg=3)
+                    elif layer == 2:
+                        self.layer3.smmap(i[0], t, dg=3)
 
-            self.structuremap.dgmap = self.structuremap.mmap
-            self.heightmap.dgmap = self.heightmap.mmap
+            self.structuremap.dgmap = copy.deepcopy(self.structuremap.mmap)
+            self.heightmap.dgmap = copy.deepcopy(self.heightmap.mmap)
+            
 
 
 
