@@ -413,23 +413,61 @@ viewportx = ""
 phash = [0,0]
 phashx = [0,0]
 sc = []
-def optimized_blit(source, dest, position,frametime,xt=0,xtd=0):
+def calculate_rect(position):
+    # Calculate the x-coordinate of the top-left corner of the visible area
+    x_p = position[0] + 720
+
+    # Calculate the y-coordinate of the top-left corner of the visible area
+    y_p = position[1]
+
+    # Create the rect object representing the visible area
+    rect = (x_p, y_p, 5, 640)
+
+    return rect
+def optimized_blit(source, dest, position,frametime,xt=0,xtd=0,rects="none"):
     global phash,phashx
 #     
 #     if viewportx.__class__.__name__ == 'str':
 #         viewportx = viewport.Viewport(position[0],position[1],source,dest)
     
 #         viewportx.sc(position[0],position[1])
-    if (frametime%4)==1 or xt==1:
+    if (frametime%6)==1 or xt==1:
         source.set_alpha(255)
         #dest.blit(source,position)
         phash = position
         dest.blit(source,position)
+    
+    
     elif not xt==1:
         if not str(phash) == str(position):
-            dest.scroll((position[0]-phash[0]),(position[1]-phash[1]))
+            #new_position = ( phash[0]-position[0] , position[1] - phash[1])
+            #visible_width = min(680 - new_position[0], 680)
+            #ufr = 640-(position[0]-phash[0])
+            #sca = position[0] - phash[0]
+            x_p = (640-position[0])
+            x_p2 = (40-position[0])
+            y_p = 0-position[1]
+            change = 0-(position[0] - phash[0])
+            rect = (x_p,y_p,min(change,680-x_p),640)
+            rect2 = (x_p2-40,y_p,200,25)
+            dest.scroll(position[0] - phash[0], position[1] - phash[1])
+            #print("phash:"+str(phash))
+            #print("position:"+str(position))
+            #print(change)
+            #print(x_p)
+            #print
+            if change>0 :
+                #time.sleep(0.1)
+                #print(rect)
+                dest.blit(source.subsurface(rect),(640-min(change,680-x_p),0))
+            dest.blit(source.subsurface(rect2),(0,0))
+            #time.sleep(0.1)
+                
+
+            
             phash = position
-            print(frametime%4)
+            xtract = [640-position[0],680-phash[0]]
+            #print(xtract)
         #print(phash)
     #positionx = [int(i) for i in position]
     #if not phas
@@ -439,6 +477,8 @@ def optimized_blit(source, dest, position,frametime,xt=0,xtd=0):
          #phash = position
          #print(position)
          dest.blit(source,position)
+    if not rects=="none":
+        dest.blit(source,position)
     #viewportx.draw(dest)
 
 
@@ -458,7 +498,7 @@ class render():
         self.screen.blit(self.skytexture,(0,0))
         self.screen.convert()
         self.prescreen = pygame.surfarray.array2d(self.screen)
-        self.vbuffer  = pygame.surface.Surface((679, 679),pygame.HWSURFACE|pygame.SRCALPHA).convert_alpha()
+        self.vbuffer  = pygame.surface.Surface((680, 680),pygame.HWSURFACE|pygame.SRCALPHA).convert_alpha()
         self.wrfb = pygame.surface.Surface((40,4)).convert()
         self.wrfb2 = pygame.surface.Surface((40,8)).convert()
         self.vbxb = "none"
