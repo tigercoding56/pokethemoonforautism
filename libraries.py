@@ -51,7 +51,7 @@ markp=0
 sound_intr = -1
 selectedt = 0
 xprint = print
-printatall = 1
+printatall = 0
 class ImageSprite(Sprite):
     def __init__(self, image):
         super().__init__()
@@ -1263,9 +1263,12 @@ def main():
     endtime = time.time()
     #gfps = 0
     #print(gfps)
-    if gfps  <30 and start==1 :
-        drawsys.rfi = 0
-    start = 0
+    #time.sleep(0.1)
+    if start==10:
+       if gfps  <30   :
+         drawsys.rfi = 0
+    else:
+         start = start+1
     #pygame.time.wait(10)
     
     #time.sleep(1/43)
