@@ -29,6 +29,12 @@ or implied, of Al Sweigart.
 import pygame
 from pygame.locals import *
 import numpy as np
+import math
+def scale_rect(rect, x_scale, y_scale):
+    rect = rect.copy()
+    rect.width = math.floor(rect.width * x_scale)
+    rect.height = math.floor(rect.height * x_scale)
+    return rect
 def modify_image_color(surface, red_modifier, green_modifier, blue_modifier):
     # Convert the surface to a NumPy array
     pixels = pygame.surfarray.pixels3d(surface)
@@ -85,6 +91,7 @@ class PygButton(object):
         self.wfcolor = (255,225,125) 
         self.enabled = 1
         self.en = 1
+        self.sd=0
         self._caption = caption
         self._bgcolor = bgcolor
         self.ebgcolor = bgcolor
@@ -115,6 +122,17 @@ class PygButton(object):
 
     def handleEvent(self, eventObj):
         ## return []
+        bgrect = self._rect
+        if self.sd == 1:
+            urect = scale_rect(self._rect,0.5,0.5)
+            urect.x = int(urect.x *0.5)
+            urect.y = int(urect.y*0.5)
+            self._rect = urect
+        elif self.sd ==2:
+            urect = scale_rect(self._rect,0.5,0.5)
+            urect.x = int(urect.x *0.5)+1
+            urect.y = int(urect.y*0.5)
+            self._rect = urect
         """All MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN event objects
         created by Pygame should be passed to this method. handleEvent() will
         detect if the event is relevant to this button and change its state.
@@ -132,9 +150,11 @@ class PygButton(object):
         if self.buttonDown:
             retVal.append('down')
         if eventObj.type not in (MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN) or not self._visible:
+            self._rect = bgrect
             # The button only cares bout mouse-related events (or no events, if it is invisible)
             return retVal
         if self.enabled == 0:
+            self._rect = bgrect
             return retVal
 
         
@@ -185,19 +205,43 @@ class PygButton(object):
         if hasExited:
             self.mouseExit(eventObj)
             retVal.append('exit')
-
+        self._rect = bgrect
         return retVal
 
-    def draw(self, surfaceObj):
+    def draw(self, surfaceObj,s=0):
         """Blit the current button's appearance to the surface object."""
         self._update()
-        if self._visible:
-            if self.buttonDown:
-                surfaceObj.blit(self.surfaceDown, self._rect)
-            elif self.mouseOverButton:
-                surfaceObj.blit(self.surfaceHighlight, self._rect)
-            else:
-                surfaceObj.blit(self.surfaceNormal, self._rect)
+        self.sd = s
+        if s==0:
+            if self._visible:
+                if self.buttonDown:
+                    surfaceObj.blit(self.surfaceDown, self._rect)
+                elif self.mouseOverButton:
+                    surfaceObj.blit(self.surfaceHighlight, self._rect)
+                else:
+                    surfaceObj.blit(self.surfaceNormal, self._rect)
+        elif s==1:
+            if self._visible:
+                urect = scale_rect(self._rect,0.5,0.5)
+                urect.x = int(urect.x *0.5)
+                urect.y = int(urect.y*0.5)
+                if self.buttonDown:
+                    surfaceObj.blit(pygame.transform.scale_by(self.surfaceDown,0.5), urect)
+                elif self.mouseOverButton:
+                    surfaceObj.blit(pygame.transform.scale_by(self.surfaceHighlight,0.5), urect)
+                else:
+                    surfaceObj.blit(pygame.transform.scale_by(self.surfaceNormal,0.5), urect)
+        elif s==2:
+            if self._visible:
+                urect = scale_rect(self._rect,0.5,0.5)
+                urect.x = int(urect.x *0.5)+1
+                urect.y = int(urect.y*0.5)
+                if self.buttonDown:
+                    surfaceObj.blit(pygame.transform.scale_by(self.surfaceDown,0.5), urect)
+                elif self.mouseOverButton:
+                    surfaceObj.blit(pygame.transform.scale_by(self.surfaceHighlight,0.5), urect)
+                else:
+                    surfaceObj.blit(pygame.transform.scale_by(self.surfaceNormal,0.5), urect)
 
 
     def _update(self):
@@ -255,6 +299,8 @@ class PygButton(object):
 
         # draw border for highlight button
         self.surfaceHighlight = self.surfaceNormal
+        #self.surfaceDowns = pygame.scale_by(self.surfaceDown,0.5)
+        #self.surfaceDowns = pygame.scale_by(self.surfaceDown,0.5)
 
 
     def mouseClick(self, event):

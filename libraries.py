@@ -1,4 +1,5 @@
 import pygame
+import inspect
 import UIdialogdef
 import viewport
 #import noise
@@ -51,7 +52,7 @@ markp=0
 sound_intr = -1
 selectedt = 0
 xprint = print
-printatall = 0
+printatall = 1
 class ImageSprite(Sprite):
     def __init__(self, image):
         super().__init__()
@@ -424,67 +425,78 @@ def calculate_rect(position):
     rect = (x_p, y_p, 5, 640)
 
     return rect
+framebuffer = "none"
+optmode=1
 def optimized_blit(source, dest, position,frametime,xt=0,xtd=0,rects="none"):
-    global phash,phashx
-#     
-#     if viewportx.__class__.__name__ == 'str':
-#         viewportx = viewport.Viewport(position[0],position[1],source,dest)
-    
-#         viewportx.sc(position[0],position[1])
-    if (frametime%6)==1 or xt==1:
-        source.set_alpha(255)
-        #dest.blit(source,position)
-        phash = position
-        dest.blit(source,position)
-    
-    
-    elif not xt==1:
-        if not str(phash) == str(position):
-            #new_position = ( phash[0]-position[0] , position[1] - phash[1])
-            #visible_width = min(680 - new_position[0], 680)
-            #ufr = 640-(position[0]-phash[0])
-            #sca = position[0] - phash[0]
-            x_p = (640-position[0])
-            x_p2 = (40-position[0])
-            y_p = 0-position[1]
-            change = 0-(position[0] - phash[0])
-            rect = (x_p,y_p,min(change,680-x_p),640)
-            rect2 = (x_p2-40,y_p,200,25)
-            dest.scroll(position[0] - phash[0], position[1] - phash[1])
-            #print("phash:"+str(phash))
-            #print("position:"+str(position))
-            #print(change)
-            #print(x_p)
-            #print
-            if change>0 :
-                #time.sleep(0.1)
-                #print(rect)
-                dest.blit(source.subsurface(rect),(640-min(change,680-x_p),0))
-            dest.blit(source.subsurface(rect2),(0,0))
-            #time.sleep(0.1)
-                
-
+    global phash,phashx,framebuffer,optmode
+    #mode = 1
+    if optmode ==1:
+        #     
+        #     if viewportx.__class__.__name__ == 'str':
+        #         viewportx = viewport.Viewport(position[0],position[1],source,dest)
             
-            phash = position
-            xtract = [640-position[0],680-phash[0]]
-            #print(xtract)
-        #print(phash)
-    #positionx = [int(i) for i in position]
-    #if not phas
-    if  xtd:
-         phashx = position
-         phash = position
-         #phash = position
-         #print(position)
-         dest.blit(source,position)
-    if not rects=="none":
-        dest.blit(source,position)
+        #         viewportx.sc(position[0],position[1])
+            if (frametime%6)==1 or xt==1:
+                source.set_alpha(255)
+                #dest.blit(source,position)
+                phash = position
+                dest.blit(source, position)
+            
+            
+            elif not xt==1:
+                if not str(phash) == str(position):
+                    #new_position = ( phash[0]-position[0] , position[1] - phash[1])
+                    #visible_width = min(680 - new_position[0], 680)
+                    #ufr = 640-(position[0]-phash[0])
+                    #sca = position[0] - phash[0]
+                    x_p = (640-position[0])
+                    x_p2 = (40-position[0])
+                    y_p = 0-position[1]
+                    change = 0-(position[0] - phash[0])
+                    rect = (x_p,y_p,min(change,680-x_p),640)
+                    rect2 = (x_p2-40,y_p,200,25)
+                    dest.scroll(position[0] - phash[0], position[1] - phash[1])
+                    #print("phash:"+str(phash))
+                    #print("position:"+str(position))
+                    #print(change)
+                    #print(x_p)
+                    #print
+                    if change>0 :
+                        #time.sleep(0.1)
+                        #print(rect)
+                        dest.blit(source.subsurface(rect),(640-min(change,680-x_p),0))
+                    dest.blit(source.subsurface(rect2),(0,0))
+                    #time.sleep(0.1)
+    
+        
+
+                    
+                    phash = position
+                    xtract = [640-position[0],680-phash[0]]
+                    #print(xtract)
+                #print(phash)
+            #positionx = [int(i) for i in position]
+            #if not phas
+            if  xtd:
+                 phashx = position
+                 phash = position
+                 #phash = position
+                 #print(position)
+                 dest.blit(source,position)
+            if not rects=="none":
+                dest.blit(source,position)
+    else:
+        if frametime%4==1 or framebuffer =="none" or xtd==1:
+            framebuffer = source.copy()
+            framebuffer = pygame.transform.scale(framebuffer,(340,340))
+        dest.blit(framebuffer,[int(i*0.5) for i in position])
+        #dest.blit(framebuffer,position)
     #viewportx.draw(dest)
 
 
 class render():
     def __init__(self):
-        global X,Y,fcw
+        global X,Y,fcw,optmode
         self.optbuffer = {}
         self.TUPD = 0
         self.tilecache = {}
@@ -502,6 +514,8 @@ class render():
         self.wrfb = pygame.surface.Surface((40,4)).convert()
         self.wrfb2 = pygame.surface.Surface((40,8)).convert()
         self.vbxb = "none"
+        self.displaysize = (X,Y)
+        
         self.pxbuffer ="none"
         self.rfip =1
         self.playerpreimg =  pygame.transform.scale( pygame.image.load("img/player.png"),(40,40))
@@ -512,7 +526,22 @@ class render():
         self.grass_texture_image = "Resources/MISC_ASSETS/Grass_color.png"
         self.grass_normal_map_image = "Resources/MISC_ASSETS/Grass_normal.png"
         self.bggrasstxt = waterFX.apply_normal_map(self.grass_texture_image,self.grass_normal_map_image,45,(0,0))
-    
+    def upddsp(self,x,y):
+        self.optbuffer = {}
+        self.TUPD = 0
+        self.tilecache = {}
+        self.tileentsp = []
+        self.tilebuffer = {} ##this serves as a buffer for
+        self.displaysize = (x,y)
+        self.skytexture = xtexture("img/sky.png").gt()
+        self.skytexture = pygame.transform.scale(self.skytexture,(x, y))
+        self.wateroffsetext = waterFX.generate_texture(pygame.time.get_ticks()/2000,40,40)
+        self.screen  = pygame.display.set_mode((x, y),pygame.HWSURFACE|pygame.SRCALPHA)
+        #print(self.screen)
+        self.screen.blit(self.skytexture,(0,0))
+        self.screen.convert()
+        self.prescreen = pygame.surfarray.array2d(self.screen)
+        #self.vbuffer  = pygame.surface.Surface((y, y),pygame.HWSURFACE|pygame.SRCALPHA).convert_alpha()
     def gets(self,value,t="False"):
         if t == True:
             return int(value) #- (value % 10)
@@ -544,8 +573,9 @@ class render():
         return thash
                 
     def renderwmp(self,camera,xgmap,frametime):
-        global mousepos,message,onweb,selectedt,rlcam,fcw,settings,previouspos
+        global phr,mousepos,message,onweb,selectedt,rlcam,fcw,settings,previouspos
         performance = 0
+        optmode=1-phr
         #print("x")
         if self.rfi == 1 and self.rfip ==0:
             self.screen.convert_alpha()
@@ -799,6 +829,8 @@ class render():
                        
         if len(wvb)>0:
             #wvb = waterFX.apply_ripple_to_blits(wvb,wateroffsetext,3,2)
+                    
+                
             self.vbuffer.blits(wvb)
             self.pxbuffer = "none"
         if len(vb1)>0:
@@ -854,14 +886,26 @@ class render():
         #pygame.surface.
         #self.screen.blit(self.vbuffer,)
         #print(self.prescreen)
-        for i in ptdraw:
-            x = i[0][0]*40 + (self.gets(camera.ctx))
-            y = i[0][1]*40 + (self.gets(camera.cty))
-            ent_list = i[1]
-            for current_ent in ent_list:
-                self.screen = current_ent.draw(x+int(40*(current_ent.pos[0]%1)),y+int(40*(current_ent.pos[1]%1)),self.screen)
-        self.screen.blit(self.playerpreimg,(159*2,159*2))
-        self.screen.blit(self.highlight,blitpos)
+        if optmode==0:
+            xtd=0.5
+            for i in ptdraw:
+                x = i[0][0]*40 + (self.gets(camera.ctx))
+                y = i[0][1]*40 + (self.gets(camera.cty))
+                ent_list = i[1]
+                for current_ent in ent_list:
+                    self.screen = current_ent.draw(int(xtd*(x+int(40*(current_ent.pos[0]%1)))),int(xtd*(y+int(40*(current_ent.pos[1]%1)))),self.screen,dscale=1)
+            self.screen.blit(pygame.transform.scale_by(self.playerpreimg,xtd),(xtd*159*2,xtd*159*2))
+            self.screen.blit(pygame.transform.scale_by(self.highlight,xtd),[int(i*0.5) for i in blitpos])
+        else:
+            xtd=1
+            for i in ptdraw:
+                x = i[0][0]*40 + (self.gets(camera.ctx))
+                y = i[0][1]*40 + (self.gets(camera.cty))
+                ent_list = i[1]
+                for current_ent in ent_list:
+                    self.screen = current_ent.draw(int(xtd*(x+int(40*(current_ent.pos[0]%1)))),int(xtd*(y+int(40*(current_ent.pos[1]%1)))),self.screen,dscale=0)
+            self.screen.blit(self.playerpreimg,(159*2,159*2))
+            self.screen.blit(self.highlight,blitpos)
         #print(mousepos)
         return blitpos
 
@@ -981,9 +1025,18 @@ itimeout = 0
 cplayer.speed = 1
 cmap.add_entity(cmap.entities[2],(217+8,20+8))
 start =1
+halfres=0
+phr = 0
+def ptextb(message,coords,**kwargs):
+    global halfres
+    if not halfres:
+       ptext.draw( str(message), coords,**kwargs)
+    else:
+       ptext.draw( str(message), [int(i*0.5) for i in coords],**kwargs)
 def main():
-    global muted,itimeout,gfps,start,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
+    global muted,phr,itimeout,halfres,gfps,start,optmode,rlcam,clock,cplayer, ccmd,markp, pos1,pos2, selectedt, endtime, isinvo,mycam,drawsys,frametime,cmap,ACTIVEAREA,AREAS,transition, mousepos,pactare,ActionQueue,dlgtree,message
     start_time = time.time()
+    
     cmap.playerpos = [pos +8 for pos in cplayer.pos]
     #path = cmap.path((217+8,20+8),)
     #print(path)
@@ -1028,8 +1081,8 @@ def main():
                 dt = clock.tick(600)
                 start_time = time.time()
                 blitpos = drawsys.renderwmp(mycam,cmap,frametime)
-                ptext.draw( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
-                ptext.draw( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str(getfps((1000/dt))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+                ptextb( str(message), (blitpos[0],blitpos[1]+20), shadow=(1.0,1.0), scolor="blue",fontsize=16)
+                ptextb( "" +str(cplayer.pos[0]) +","+ str(cplayer.pos[1]) + " fps:" + str(getfps((1000/dt))), (10, 0), shadow=(1.0,1.0), scolor="blue",fontsize=16)
     
         elif ACTIVEAREA == "ARENA":
             drawsys.renderarena()
@@ -1127,6 +1180,13 @@ def main():
                 elif event.key == pygame.K_d:
                     keyeventlist[1] = 1
                     mousepos = [1,0]
+                if event.key == pygame.K_l:
+                    if optmode == 0:
+                        optmode = 1
+                        halfres = 0
+                    else:
+                        optmode = 0
+                        halfres=1
                 elif event.key == pygame.K_PAGEDOWN:
                     selectedt += 1
                     selectedt = selectedt % len(cmap.tiles)
@@ -1199,6 +1259,9 @@ def main():
    # try:
     if 0==0:
          if  dlgtree.cnpcdial.active:
+             if halfres == 1 and not phr==0 :
+                 drawsys.upddsp(840,640)
+                 phr=0
              if not hasattr(dlgtree.cnpcdial,'runUI'):
                  if not dlgtree.cnpcdial.__class__.__name__ == "ddialog":
                         dlgtree.cnpcdial = dlgtree.rnbcdialog(dlgtree.cnpcdial)
@@ -1234,24 +1297,43 @@ def main():
         
     if not (isinvo or  dlgtree.cnpcdial.active)  :
         #print()
-        pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
+        
         teal = 0.8
         tealx = 0.7
-        pygame.draw.rect(drawsys.screen, (int(245*teal),int(235*teal),int(250*teal)), pygame.Rect(scale(322, 2, 418, 98)))
-        pygame.draw.rect(drawsys.screen, (int(25*tealx),int(235*tealx),int(29*tealx)), pygame.Rect(scale(322 + (cplayer.pos[0]*0.2), 2+(cplayer.pos[1]*0.2), 2, 2)))
+        if halfres == 0:
+          pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect(scale(320, 0, 420, 320)))
+          pygame.draw.rect(drawsys.screen, (int(245*teal),int(235*teal),int(250*teal)), pygame.Rect(scale(322, 2, 418, 98)))
+          pygame.draw.rect(drawsys.screen, (int(25*tealx),int(235*tealx),int(29*tealx)), pygame.Rect(scale(322 + (cplayer.pos[0]*0.2), 2+(cplayer.pos[1]*0.2), 2, 2)))
+        else:
+            pygame.draw.rect(drawsys.screen, (245,235,250), pygame.Rect((320, 0, 210, 320)))
+            pygame.draw.rect(drawsys.screen, (int(245*teal),int(235*teal),int(250*teal)), pygame.Rect((322, 2, 98, 98)))
+            pygame.draw.rect(drawsys.screen, (int(25*tealx),int(235*tealx),int(29*tealx)), pygame.Rect((322 + (cplayer.pos[0]*0.2), 2+(cplayer.pos[1]*0.2), 2, 2)))
         if ACTIVEAREA == "WMP":
-            invbtn.draw(drawsys.screen)
-            intbtn.draw(drawsys.screen)
-            svbtn.draw(drawsys.screen)
-            lvbtn.draw(drawsys.screen)
-            dbbtn.draw(drawsys.screen)
-            settingsbtn.draw(drawsys.screen)
+            if halfres == 1:
+                if phr == 0:
+                    drawsys.upddsp(420,320)
+                    phr=1
+                invbtn.draw(drawsys.screen,2)
+                intbtn.draw(drawsys.screen,2)
+                svbtn.draw(drawsys.screen,2)
+                lvbtn.draw(drawsys.screen,2)
+                dbbtn.draw(drawsys.screen,2)
+            else:
+                if phr == 1:
+                    drawsys.upddsp(840,640)
+                    phr=0
+                invbtn.draw(drawsys.screen,0)
+                intbtn.draw(drawsys.screen,0)
+                svbtn.draw(drawsys.screen,0)
+                lvbtn.draw(drawsys.screen,0)
+                dbbtn.draw(drawsys.screen,0)
+            settingsbtn.draw(drawsys.screen,halfres*2)
             if settings[0] == 1:
-                rightbtn.draw(drawsys.screen)
-                leftbtn.draw(drawsys.screen)
-                upbtn.draw(drawsys.screen)
-                downbtn.draw(drawsys.screen)
-                intxbtn.draw(drawsys.screen)
+                rightbtn.draw(drawsys.screen,halfres)
+                leftbtn.draw(drawsys.screen,halfres)
+                upbtn.draw(drawsys.screen,halfres)
+                downbtn.draw(drawsys.screen,halfres)
+                intxbtn.draw(drawsys.screen,halfres)
             if onweb == 0:
                 drawsys.screen.blit(cmap.tiles[selectedt].gt().gt(),(650,200))
             ####other world related GUI is to be drawn here###
@@ -1264,11 +1346,18 @@ def main():
     #gfps = 0
     #print(gfps)
     #time.sleep(0.1)
-    if start==10:
-       if gfps  <30   :
+
+    if start<14:
+        
+       if gfps  <30 and start==10  :
          drawsys.rfi = 0
-    else:
-         start = start+1
+         optmode = 0
+         halfres=1
+         muted=1
+       start = start+1
+         
+    #else:
+         #start = start+1
     #pygame.time.wait(10)
     
     #time.sleep(1/43)

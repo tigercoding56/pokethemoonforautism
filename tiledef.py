@@ -45,8 +45,10 @@ class ptexture(): # a texture pointer class
             preimg = pygame.image.load(str(location)).convert_alpha()
             if rescale:
                 tile_textures[str(location)] = pygame.transform.scale(preimg, (40,40))
+                
             else:
                 tile_textures[str(location)] = preimg
+            tile_textures[str(location)+"0.5x"] = pygame.transform.scale_by(preimg,0.5)
             del(preimg)
         self.location = str(location)
     def gt(self):
@@ -59,6 +61,7 @@ class fptexture(): # a texture pointer class
         if not str(imgstr) in tile_textures:
             #print("intitialising_ptexture")
                 tile_textures[str(imgstr)] = image
+                tile_textures[str(imgstr)+"0.5x"] = pygame.transform.scale_by(image,0.5)
 
         self.location = str(imgstr)
     def gt(self):
@@ -121,7 +124,7 @@ class entity():
         self.frametime = 0
         self.swm =0 #save  with map
         self.texture = ptexture('img/footstep.png')
-    def draw(self,x,y,screen):
+    def draw(self,x,y,screen,dscale=0):
         global quests
         if "bgtrailcolor" in quests:
             color = list(color_name_to_rgb(quests["bgtrailcolor"],self.frametime))
@@ -133,7 +136,10 @@ class entity():
         self.frametime = self.frametime % 100
         try:
             #screen.blit(pygame.transform.scale(self.texture.gt(),(self.dt,self.dt)),(int(x-(self.dt*0.5)),int(y-int(self.dt*0.5))))
-            screen = draw_circle(screen, color, (x, y), int(self.dt*0.5))
+            if dscale==0:
+                screen = draw_circle(screen, color, (x, y), int(self.dt*0.5))
+            else:
+                screen = draw_circle(screen, color, (x, y), int(self.dt*0.25))
         except:
             self.delme = 1
         return screen
@@ -152,9 +158,13 @@ class shadowentframeent():
         self.frametime = 2
         self.swm =0 #save  with map
         self.texture = ptexture('img/footstep.png')
-    def draw(self,x,y,screen):
+    def draw(self,x,y,screen,dscale=0):
         #print((x,y))
-        screen.blit(self.texture.gt(),(int(x),int(y)))
+        if dscale==0:
+            sc=1
+        else:
+            sc=0.5
+        screen.blit(pygame.transform.scale_by(self.texture.gt(),sc),(int(x),int(y)))
         #self.delme = 1
         #self.delme=1
             #screen = draw_circle(screen, color, (x, y), int(self.dt*0.5))
@@ -241,8 +251,12 @@ class entit2y():
         self.swm =0 #save  with map
         self.texture = ptexture('img/followcat.png',rescale=0)
         self.path = []
-    def draw(self,x,y,screen):
+    def draw(self,x,y,screen,dscale=0):
         texture =  self.texture.gt()
+        if dscale == 0:
+            xtd=1
+        else:
+            xtd=0.5
         if self.previouspos.__class__.__name__ == 'int' or self.nextpos.__class__.__name__ == 'int':
             return screen
         self.dt = 40
@@ -252,7 +266,7 @@ class entit2y():
         else:
             texture = extract_sprite_from_32x_cat_spritesheet(texture,determine_direction(self.previouspos,self.nextpos),int(self.progress )% 4)
         try:
-            screen.blit(pygame.transform.scale(texture,(self.dt,self.dt)),(int((x+20)-(self.dt*0.5)),int((y+20)-int(self.dt*0.5))))
+            screen.blit(pygame.transform.scale(texture,(int(self.dt*xtd),int(self.dt*xtd))),(int((x+20)-(self.dt*0.5)),int((y+20)-int(self.dt*0.5))))
         except Exception as iex:
             self.delme = 1
             print(iex)
@@ -383,8 +397,12 @@ class RandomWalkEntity:
         else:
             return 1 if x >= self.pos[0] else 0
 
-    def draw(self, x, y, screen):
+    def draw(self, x, y, screen,dscale=0):
        # try:
+        if dscale == 0:
+            self.dt=20
+        else:
+            self.dt=10
         screen.blit(pygame.transform.scale(self.texture.gt(), (self.dt, self.dt)), (int(x - (self.dt * 0.5)), int(y - int(self.dt * 0.5))))
         #except:
            # self.delme = 1
